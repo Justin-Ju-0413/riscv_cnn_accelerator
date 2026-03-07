@@ -1,0 +1,23 @@
+# 仿真生成文件
+hw/sim/*.vcd
+hw/sim/*.out
+hw/sim/*.vvp
+
+# 软件编译产物
+sw/build/
+*.o
+*.elf
+*.bin
+
+# Vivado 综合/实现生成文件
+fpga/work/
+*.jou
+*.log
+*.pb
+*.wdb
+*.dir/
+.Xil/
+
+# Python 缓存
+__pycache__/
+*.pyc
