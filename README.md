@@ -1,12 +1,24 @@
-# Lightweight CNN Accelerator Based on RISC-V Custom Instructions
-基于 RISC-V (Hummingbird E203) 自定义指令的轻量级 CNN 加速器软硬协同设计。
+# Lightweight CNN Accelerator for RISC-V (Hummingbird E203)
 
-## 目录结构说明
-* `algo/`: 算法模型与 INT8 量化脚本 (Python & C)
-* `hw/`: 硬件设计 (Verilog RTL) 与 Testbench 测试激励
-* `sw/`: RISC-V C语言固件与内联汇编自定义指令
-* `fpga/`: Vivado 工程、管脚约束与上板脚本
-* `doc/`: 项目相关文档与汇报 PPT
+## Project Overview
+This project focuses on the hardware/software co-design of a lightweight CNN accelerator integrated with the **Hummingbird E203 RISC-V core** via the **NICE (Nuclei Instruction Co-Unit Extension)** interface.
 
-## 快速仿真指南
-进入 `hw/sim/` 目录，执行 `make` 即可一键编译并查看波形。
+### Key Features
+- **Host Core**: Hummingbird E203 (RISC-V 32IMAC).
+- **Interface**: NICE Protocol (Valid/Ready Handshake).
+- **Data Precision**: INT8 for weights/activations, INT32 for accumulation.
+- **Architecture**: 4x4 Processing Element (PE) Array with Output Stationary (OS) dataflow.
+
+## Quick Start
+To initialize the environment and run the hardware simulation:
+\`\`\`bash
+chmod +x Project_Manager.sh
+./Project_Manager.sh setup
+./Project_Manager.sh run_hw
+\`\`\`
+
+## Design Milestones
+- [x] Week 1: INT8 Software Golden Model (Python/C).
+- [x] Week 2: RTL Design of PE and 4x4 Array.
+- [x] Week 3: NICE Controller FSM and Instruction Decoding.
+- [x] Week 4: Interface-level Verification (Mock CPU).
