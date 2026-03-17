@@ -11,11 +11,26 @@ This project focuses on the hardware/software co-design of a lightweight CNN acc
 
 ## Quick Start
 To initialize the environment and run the hardware simulation:
-\`\`\`bash
+```bash
 chmod +x Project_Manager.sh
-./Project_Manager.sh setup
 ./Project_Manager.sh run_hw
-\`\`\`
+```
+
+To regenerate the C-model reference vectors:
+```bash
+./Project_Manager.sh gen_model
+```
+
+To run the SDK-installation precheck:
+```bash
+./Project_Manager.sh precheck
+```
+
+See [PRE_SDK_CHECKLIST.md](/home/gstar/riscv_cnn_accelerator/PRE_SDK_CHECKLIST.md) for the ordered preparation list before installing Nuclei SDK.
+See [sw/sdk_project/README.md](/home/gstar/riscv_cnn_accelerator/sw/sdk_project/README.md) for the SDK project skeleton that is ready to be wired up after installation.
+Use [INTEGRATION_DECISIONS.md](/home/gstar/riscv_cnn_accelerator/INTEGRATION_DECISIONS.md) to freeze integration choices before touching the real E203 codebase.
+Use [POST_SDK_PLAYBOOK.md](/home/gstar/riscv_cnn_accelerator/POST_SDK_PLAYBOOK.md) after the SDK is installed.
+See [SDK_INSTALL.md](/home/gstar/riscv_cnn_accelerator/SDK_INSTALL.md) for the current local SDK installation status.
 
 ## Design Milestones
 - [x] Week 1: INT8 Software Golden Model (Python/C).

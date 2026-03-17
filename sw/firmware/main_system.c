@@ -8,26 +8,41 @@
 int main() {
     printf("--- RISC-V HW/SW Co-Design Test ---\n");
 
-    // Test Data: 4 weights packed into a 32-bit word (all set to 10)
-    uint32_t test_weights = 0x0A0A0A0A; 
+    // Four 32-bit payloads populate all 16 weights and activations in the PE array.
+    uint32_t test_weights = 0x0A0A0A0A;
+    uint32_t test_data = 0x02020202;
     int32_t result = 0;
 
-    // Step 1: Software sends weights to the hardware accelerator
-    printf("[SW] Executing ACC_WLOAD...\n");
-    ACC_WLOAD(test_weights, 0);
+    // Step 1: Start from a known accumulator state.
+    printf("[SW] Executing ACC_CLEAR...\n");
+    ACC_CLEAR();
 
-    // Step 2: Software triggers the hardware calculation
+    // Step 2: Load 16 weights.
+    printf("[SW] Executing ACC_WLOAD x4...\n");
+    ACC_WLOAD(test_weights, 0);
+    ACC_WLOAD(test_weights, 1);
+    ACC_WLOAD(test_weights, 2);
+    ACC_WLOAD(test_weights, 3);
+
+    // Step 3: Load 16 activations.
+    printf("[SW] Executing ACC_DLOAD x4...\n");
+    ACC_DLOAD(test_data, 0);
+    ACC_DLOAD(test_data, 1);
+    ACC_DLOAD(test_data, 2);
+    ACC_DLOAD(test_data, 3);
+
+    // Step 4: Trigger the hardware calculation.
     printf("[SW] Executing ACC_COMP...\n");
     ACC_COMP();
 
-    // Step 3: Software retrieves the result from the accelerator
+    // Step 5: Retrieve the result from the accelerator.
     printf("[SW] Executing ACC_RSTAT...\n");
     ACC_RSTAT(result);
 
-    // Step 4: Verification
+    // Step 6: Verification.
     printf("[SW] Final Result from Accelerator: %d\n", result);
-    
-    if (result == 80) { // 10 (weight) * 2 (fixed input in RTL) * 4 (PEs) = 80
+
+    if (result == 320) {
         printf(">>> SYSTEM TEST PASSED! <<<\n");
     } else {
         printf(">>> SYSTEM TEST FAILED! <<<\n");

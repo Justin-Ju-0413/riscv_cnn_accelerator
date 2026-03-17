@@ -1,13 +1,149 @@
 `timescale 1ns/1ps
 module tb_cpu_mock();
-    reg clk=0, rst_n=0, req_v=0; reg[31:0] inst, rs1, rs2; wire req_r, rsp_v; wire[31:0] rdat;
-    nice_controller dut(clk, rst_n, req_v, req_r, inst, rs1, rs2, rsp_v, rdat);
+    reg clk=0, rst_n=0, req_v=0, rsp_r=0;
+    reg [31:0] inst, rs1, rs2;
+    wire req_r, rsp_v;
+    wire [31:0] rdat;
+    wire rsp_err;
+    wire mem_holdup;
+    wire icb_cmd_valid;
+    wire icb_rsp_ready;
+    wire [31:0] icb_cmd_addr;
+    wire [31:0] icb_cmd_wdata;
+    wire [3:0] icb_cmd_wmask;
+    wire icb_cmd_read;
+    wire [1:0] icb_cmd_size;
+
+    localparam [31:0] INST_WLOAD = 32'h0000000B;
+    localparam [31:0] INST_DLOAD = 32'h0000100B;
+    localparam [31:0] INST_COMP  = 32'h0000200B;
+    localparam [31:0] INST_RSTAT = 32'h0000300B;
+    localparam [31:0] INST_CLEAR = 32'h0000400B;
+    localparam [31:0] INST_BAD_F3 = 32'h0000700B;
+    localparam [31:0] INST_BAD_OP = 32'h00003013;
+
+    e203_nice_harness dut(
+        .clk(clk),
+        .rst_n(rst_n),
+        .e203_nice_req_valid(req_v),
+        .e203_nice_req_ready(req_r),
+        .e203_nice_req_instr(inst),
+        .e203_nice_req_rs1(rs1),
+        .e203_nice_req_rs2(rs2),
+        .e203_nice_rsp_valid(rsp_v),
+        .e203_nice_rsp_ready(rsp_r),
+        .e203_nice_rsp_rdat(rdat),
+        .e203_nice_rsp_err(rsp_err),
+        .e203_nice_mem_holdup(mem_holdup),
+        .e203_nice_icb_cmd_valid(icb_cmd_valid),
+        .e203_nice_icb_cmd_addr(icb_cmd_addr),
+        .e203_nice_icb_cmd_read(icb_cmd_read),
+        .e203_nice_icb_cmd_size(icb_cmd_size),
+        .e203_nice_icb_cmd_wdata(icb_cmd_wdata),
+        .e203_nice_icb_cmd_wmask(icb_cmd_wmask),
+        .e203_nice_icb_rsp_ready(icb_rsp_ready)
+    );
+
     always #5 clk = ~clk;
+
+    task issue_req;
+        input [31:0] inst_i;
+        input [31:0] rs1_i;
+        input [31:0] rs2_i;
+        begin
+            @(negedge clk);
+            inst = inst_i;
+            rs1 = rs1_i;
+            rs2 = rs2_i;
+            req_v = 1'b1;
+            while(!req_r) @(negedge clk);
+            @(negedge clk);
+            req_v = 1'b0;
+        end
+    endtask
+
+    task read_rsp;
+        input [31:0] expected;
+        input expected_err;
+        input integer stall_cycles;
+        integer cycle_idx;
+        begin
+            rsp_r = 1'b0;
+            while(!rsp_v) @(negedge clk);
+            if(req_r !== 1'b0) begin
+                $display(">>> TB FAILED: req_ready should be low while response is pending");
+                $finish_and_return(1);
+            end
+            if(rdat !== expected) begin
+                $display(">>> TB FAILED: expected %0d got %0d", expected, rdat);
+                $finish_and_return(1);
+            end
+            if(rsp_err !== expected_err) begin
+                $display(">>> TB FAILED: expected rsp_err=%0d got %0d", expected_err, rsp_err);
+                $finish_and_return(1);
+            end
+            for(cycle_idx=0; cycle_idx<stall_cycles; cycle_idx=cycle_idx+1) begin
+                @(negedge clk);
+                if(!rsp_v) begin
+                    $display(">>> TB FAILED: rsp_valid dropped before rsp_ready");
+                    $finish_and_return(1);
+                end
+            end
+            @(negedge clk);
+            rsp_r = 1'b1;
+            @(negedge clk);
+            rsp_r = 1'b0;
+        end
+    endtask
+
     initial begin
-        $dumpfile("demo.vcd"); $dumpvars(0, tb_cpu_mock); #15 rst_n=1;
-        req_v=1; inst=32'h0000000B; rs1=32'h0A0A0A0A; rs2=0; wait(req_r); #10; req_v=0; #10;
-        req_v=1; inst=32'h0000200B; wait(req_r); #10; req_v=0; #10;
-        req_v=1; inst=32'h0000300B; wait(req_r); #10; req_v=0; #10;
-        $display(">>> HW RESULT: %d", rdat); $finish;
+        $dumpfile("demo.vcd");
+        $dumpvars(0, tb_cpu_mock);
+        inst = 32'b0;
+        rs1 = 32'b0;
+        rs2 = 32'b0;
+        #15 rst_n=1;
+
+        issue_req(INST_CLEAR, 32'b0, 32'b0);
+        issue_req(INST_WLOAD, 32'h0A0A0A0A, 32'd0);
+        issue_req(INST_WLOAD, 32'h0A0A0A0A, 32'd1);
+        issue_req(INST_WLOAD, 32'h0A0A0A0A, 32'd2);
+        issue_req(INST_WLOAD, 32'h0A0A0A0A, 32'd3);
+        issue_req(INST_DLOAD, 32'h02020202, 32'd0);
+        issue_req(INST_DLOAD, 32'h02020202, 32'd1);
+        issue_req(INST_DLOAD, 32'h02020202, 32'd2);
+        issue_req(INST_DLOAD, 32'h02020202, 32'd3);
+        issue_req(INST_COMP, 32'b0, 32'b0);
+        issue_req(INST_RSTAT, 32'b0, 32'b0);
+        read_rsp(32'd320, 1'b0, 2);
+        if(rsp_err !== 1'b0 || mem_holdup !== 1'b0 || icb_cmd_valid !== 1'b0) begin
+            $display(">>> TB FAILED: unexpected NICE sideband activity");
+            $finish_and_return(1);
+        end
+        $display(">>> HW RESULT #1: %d", rdat);
+
+        issue_req(INST_CLEAR, 32'b0, 32'b0);
+        issue_req(INST_WLOAD, 32'h01020304, 32'd0);
+        issue_req(INST_WLOAD, 32'h05060708, 32'd1);
+        issue_req(INST_WLOAD, 32'h090A0B0C, 32'd2);
+        issue_req(INST_WLOAD, 32'h0D0E0F10, 32'd3);
+        issue_req(INST_DLOAD, 32'h01010101, 32'd0);
+        issue_req(INST_DLOAD, 32'h01010101, 32'd1);
+        issue_req(INST_DLOAD, 32'h01010101, 32'd2);
+        issue_req(INST_DLOAD, 32'h01010101, 32'd3);
+        issue_req(INST_COMP, 32'b0, 32'b0);
+        issue_req(INST_RSTAT, 32'b0, 32'b0);
+        read_rsp(32'd136, 1'b0, 1);
+        $display(">>> HW RESULT #2: %d", rdat);
+
+        issue_req(INST_BAD_F3, 32'b0, 32'b0);
+        read_rsp(32'd0, 1'b1, 1);
+        $display(">>> HW RESULT #3: illegal funct3 flagged");
+
+        issue_req(INST_BAD_OP, 32'b0, 32'b0);
+        read_rsp(32'd0, 1'b1, 1);
+        $display(">>> HW RESULT #4: illegal opcode flagged");
+
+        $finish;
     end
 endmodule
