@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+usage() {
+    cat <<'EOF'
+Usage:
+  ./Project_Manager.sh setup
+  ./Project_Manager.sh run_hw
+  ./Project_Manager.sh gen_model
+  ./Project_Manager.sh precheck
+  ./Project_Manager.sh status
+  ./Project_Manager.sh install_sdk_app
+EOF
+}
+
+cmd="${1:-}"
+
+case "$cmd" in
+    setup)
+        echo ">>> No additional setup steps are required for the current repo."
+        echo ">>> Ensure iverilog, vvp, gtkwave, and python3 are installed if you use all flows."
+        ;;
+    run_hw)
+        make -C "$ROOT_DIR/hw/sim" clean
+        make -C "$ROOT_DIR/hw/sim" run
+        ;;
+    gen_model)
+        python3 "$ROOT_DIR/algo/python/generate_model.py"
+        ;;
+    precheck)
+        "$ROOT_DIR/fpga/scripts/pre_sdk_check.sh"
+        ;;
+    status)
+        echo "== Preparation Status =="
+        echo "Hardware integration notes: $ROOT_DIR/INTEGRATION.md"
+        echo "Decision matrix: $ROOT_DIR/INTEGRATION_DECISIONS.md"
+        echo "Pre-SDK checklist: $ROOT_DIR/PRE_SDK_CHECKLIST.md"
+        echo "Post-SDK playbook: $ROOT_DIR/POST_SDK_PLAYBOOK.md"
+        ;;
+    install_sdk_app)
+        "$ROOT_DIR/sw/build/install_sdk_app.sh"
+        ;;
+    *)
+        usage
+        exit 1
+        ;;
+esac

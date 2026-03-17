@@ -1,0 +1,18 @@
+# Usage after SDK installation:
+#   1. Copy sw/build/sdk_env.sh.template to sw/build/sdk_env.sh and update paths.
+#   2. Source sw/build/sdk_env.sh in your shell.
+#   3. Adjust SDK_MAKEFILE below to the exact path in your installed Nuclei SDK.
+
+PROJECT_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+SDK_ENV ?= $(PROJECT_ROOT)/../build/sdk_env.sh
+SDK_MAKEFILE ?= $(NUCLEI_SDK_ROOT)/NMSIS/Makefile
+
+ifndef NUCLEI_SDK_ROOT
+$(error NUCLEI_SDK_ROOT is not set. Source sw/build/sdk_env.sh first)
+endif
+
+include $(PROJECT_ROOT)/config/project.mk
+
+APP_SRCDIRS += $(PROJECT_ROOT)/application
+
+include $(SDK_MAKEFILE)
