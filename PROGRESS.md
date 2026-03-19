@@ -42,19 +42,23 @@
 | 2026-03-20 | Confirmed illegal NICE handling should stay conservative for bring-up: unsupported opcode/funct3 continues to return `nice_rsp_err=1`. | ✅ Done |
 | 2026-03-20 | Built a local official-E203 proof workspace under `/home/gstar/Desktop/e203_hbirdv2`, swapped in the minimal CNN NICE co-unit, added a tiny NICE instruction overlay program, and added early-stop/monitor hooks in `tb_top.v`. | ✅ Local only |
 | 2026-03-20 | Found two environment blockers for official full-SoC iverilog verification: `$readmemh` fails on non-ASCII testcase paths, and the official `vsim/install` tree must be cleaned before every rebuild to avoid duplicate-module compile errors. | ✅ Identified |
-| 2026-03-20 | Official full-SoC iverilog bring-up is not yet closed: the three target observations (`NICE_REQ`, `req_ready` low during processing, `RSTAT=320`) have not been observed within the current local time window. | ⚠️ In Progress |
+| 2026-03-20 | Upgraded local `iverilog` to official-required `12.0` and confirmed the official full-SoC `vvp.exec` path now advances into the injected NICE patch window. | ✅ Done |
+| 2026-03-20 | Added a lightweight official NICE smoke test and wrapper scripts; confirmed official request path, busy-time `req_ready` low, and `RSTAT=320` all pass in the reduced official chain. | ✅ Done |
+| 2026-03-20 | Narrowed the remaining full-SoC blocker to E203/NICE source-operand visibility: `WLOAD` sees stale `nice_req_rs2=0` even when the probed source register has updated, while `DLOAD` in the same run sees `0/1/2/3`. | ⚠️ In Progress |
 
 ## Current Status
 
-- `./Project_Manager.sh gen_model` passes
-- `./Project_Manager.sh run_hw` passes
-- `./Project_Manager.sh precheck` passes
-- `cnn_nice_core.v` behavior is now constrained for bring-up
-- Testbench now auto-checks pass/fail instead of relying only on waveform inspection
-- Firmware now has a software reference dot-product function for future board debug
+- Main project checks pass:
+  - `./Project_Manager.sh gen_model`
+  - `./Project_Manager.sh run_hw`
+  - `./Project_Manager.sh precheck`
+- Current detailed Phase 1 status:
+  - see [CURRENT_STATE.md](/home/gstar/Desktop/riscv_cnn_accelerator/CURRENT_STATE.md)
 
 ## Next Recommended Steps
 
-- Install the Nuclei RISC-V toolchain so the SDK application can actually build
-- Use `sw_reference_dot()` as the golden baseline for every new hardware test vector
 - Keep appending new entries to this file with `Date / Item / Result`
+- Keep detailed execution state in
+  [CURRENT_STATE.md](/home/gstar/Desktop/riscv_cnn_accelerator/CURRENT_STATE.md)
+- Keep long-range planning in
+  [INTEGRATION_ROADMAP.md](/home/gstar/Desktop/riscv_cnn_accelerator/INTEGRATION_ROADMAP.md)
