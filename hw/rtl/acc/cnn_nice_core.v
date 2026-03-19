@@ -46,6 +46,8 @@ module cnn_nice_core(
     reg [3:0] d_loaded_mask;
     reg [31:0] rsp_rdat_q;
     reg [31:0] result_sum_q;
+    reg [31:0] load_data_q;
+    reg [1:0] load_vec_sel_q;
     reg rsp_err_q;
     wire [2:0] funct3;
     wire is_nice_opcode;
@@ -77,9 +79,9 @@ module cnn_nice_core(
         .en(en_pe),
         .w_load(w_load),
         .d_load(d_load),
-        .vec_sel(nice_req_rs2[1:0]),
-        .w_in(nice_req_rs1),
-        .d_in_packed(nice_req_rs1),
+        .vec_sel(load_vec_sel_q),
+        .w_in(load_data_q),
+        .d_in_packed(load_data_q),
         .out_sum(result_sum)
     );
 
@@ -97,6 +99,8 @@ module cnn_nice_core(
             d_loaded_mask <= 4'b0;
             rsp_rdat_q <= 32'b0;
             result_sum_q <= 32'b0;
+            load_data_q <= 32'b0;
+            load_vec_sel_q <= 2'b0;
             rsp_err_q <= 1'b0;
         end else begin
             acc_clr <= 1'b0;
@@ -131,10 +135,14 @@ module cnn_nice_core(
                 end else begin
                     case(funct3)
                         F3_WLOAD: begin
+                            load_data_q <= nice_req_rs1;
+                            load_vec_sel_q <= nice_req_rs2[1:0];
                             w_load <= 1'b1;
                             w_loaded_mask[nice_req_rs2[1:0]] <= 1'b1;
                         end
                         F3_DLOAD: begin
+                            load_data_q <= nice_req_rs1;
+                            load_vec_sel_q <= nice_req_rs2[1:0];
                             d_load <= 1'b1;
                             d_loaded_mask[nice_req_rs2[1:0]] <= 1'b1;
                         end
