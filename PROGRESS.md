@@ -34,6 +34,15 @@
 | 2026-03-19 | Updated `cnn_nice_core.v` with `busy`, `result_valid`, load masks, gated `COMP`, gated `RSTAT`, and invalid `rs2` index checking. | ✅ Done |
 | 2026-03-19 | Expanded `tb_cpu_mock.v` with auto-checked cases: normal path, negative values, boundary values, invalid index, partial load before `COMP`, and `RSTAT` before `COMP`. | ✅ Done |
 | 2026-03-19 | Added `sw_reference_dot()` software reference path in firmware for future HW/SW comparison. | ✅ Done |
+| 2026-03-20 | Cleaned repository readability issues: README links made relative, invalid tool archives removed, and `Project_Manager.sh status` output changed to relative paths. | ✅ Done |
+| 2026-03-20 | Pushed current bring-up branch to GitHub as `origin/bringup_v1`. | ✅ Done |
+| 2026-03-20 | Froze the external SoC baseline to official `riscv-mcu/e203_hbirdv2` and cloned a local inspection copy at `/home/gstar/Desktop/e203_hbirdv2`. | ✅ Done |
+| 2026-03-20 | Located the real NICE integration layers in official code: `rtl/e203/core/e203_cpu.v` and `rtl/e203/subsys/e203_subsys_nice_core.v`. | ✅ Done |
+| 2026-03-20 | Confirmed the first SoC bring-up strategy stays on request/response only, with `nice_mem_holdup=0`, `nice_icb_cmd_valid=0`, and `nice_icb_rsp_ready=1` as the initial stub policy. | ✅ Done |
+| 2026-03-20 | Confirmed illegal NICE handling should stay conservative for bring-up: unsupported opcode/funct3 continues to return `nice_rsp_err=1`. | ✅ Done |
+| 2026-03-20 | Built a local official-E203 proof workspace under `/home/gstar/Desktop/e203_hbirdv2`, swapped in the minimal CNN NICE co-unit, added a tiny NICE instruction overlay program, and added early-stop/monitor hooks in `tb_top.v`. | ✅ Local only |
+| 2026-03-20 | Found two environment blockers for official full-SoC iverilog verification: `$readmemh` fails on non-ASCII testcase paths, and the official `vsim/install` tree must be cleaned before every rebuild to avoid duplicate-module compile errors. | ✅ Identified |
+| 2026-03-20 | Official full-SoC iverilog bring-up is not yet closed: the three target observations (`NICE_REQ`, `req_ready` low during processing, `RSTAT=320`) have not been observed within the current local time window. | ⚠️ In Progress |
 
 ## Current Status
 
