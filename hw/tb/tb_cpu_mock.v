@@ -96,6 +96,100 @@ module tb_cpu_mock();
         end
     endtask
 
+    task expect_rsp_case;
+        input [8*40-1:0] case_name;
+        input [31:0] expected_data;
+        input expected_err;
+        input integer stall_cycles;
+        reg [31:0] got_data;
+        reg got_err;
+        reg pass;
+        begin
+            rsp_r = 1'b0;
+            while(!rsp_v) @(negedge clk);
+            got_data = rdat;
+            got_err = rsp_err;
+            if(req_r !== 1'b0) begin
+                $display(">>> TB FAILED: req_ready should be low while response is pending");
+                $finish_and_return(1);
+            end
+            if(got_data !== expected_data) begin
+                $display(">>> TB FAILED: expected %0d got %0d", expected_data, got_data);
+                $finish_and_return(1);
+            end
+            if(got_err !== expected_err) begin
+                $display(">>> TB FAILED: expected rsp_err=%0d got %0d", expected_err, got_err);
+                $finish_and_return(1);
+            end
+            repeat(stall_cycles) begin
+                @(negedge clk);
+                if(!rsp_v) begin
+                    $display(">>> TB FAILED: rsp_valid dropped before rsp_ready");
+                    $finish_and_return(1);
+                end
+            end
+            @(negedge clk);
+            rsp_r = 1'b1;
+            @(negedge clk);
+            rsp_r = 1'b0;
+            pass = (got_data === expected_data) && (got_err === expected_err);
+            $display("[%0s] expected=%0d err=%0d got=%0d err=%0d => %0s",
+                     case_name, expected_data, expected_err, got_data, got_err,
+                     pass ? "PASS" : "FAIL");
+            if(!pass) begin
+                $finish_and_return(1);
+            end
+        end
+    endtask
+
+    task do_clear;
+        begin
+            issue_req(INST_CLEAR, 32'b0, 32'b0);
+        end
+    endtask
+
+    task load_uniform_vectors;
+        input [31:0] w_word;
+        input [31:0] d_word;
+        begin
+            issue_req(INST_WLOAD, w_word, 32'd0);
+            issue_req(INST_WLOAD, w_word, 32'd1);
+            issue_req(INST_WLOAD, w_word, 32'd2);
+            issue_req(INST_WLOAD, w_word, 32'd3);
+            issue_req(INST_DLOAD, d_word, 32'd0);
+            issue_req(INST_DLOAD, d_word, 32'd1);
+            issue_req(INST_DLOAD, d_word, 32'd2);
+            issue_req(INST_DLOAD, d_word, 32'd3);
+        end
+    endtask
+
+    task run_compute_case;
+        input [8*40-1:0] case_name;
+        input [31:0] w0;
+        input [31:0] w1;
+        input [31:0] w2;
+        input [31:0] w3;
+        input [31:0] d0;
+        input [31:0] d1;
+        input [31:0] d2;
+        input [31:0] d3;
+        input [31:0] expected_data;
+        begin
+            do_clear();
+            issue_req(INST_WLOAD, w0, 32'd0);
+            issue_req(INST_WLOAD, w1, 32'd1);
+            issue_req(INST_WLOAD, w2, 32'd2);
+            issue_req(INST_WLOAD, w3, 32'd3);
+            issue_req(INST_DLOAD, d0, 32'd0);
+            issue_req(INST_DLOAD, d1, 32'd1);
+            issue_req(INST_DLOAD, d2, 32'd2);
+            issue_req(INST_DLOAD, d3, 32'd3);
+            issue_req(INST_COMP, 32'b0, 32'b0);
+            issue_req(INST_RSTAT, 32'b0, 32'b0);
+            expect_rsp_case(case_name, expected_data, 1'b0, 1);
+        end
+    endtask
+
     initial begin
         $dumpfile("demo.vcd");
         $dumpvars(0, tb_cpu_mock);
@@ -104,45 +198,45 @@ module tb_cpu_mock();
         rs2 = 32'b0;
         #15 rst_n=1;
 
-        issue_req(INST_CLEAR, 32'b0, 32'b0);
-        issue_req(INST_WLOAD, 32'h0A0A0A0A, 32'd0);
-        issue_req(INST_WLOAD, 32'h0A0A0A0A, 32'd1);
-        issue_req(INST_WLOAD, 32'h0A0A0A0A, 32'd2);
-        issue_req(INST_WLOAD, 32'h0A0A0A0A, 32'd3);
-        issue_req(INST_DLOAD, 32'h02020202, 32'd0);
-        issue_req(INST_DLOAD, 32'h02020202, 32'd1);
-        issue_req(INST_DLOAD, 32'h02020202, 32'd2);
-        issue_req(INST_DLOAD, 32'h02020202, 32'd3);
-        issue_req(INST_COMP, 32'b0, 32'b0);
-        issue_req(INST_RSTAT, 32'b0, 32'b0);
-        read_rsp(32'd320, 1'b0, 2);
+        run_compute_case("normal_path",
+                         32'h0A0A0A0A, 32'h0A0A0A0A, 32'h0A0A0A0A, 32'h0A0A0A0A,
+                         32'h02020202, 32'h02020202, 32'h02020202, 32'h02020202,
+                         32'd320);
         if(rsp_err !== 1'b0 || mem_holdup !== 1'b0 || icb_cmd_valid !== 1'b0) begin
             $display(">>> TB FAILED: unexpected NICE sideband activity");
             $finish_and_return(1);
         end
-        $display(">>> HW RESULT #1: %d", rdat);
 
-        issue_req(INST_CLEAR, 32'b0, 32'b0);
+        run_compute_case("negative_values",
+                         32'hFEFEFEFE, 32'hFEFEFEFE, 32'hFEFEFEFE, 32'hFEFEFEFE,
+                         32'h05050505, 32'h05050505, 32'h05050505, 32'h05050505,
+                         -32'sd160);
+
+        run_compute_case("boundary_values",
+                         32'h7F7F7F7F, 32'h80808080, 32'h00000000, 32'h7F80007F,
+                         32'h01010101, 32'h01010101, 32'h01010101, 32'h01010101,
+                         32'd122);
+
+        do_clear();
+        issue_req(INST_WLOAD, 32'hAAAAAAAA, 32'd4);
+        expect_rsp_case("invalid_index", 32'd0, 1'b1, 1);
+
+        do_clear();
         issue_req(INST_WLOAD, 32'h01020304, 32'd0);
-        issue_req(INST_WLOAD, 32'h05060708, 32'd1);
-        issue_req(INST_WLOAD, 32'h090A0B0C, 32'd2);
-        issue_req(INST_WLOAD, 32'h0D0E0F10, 32'd3);
         issue_req(INST_DLOAD, 32'h01010101, 32'd0);
-        issue_req(INST_DLOAD, 32'h01010101, 32'd1);
-        issue_req(INST_DLOAD, 32'h01010101, 32'd2);
-        issue_req(INST_DLOAD, 32'h01010101, 32'd3);
         issue_req(INST_COMP, 32'b0, 32'b0);
+        expect_rsp_case("comp_without_full_load", 32'd0, 1'b1, 1);
+
+        do_clear();
+        load_uniform_vectors(32'h01010101, 32'h01010101);
         issue_req(INST_RSTAT, 32'b0, 32'b0);
-        read_rsp(32'd136, 1'b0, 1);
-        $display(">>> HW RESULT #2: %d", rdat);
+        expect_rsp_case("rstat_without_comp", 32'd0, 1'b1, 1);
 
         issue_req(INST_BAD_F3, 32'b0, 32'b0);
-        read_rsp(32'd0, 1'b1, 1);
-        $display(">>> HW RESULT #3: illegal funct3 flagged");
+        expect_rsp_case("illegal_funct3", 32'd0, 1'b1, 1);
 
         issue_req(INST_BAD_OP, 32'b0, 32'b0);
-        read_rsp(32'd0, 1'b1, 1);
-        $display(">>> HW RESULT #4: illegal opcode flagged");
+        expect_rsp_case("illegal_opcode", 32'd0, 1'b1, 1);
 
         $finish;
     end

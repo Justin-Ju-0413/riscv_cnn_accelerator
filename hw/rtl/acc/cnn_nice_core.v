@@ -38,17 +38,25 @@ module cnn_nice_core(
     reg en_pe;
     reg w_load;
     reg d_load;
+    reg busy;
+    reg busy_wait_result;
+    reg result_valid;
     reg rsp_pending;
+    reg [3:0] w_loaded_mask;
+    reg [3:0] d_loaded_mask;
     reg [31:0] rsp_rdat_q;
+    reg [31:0] result_sum_q;
     reg rsp_err_q;
     wire [2:0] funct3;
     wire is_nice_opcode;
+    wire rs2_idx_valid;
     wire [31:0] result_sum;
 
     assign funct3 = nice_req_instr[14:12];
     assign is_nice_opcode = (nice_req_instr[6:0] == NICE_OPCODE);
+    assign rs2_idx_valid = (nice_req_rs2[31:2] == 30'b0);
 
-    assign nice_req_ready = ~rsp_pending;
+    assign nice_req_ready = ~rsp_pending & ~busy;
     assign nice_rsp_valid = rsp_pending;
     assign nice_rsp_rdat = rsp_rdat_q;
     assign nice_rsp_err = rsp_err_q;
@@ -81,14 +89,30 @@ module cnn_nice_core(
             en_pe <= 1'b0;
             w_load <= 1'b0;
             d_load <= 1'b0;
+            busy <= 1'b0;
+            busy_wait_result <= 1'b0;
+            result_valid <= 1'b0;
             rsp_pending <= 1'b0;
+            w_loaded_mask <= 4'b0;
+            d_loaded_mask <= 4'b0;
             rsp_rdat_q <= 32'b0;
+            result_sum_q <= 32'b0;
             rsp_err_q <= 1'b0;
         end else begin
             acc_clr <= 1'b0;
             en_pe <= 1'b0;
             w_load <= 1'b0;
             d_load <= 1'b0;
+
+            if(busy) begin
+                if(busy_wait_result) begin
+                    busy_wait_result <= 1'b0;
+                end else begin
+                    result_sum_q <= result_sum;
+                    result_valid <= 1'b1;
+                    busy <= 1'b0;
+                end
+            end
 
             if(rsp_pending && nice_rsp_ready) begin
                 rsp_pending <= 1'b0;
@@ -100,17 +124,51 @@ module cnn_nice_core(
                     rsp_rdat_q <= 32'b0;
                     rsp_err_q <= 1'b1;
                     rsp_pending <= 1'b1;
+                end else if(!rs2_idx_valid) begin
+                    rsp_rdat_q <= 32'b0;
+                    rsp_err_q <= 1'b1;
+                    rsp_pending <= 1'b1;
                 end else begin
                     case(funct3)
-                        F3_WLOAD: w_load <= 1'b1;
-                        F3_DLOAD: d_load <= 1'b1;
-                        F3_COMP:  en_pe <= 1'b1;
-                        F3_RSTAT: begin
-                            rsp_rdat_q <= result_sum;
-                            rsp_err_q <= 1'b0;
-                            rsp_pending <= 1'b1;
+                        F3_WLOAD: begin
+                            w_load <= 1'b1;
+                            w_loaded_mask[nice_req_rs2[1:0]] <= 1'b1;
                         end
-                        F3_CLEAR: acc_clr <= 1'b1;
+                        F3_DLOAD: begin
+                            d_load <= 1'b1;
+                            d_loaded_mask[nice_req_rs2[1:0]] <= 1'b1;
+                        end
+                        F3_COMP: begin
+                            if((w_loaded_mask == 4'b1111) && (d_loaded_mask == 4'b1111)) begin
+                                en_pe <= 1'b1;
+                                busy <= 1'b1;
+                                busy_wait_result <= 1'b1;
+                            end else begin
+                                rsp_rdat_q <= 32'b0;
+                                rsp_err_q <= 1'b1;
+                                rsp_pending <= 1'b1;
+                            end
+                        end
+                        F3_RSTAT: begin
+                            if(result_valid) begin
+                                rsp_rdat_q <= result_sum_q;
+                                rsp_err_q <= 1'b0;
+                                rsp_pending <= 1'b1;
+                            end else begin
+                                rsp_rdat_q <= 32'b0;
+                                rsp_err_q <= 1'b1;
+                                rsp_pending <= 1'b1;
+                            end
+                        end
+                        F3_CLEAR: begin
+                            acc_clr <= 1'b1;
+                            w_loaded_mask <= 4'b0;
+                            d_loaded_mask <= 4'b0;
+                            busy <= 1'b0;
+                            busy_wait_result <= 1'b0;
+                            result_valid <= 1'b0;
+                            result_sum_q <= 32'b0;
+                        end
                         default: begin
                             rsp_rdat_q <= 32'b0;
                             rsp_err_q <= 1'b1;
