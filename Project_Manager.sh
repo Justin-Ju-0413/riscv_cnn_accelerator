@@ -34,10 +34,10 @@ case "$cmd" in
         ;;
     status)
         echo "== Preparation Status =="
-        echo "Hardware integration notes: $ROOT_DIR/INTEGRATION.md"
-        echo "Decision matrix: $ROOT_DIR/INTEGRATION_DECISIONS.md"
-        echo "Pre-SDK checklist: $ROOT_DIR/PRE_SDK_CHECKLIST.md"
-        echo "Post-SDK playbook: $ROOT_DIR/POST_SDK_PLAYBOOK.md"
+        echo "Hardware integration notes: INTEGRATION.md"
+        echo "Decision matrix: INTEGRATION_DECISIONS.md"
+        echo "Pre-SDK checklist: PRE_SDK_CHECKLIST.md"
+        echo "Post-SDK playbook: POST_SDK_PLAYBOOK.md"
         ;;
     install_sdk_app)
         "$ROOT_DIR/sw/build/install_sdk_app.sh"

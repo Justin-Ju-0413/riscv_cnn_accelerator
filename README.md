@@ -26,11 +26,11 @@ To run the SDK-installation precheck:
 ./Project_Manager.sh precheck
 ```
 
-See [PRE_SDK_CHECKLIST.md](/home/gstar/riscv_cnn_accelerator/PRE_SDK_CHECKLIST.md) for the ordered preparation list before installing Nuclei SDK.
-See [sw/sdk_project/README.md](/home/gstar/riscv_cnn_accelerator/sw/sdk_project/README.md) for the SDK project skeleton that is ready to be wired up after installation.
-Use [INTEGRATION_DECISIONS.md](/home/gstar/riscv_cnn_accelerator/INTEGRATION_DECISIONS.md) to freeze integration choices before touching the real E203 codebase.
-Use [POST_SDK_PLAYBOOK.md](/home/gstar/riscv_cnn_accelerator/POST_SDK_PLAYBOOK.md) after the SDK is installed.
-See [SDK_INSTALL.md](/home/gstar/riscv_cnn_accelerator/SDK_INSTALL.md) for the current local SDK installation status.
+See [PRE_SDK_CHECKLIST.md](PRE_SDK_CHECKLIST.md) for the ordered preparation list before installing Nuclei SDK.
+See [sw/sdk_project/README.md](sw/sdk_project/README.md) for the SDK project skeleton that is ready to be wired up after installation.
+Use [INTEGRATION_DECISIONS.md](INTEGRATION_DECISIONS.md) to freeze integration choices before touching the real E203 codebase.
+Use [POST_SDK_PLAYBOOK.md](POST_SDK_PLAYBOOK.md) after the SDK is installed.
+See [SDK_INSTALL.md](SDK_INSTALL.md) for the current local SDK installation status.
 
 ## Design Milestones
 - [x] Week 1: INT8 Software Golden Model (Python/C).
