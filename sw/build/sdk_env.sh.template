@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Copy this file to sdk_env.sh, then update the paths for your local machine.
+
+export PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+export NUCLEI_SDK_ROOT="${PROJECT_ROOT}/third_party/nuclei-sdk"
+
+# Point this to the root that contains gcc/, openocd/, qemu/, and nucleimodel/.
+export RISCV_GCC_ROOT="/absolute/path/to/nuclei-tool-root"
+export NUCLEI_TOOL_ROOT="${RISCV_GCC_ROOT}"
+
+# Newer Nuclei toolchains use the riscv64-unknown-elf- prefix.
+export CROSS_COMPILE="${RISCV_GCC_ROOT}/gcc/bin/riscv64-unknown-elf-"
+
+export PATH="${RISCV_GCC_ROOT}/gcc/bin:${RISCV_GCC_ROOT}/openocd/bin:${RISCV_GCC_ROOT}/qemu/bin:${RISCV_GCC_ROOT}/nucleimodel/bin:${PATH}"
