@@ -69,7 +69,7 @@ Exit criteria:
 
 ## Current Phase Focus
 
-- Active phase: `Phase 1`
+- Active phase: `Phase 3`
 - Current detailed status and execution flow: see
   [CURRENT_STATE.md](/home/gstar/Desktop/riscv_cnn_accelerator/CURRENT_STATE.md)
 

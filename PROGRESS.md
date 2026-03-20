@@ -47,6 +47,9 @@
 | 2026-03-20 | Traced the full-SoC `WLOAD rs2` issue to an ISA mismatch: official E203 NICE uses bits `[14:12]` as `xd/xs1/xs2`, so the CNN custom-op selector was moved from `funct3` into `funct7`. | ✅ Done |
 | 2026-03-20 | Re-encoded the CNN NICE instructions in RTL, software macros, light official TB, and full-SoC patch overlay; official full-SoC `vvp.exec` now reproduces `NICE_REQ`, `req_ready` low, and `RSTAT=320`. | ✅ Done |
 | 2026-03-20 | Promoted the corrected NICE encoding baseline to version `V1.5` and added unified `VERSION.md` / `CHANGELOG.md` project versioning. | ✅ Done |
+| 2026-03-20 | Updated `tb_cpu_mock.v` to the official NICE `xspec + funct7` encoding and passed Phase 2 safety cases: invalid index, partial-load `COMP`, `RSTAT` before and after compute, busy-time request blocking, illegal `funct7`, illegal opcode, and reset-clears-state. | ✅ Done |
+| 2026-03-20 | Extended the official lightweight E203 NICE testbench with selected Phase 2 cases and confirmed repeated `RSTAT`, invalid index, partial-load `COMP`, illegal `funct7`, illegal opcode, and reset-clears-state all pass. | ✅ Done |
+| 2026-03-20 | Closed Phase 2 and promoted the validated interface-safety baseline to version `V1.6`. | ✅ Done |
 
 ## Current Status
 
@@ -56,6 +59,10 @@
   - `./Project_Manager.sh precheck`
 - Current detailed Phase 1 status:
   - see [CURRENT_STATE.md](/home/gstar/Desktop/riscv_cnn_accelerator/CURRENT_STATE.md)
+- Phase 2 status:
+  - completed at `V1.6`
+  - mock harness safety suite passes
+  - official lightweight safety suite passes
 
 ## Next Recommended Steps
 
