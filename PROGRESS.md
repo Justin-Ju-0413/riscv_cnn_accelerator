@@ -44,7 +44,9 @@
 | 2026-03-20 | Found two environment blockers for official full-SoC iverilog verification: `$readmemh` fails on non-ASCII testcase paths, and the official `vsim/install` tree must be cleaned before every rebuild to avoid duplicate-module compile errors. | ✅ Identified |
 | 2026-03-20 | Upgraded local `iverilog` to official-required `12.0` and confirmed the official full-SoC `vvp.exec` path now advances into the injected NICE patch window. | ✅ Done |
 | 2026-03-20 | Added a lightweight official NICE smoke test and wrapper scripts; confirmed official request path, busy-time `req_ready` low, and `RSTAT=320` all pass in the reduced official chain. | ✅ Done |
-| 2026-03-20 | Narrowed the remaining full-SoC blocker to E203/NICE source-operand visibility: `WLOAD` sees stale `nice_req_rs2=0` even when the probed source register has updated, while `DLOAD` in the same run sees `0/1/2/3`. | ⚠️ In Progress |
+| 2026-03-20 | Traced the full-SoC `WLOAD rs2` issue to an ISA mismatch: official E203 NICE uses bits `[14:12]` as `xd/xs1/xs2`, so the CNN custom-op selector was moved from `funct3` into `funct7`. | ✅ Done |
+| 2026-03-20 | Re-encoded the CNN NICE instructions in RTL, software macros, light official TB, and full-SoC patch overlay; official full-SoC `vvp.exec` now reproduces `NICE_REQ`, `req_ready` low, and `RSTAT=320`. | ✅ Done |
+| 2026-03-20 | Promoted the corrected NICE encoding baseline to version `V1.5` and added unified `VERSION.md` / `CHANGELOG.md` project versioning. | ✅ Done |
 
 ## Current Status
 

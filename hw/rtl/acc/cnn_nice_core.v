@@ -28,11 +28,11 @@ module cnn_nice_core(
     input [31:0] nice_icb_rsp_rdata
 );
     localparam [6:0] NICE_OPCODE = 7'h0b;
-    localparam [2:0] F3_WLOAD = 3'b000;
-    localparam [2:0] F3_DLOAD = 3'b001;
-    localparam [2:0] F3_COMP  = 3'b010;
-    localparam [2:0] F3_RSTAT = 3'b011;
-    localparam [2:0] F3_CLEAR = 3'b100;
+    localparam [6:0] FN_WLOAD = 7'd0;
+    localparam [6:0] FN_DLOAD = 7'd1;
+    localparam [6:0] FN_COMP  = 7'd2;
+    localparam [6:0] FN_RSTAT = 7'd3;
+    localparam [6:0] FN_CLEAR = 7'd4;
 
     reg acc_clr;
     reg en_pe;
@@ -49,12 +49,12 @@ module cnn_nice_core(
     reg [31:0] load_data_q;
     reg [1:0] load_vec_sel_q;
     reg rsp_err_q;
-    wire [2:0] funct3;
+    wire [6:0] funct7;
     wire is_nice_opcode;
     wire rs2_idx_valid;
     wire [31:0] result_sum;
 
-    assign funct3 = nice_req_instr[14:12];
+    assign funct7 = nice_req_instr[31:25];
     assign is_nice_opcode = (nice_req_instr[6:0] == NICE_OPCODE);
     assign rs2_idx_valid = (nice_req_rs2[31:2] == 30'b0);
 
@@ -133,20 +133,20 @@ module cnn_nice_core(
                     rsp_err_q <= 1'b1;
                     rsp_pending <= 1'b1;
                 end else begin
-                    case(funct3)
-                        F3_WLOAD: begin
+                    case(funct7)
+                        FN_WLOAD: begin
                             load_data_q <= nice_req_rs1;
                             load_vec_sel_q <= nice_req_rs2[1:0];
                             w_load <= 1'b1;
                             w_loaded_mask[nice_req_rs2[1:0]] <= 1'b1;
                         end
-                        F3_DLOAD: begin
+                        FN_DLOAD: begin
                             load_data_q <= nice_req_rs1;
                             load_vec_sel_q <= nice_req_rs2[1:0];
                             d_load <= 1'b1;
                             d_loaded_mask[nice_req_rs2[1:0]] <= 1'b1;
                         end
-                        F3_COMP: begin
+                        FN_COMP: begin
                             if((w_loaded_mask == 4'b1111) && (d_loaded_mask == 4'b1111)) begin
                                 en_pe <= 1'b1;
                                 busy <= 1'b1;
@@ -157,7 +157,7 @@ module cnn_nice_core(
                                 rsp_pending <= 1'b1;
                             end
                         end
-                        F3_RSTAT: begin
+                        FN_RSTAT: begin
                             if(result_valid) begin
                                 rsp_rdat_q <= result_sum_q;
                                 rsp_err_q <= 1'b0;
@@ -168,7 +168,7 @@ module cnn_nice_core(
                                 rsp_pending <= 1'b1;
                             end
                         end
-                        F3_CLEAR: begin
+                        FN_CLEAR: begin
                             acc_clr <= 1'b1;
                             w_loaded_mask <= 4'b0;
                             d_loaded_mask <= 4'b0;

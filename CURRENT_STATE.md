@@ -9,10 +9,14 @@ loading.
 
 Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 
+## Version
+
+- Current version: `V1.5`
+
 ## Active Phase
 
 - Phase: `Phase 1`
-- Objective: close official SoC bring-up with reproducible NICE observations
+- Objective: close official SoC bring-up and lock the corrected NICE encoding
 - Required full-SoC observations:
   - `NICE_REQ`
   - `req_ready` low while busy
@@ -58,15 +62,15 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 - The blocker is no longer simulator runtime.
 - Official full-SoC `iverilog 12.0` now reaches the injected NICE program and
   prints real `NICE_REQ`/`NICE_RSP` activity.
-- The active blocker is now narrowed to source-operand visibility on the
-  official E203/NICE path:
-  - `WLOAD` requests still see `nice_req_rs2=0` for all four loads
-  - the register file probe shows `x11` itself is already `0/1/2/3`
-  - `DLOAD` requests in the same run do see `nice_req_rs2=0/1/2/3`
-  - `COMP` and `RSTAT` therefore legally return `err=1` because the weight load
-    mask never reaches all four lanes
-- This means the remaining issue is at the E203/NICE integration boundary, not
-  in the CNN datapath or the standalone NICE smoke test
+- The previously observed `WLOAD rs2` issue was traced to an ISA mismatch:
+  - the project had treated bits `[14:12]` as free `funct3`
+  - official E203 NICE uses bits `[14:12]` as `xd/xs1/xs2`
+  - custom operation selection must therefore move into `funct7`
+- After re-encoding the CNN NICE ISA and updating the full-SoC patch, the
+  official full-SoC path now reproduces the three target observations:
+  - `NICE_REQ`
+  - `req_ready` low while busy
+  - `RSTAT=320`
 
 ## Execution Entry Points
 
@@ -95,11 +99,11 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 
 - Keep `run_nice_light.sh` as the fast regression gate.
 - Keep `run_nice_patch.sh` as the official full-SoC diagnostic entry.
-- Use the current `tb_top.v` probe to trace `nice_req_rs2` against the regfile
-  source registers.
-- Check official NICE operand timing semantics before changing accelerator ISA
-  meaning.
-- Do not re-debug the accelerator datapath unless the smoke test regresses.
+- Carry the corrected NICE encoding through the remaining software-side macros,
+  docs, and SDK-side usage.
+- Clean up temporary debug probes in `tb_top.v` once the new baseline is locked.
+- Move from Phase 1 closure into the next integration step instead of
+  re-debugging the datapath.
 
 ## Compression Rules
 
