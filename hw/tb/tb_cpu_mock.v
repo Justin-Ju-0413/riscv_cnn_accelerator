@@ -2,6 +2,7 @@
 module tb_cpu_mock();
     reg clk=0, rst_n=0, req_v=0, rsp_r=0;
     reg [31:0] inst, rs1, rs2;
+    integer busy_low_cycles;
     wire req_r, rsp_v;
     wire [31:0] rdat;
     wire rsp_err;
@@ -14,13 +15,32 @@ module tb_cpu_mock();
     wire icb_cmd_read;
     wire [1:0] icb_cmd_size;
 
-    localparam [31:0] INST_WLOAD = 32'h0000000B;
-    localparam [31:0] INST_DLOAD = 32'h0000100B;
-    localparam [31:0] INST_COMP  = 32'h0000200B;
-    localparam [31:0] INST_RSTAT = 32'h0000300B;
-    localparam [31:0] INST_CLEAR = 32'h0000400B;
-    localparam [31:0] INST_BAD_F3 = 32'h0000700B;
-    localparam [31:0] INST_BAD_OP = 32'h00003013;
+    localparam [6:0] NICE_OPCODE = 7'h0B;
+    localparam [2:0] X_NONE = 3'b000;
+    localparam [2:0] X_RS1RS2 = 3'b011;
+    localparam [2:0] X_RD = 3'b100;
+    localparam [6:0] FN_WLOAD = 7'd0;
+    localparam [6:0] FN_DLOAD = 7'd1;
+    localparam [6:0] FN_COMP  = 7'd2;
+    localparam [6:0] FN_RSTAT = 7'd3;
+    localparam [6:0] FN_CLEAR = 7'd4;
+    localparam [6:0] FN_BAD   = 7'd127;
+    localparam [31:0] INST_BAD_OP = 32'h00000013;
+
+    function [31:0] make_nice_instr;
+        input [2:0] xspec;
+        input [6:0] funct7;
+        begin
+            make_nice_instr = {funct7, 5'b0, 5'b0, xspec, 5'b0, NICE_OPCODE};
+        end
+    endfunction
+
+    wire [31:0] INST_WLOAD = make_nice_instr(X_RS1RS2, FN_WLOAD);
+    wire [31:0] INST_DLOAD = make_nice_instr(X_RS1RS2, FN_DLOAD);
+    wire [31:0] INST_COMP  = make_nice_instr(X_NONE, FN_COMP);
+    wire [31:0] INST_RSTAT = make_nice_instr(X_RD, FN_RSTAT);
+    wire [31:0] INST_CLEAR = make_nice_instr(X_NONE, FN_CLEAR);
+    wire [31:0] INST_BAD_FN = make_nice_instr(X_NONE, FN_BAD);
 
     e203_nice_harness dut(
         .clk(clk),
@@ -148,6 +168,21 @@ module tb_cpu_mock();
         end
     endtask
 
+    task do_reset_pulse;
+        begin
+            @(negedge clk);
+            rst_n = 1'b0;
+            req_v = 1'b0;
+            rsp_r = 1'b0;
+            inst = 32'b0;
+            rs1 = 32'b0;
+            rs2 = 32'b0;
+            repeat(2) @(negedge clk);
+            rst_n = 1'b1;
+            repeat(2) @(negedge clk);
+        end
+    endtask
+
     task load_uniform_vectors;
         input [31:0] w_word;
         input [31:0] d_word;
@@ -232,11 +267,48 @@ module tb_cpu_mock();
         issue_req(INST_RSTAT, 32'b0, 32'b0);
         expect_rsp_case("rstat_without_comp", 32'd0, 1'b1, 1);
 
-        issue_req(INST_BAD_F3, 32'b0, 32'b0);
-        expect_rsp_case("illegal_funct3", 32'd0, 1'b1, 1);
+        do_clear();
+        load_uniform_vectors(32'h0A0A0A0A, 32'h02020202);
+        issue_req(INST_COMP, 32'b0, 32'b0);
+        while(req_r) @(negedge clk);
+        inst = INST_CLEAR;
+        rs1 = 32'b0;
+        rs2 = 32'b0;
+        req_v = 1'b1;
+        busy_low_cycles = 0;
+        while(!req_r) begin
+            busy_low_cycles = busy_low_cycles + 1;
+            @(negedge clk);
+        end
+        if(busy_low_cycles < 1) begin
+            $display(">>> TB FAILED: busy backpressure was not observed");
+            $finish_and_return(1);
+        end
+        @(negedge clk);
+        req_v = 1'b0;
+        issue_req(INST_RSTAT, 32'b0, 32'b0);
+        expect_rsp_case("busy_blocks_new_req", 32'd0, 1'b1, 1);
+
+        do_clear();
+        load_uniform_vectors(32'h0A0A0A0A, 32'h02020202);
+        issue_req(INST_COMP, 32'b0, 32'b0);
+        issue_req(INST_RSTAT, 32'b0, 32'b0);
+        expect_rsp_case("rstat_first_read", 32'd320, 1'b0, 1);
+        issue_req(INST_RSTAT, 32'b0, 32'b0);
+        expect_rsp_case("rstat_repeat_read", 32'd320, 1'b0, 1);
+
+        issue_req(INST_BAD_FN, 32'b0, 32'b0);
+        expect_rsp_case("illegal_funct7", 32'd0, 1'b1, 1);
 
         issue_req(INST_BAD_OP, 32'b0, 32'b0);
         expect_rsp_case("illegal_opcode", 32'd0, 1'b1, 1);
+
+        do_clear();
+        load_uniform_vectors(32'h0A0A0A0A, 32'h02020202);
+        issue_req(INST_COMP, 32'b0, 32'b0);
+        do_reset_pulse();
+        issue_req(INST_RSTAT, 32'b0, 32'b0);
+        expect_rsp_case("reset_clears_state", 32'd0, 1'b1, 1);
 
         $finish;
     end

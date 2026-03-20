@@ -1,7 +1,7 @@
 # Version
 
-- Current version: `V1.5`
-- Stage: `Phase 1 bring-up`
+- Current version: `V1.6`
+- Stage: `Phase 2 safety validation`
 - Last updated: `2026-03-20`
 
 ## Rule

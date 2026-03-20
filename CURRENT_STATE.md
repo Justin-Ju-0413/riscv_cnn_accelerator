@@ -11,27 +11,24 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 
 ## Version
 
-- Current version: `V1.5`
+- Current version: `V1.6`
 
 ## Active Phase
 
-- Phase: `Phase 1`
-- Objective: close official SoC bring-up and lock the corrected NICE encoding
-- Required full-SoC observations:
-  - `NICE_REQ`
-  - `req_ready` low while busy
-  - `RSTAT=320`
+- Phase: `Phase 3`
+- Objective: start software-path closure on top of the locked `V1.6` safety
+  baseline
 
 ## Repositories
 
 - Main repo:
   - path: `/home/gstar/Desktop/riscv_cnn_accelerator`
   - branch: `bringup_v1`
-  - head: `2f1e9fe`
+  - head: `6f3e9e2`
 - SoC repo:
   - path: `/home/gstar/Desktop/e203_hbirdv2`
   - branch: `cnn_bringup_v1`
-  - head: `2d9b346`
+  - head: `efb46d7`
   - remotes:
     - `origin` -> `git@github.com:Justin-Ju-0413/e203_hbirdv2.git`
     - `upstream` -> `https://github.com/riscv-mcu/e203_hbirdv2.git`
@@ -53,24 +50,38 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
   - official `e203_exu_nice -> e203_subsys_nice_core -> cnn_nice_core` path
   - `req_ready` low while busy
   - `RSTAT=320`
+- Phase 2 mock-harness safety checks now pass under the corrected official NICE
+  encoding:
+  - `normal_path`
+  - `negative_values`
+  - `boundary_values`
+  - `invalid_index`
+  - `comp_without_full_load`
+  - `rstat_without_comp`
+  - `busy_blocks_new_req`
+  - `rstat_repeat_read`
+  - `illegal_funct7`
+  - `illegal_opcode`
+  - `reset_clears_state`
+- The official lightweight chain now also covers selected Phase 2 cases:
+  - repeated `RSTAT`
+  - invalid load index
+  - `COMP` before full load
+  - illegal `funct7`
+  - illegal opcode
+  - reset clears state
 - Real integration bug fixed:
   - `cnn_nice_core` now latches `load_data_q` and `load_vec_sel_q`
   - fix mirrored to both repos
 
-## Current Blocker
+## Phase 2 Result
 
-- The blocker is no longer simulator runtime.
-- Official full-SoC `iverilog 12.0` now reaches the injected NICE program and
-  prints real `NICE_REQ`/`NICE_RSP` activity.
-- The previously observed `WLOAD rs2` issue was traced to an ISA mismatch:
-  - the project had treated bits `[14:12]` as free `funct3`
-  - official E203 NICE uses bits `[14:12]` as `xd/xs1/xs2`
-  - custom operation selection must therefore move into `funct7`
-- After re-encoding the CNN NICE ISA and updating the full-SoC patch, the
-  official full-SoC path now reproduces the three target observations:
-  - `NICE_REQ`
-  - `req_ready` low while busy
-  - `RSTAT=320`
+- Phase 2 is complete on the current request/response-only NICE scope.
+- The integration now has:
+  - Phase 1 full-SoC closure
+  - Phase 2 mock-harness safety coverage
+  - Phase 2 official lightweight-chain safety coverage
+- No new RTL blocker was found while closing Phase 2.
 
 ## Execution Entry Points
 
@@ -99,11 +110,10 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 
 - Keep `run_nice_light.sh` as the fast regression gate.
 - Keep `run_nice_patch.sh` as the official full-SoC diagnostic entry.
-- Carry the corrected NICE encoding through the remaining software-side macros,
-  docs, and SDK-side usage.
-- Clean up temporary debug probes in `tb_top.v` once the new baseline is locked.
-- Move from Phase 1 closure into the next integration step instead of
-  re-debugging the datapath.
+- Move into software-path closure:
+  - install/verify the Nuclei software build path
+  - drive `CLEAR/WLOAD/DLOAD/COMP/RSTAT` from software instead of TB-only flows
+  - compare hardware-visible results against `sw_reference_dot()`
 
 ## Compression Rules
 

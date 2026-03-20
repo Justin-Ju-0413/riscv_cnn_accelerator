@@ -2,6 +2,23 @@
 
 All notable project updates are recorded here.
 
+## Version V1.6
+
+- Date: 2026-03-20
+- Added:
+  - Phase 2 safety cases are now covered in both the mock harness and the
+    official lightweight E203 NICE chain
+- Changed:
+  - `tb_cpu_mock.v` now uses the official NICE `xspec + funct7` encoding
+  - `tb_e203_nice_light.v` now checks repeated `RSTAT`, invalid load index,
+    partial-load `COMP`, illegal instruction cases, and reset cleanup
+- Fixed:
+  - removed the stale pre-`V1.5` instruction encoding from the mock safety
+    suite
+  - locked a reusable Phase 2 validation baseline across both repositories
+- Current blocker:
+  - no Phase 2 blocker remains on the current request/response-only NICE scope
+
 ## Version V1.5
 
 - Date: 2026-03-20
