@@ -31,6 +31,11 @@ To rebuild the SDK app and run the official full-SoC software-driven regression:
 bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh
 ```
 
+To run the full pre-board verification sweep:
+```bash
+bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_preboard_verification.sh
+```
+
 See [PRE_SDK_CHECKLIST.md](PRE_SDK_CHECKLIST.md) for the ordered preparation list before installing Nuclei SDK.
 See [sw/sdk_project/README.md](sw/sdk_project/README.md) for the SDK project skeleton that is ready to be wired up after installation.
 Use [INTEGRATION_DECISIONS.md](INTEGRATION_DECISIONS.md) to freeze integration choices before touching the real E203 codebase.

@@ -11,10 +11,12 @@ All notable project updates are recorded here.
   - a one-command `scripts/run_sdk_fullsoc_regression.sh` recovery/regression entry
   - `docs/PHASE4_RECOVERY.md` to document collaborator recovery flow
 - Changed:
-  - `CURRENT_STATE.md` now points to the Phase 4 recovery entry and current pushed repo heads
+  - `CURRENT_STATE.md` now points to the current recovery entries and pushed repo heads
   - roadmap focus moved from closed Phase 3 work into engineering cleanup
+  - the local mock NICE testbench now consumes completion responses from `CLEAR/WLOAD/DLOAD/COMP`, matching the current Phase 3/4 response protocol
 - Fixed:
   - removed the last major ambiguity around the local-only nested `nuclei-sdk` state by exporting it into the main repository
+  - restored `./Project_Manager.sh run_hw` by updating the local mock testbench to the current NICE completion-response behavior
 - Current blocker:
   - Phase 5 still lacks visible FTDI/JTAG hardware `0403:6010` and a locked `SERIAL_DEV` UART path on this machine; `openocd` is now installed
 

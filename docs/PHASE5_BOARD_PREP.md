@@ -67,8 +67,8 @@ These are the main gaps still separating Phase 4 simulation closure from board e
 
 ## First Board Run Checklist
 
-1. Run the pre-board simulation gate:
-   - `bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh`
+1. Run the full pre-board verification sweep:
+   - `bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_preboard_verification.sh`
 2. Run the board environment checker:
    - `bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/check_phase5_board_env.sh`
 3. Confirm the actual hardware target still matches `SOC=evalsoc BOARD=nuclei_fpga_eval CORE=n300 DOWNLOAD=ilm`.
