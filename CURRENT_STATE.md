@@ -102,6 +102,7 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
   - [check_phase5_board_env.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/check_phase5_board_env.sh)
 - Current Week 6 status:
   - all pre-board simulations and tests are now passing
+  - formal CNN-to-E203 integration boundary is now explicit
   - host debug chain is now basically ready because `openocd` is installed
   - remaining blockers are hardware visibility and UART observation
 - Main unresolved hardware-prep gaps are explicit:
@@ -134,6 +135,8 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
   - [check_phase5_board_env.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/check_phase5_board_env.sh)
 - Phase 4 recovery doc:
   - [PHASE4_RECOVERY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE4_RECOVERY.md)
+- Formal integration map:
+  - [E203_FORMAL_INTEGRATION.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/E203_FORMAL_INTEGRATION.md)
 - SDK portability patch:
   - [nuclei-sdk-phase3-e203-safe.patch](/home/gstar/Desktop/riscv_cnn_accelerator/patches/nuclei-sdk-phase3-e203-safe.patch)
 - OpenOCD board config:
