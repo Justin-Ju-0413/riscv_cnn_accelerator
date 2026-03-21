@@ -1,6 +1,6 @@
 # Version
 
-- Current version: `V1.7`
+- Current version: `V1.8`
 - Stage: `Phase 5 board bring-up preparation`
 - Last updated: `2026-03-21`
 

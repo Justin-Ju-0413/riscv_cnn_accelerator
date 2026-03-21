@@ -2,6 +2,19 @@
 
 All notable project updates are recorded here.
 
+## Version V1.8
+
+- Date: 2026-03-21
+- Added:
+  - `docs/WORK_DELIVERY_SUMMARY.md` as the consolidated delivery summary and resume guide
+- Changed:
+  - `VERSION.md` now reflects the organized post-Phase-5-prep baseline
+  - `README.md` now points to the consolidated delivery summary
+- Fixed:
+  - closed the last documentation gap between scattered phase docs and a single handoff summary
+- Current blocker:
+  - first FPGA shell target is still not locked between `mcu200t` and `ddr200t`
+
 ## Version V1.7
 
 - Date: 2026-03-21

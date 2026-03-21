@@ -45,6 +45,7 @@ See [docs/PHASE4_RECOVERY.md](docs/PHASE4_RECOVERY.md) for the current collabora
 See [docs/PHASE5_BOARD_PREP.md](docs/PHASE5_BOARD_PREP.md) for the current board bring-up preparation baseline.
 See [docs/E203_FORMAL_INTEGRATION.md](docs/E203_FORMAL_INTEGRATION.md) for the formal CNN-to-E203 integration boundary and file roles.
 See [docs/VIVADO_FPGA_HANDOFF.md](docs/VIVADO_FPGA_HANDOFF.md) for the official FPGA/Vivado handoff boundary, top-level choice, and clock/reset assumptions.
+See [docs/WORK_DELIVERY_SUMMARY.md](docs/WORK_DELIVERY_SUMMARY.md) for the consolidated delivery summary and resume point.
 
 ## Design Milestones
 - [x] Week 1: INT8 Software Golden Model (Python/C).
