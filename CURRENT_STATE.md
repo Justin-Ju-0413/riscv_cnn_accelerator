@@ -15,9 +15,8 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 
 ## Active Phase
 
-- Phase: `Phase 3`
-- Objective: start software-path closure on top of the locked `V1.6` safety
-  baseline
+- Phase: `Phase 3 complete`
+- Objective: close software-driven full-SoC execution on top of the locked `V1.6` safety baseline
 
 ## Repositories
 
@@ -83,6 +82,43 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
   - Phase 2 official lightweight-chain safety coverage
 - No new RTL blocker was found while closing Phase 2.
 
+## Phase 3 Progress
+
+- The official Nuclei GNU toolchain requirement is now confirmed in practice:
+  - generic distro `riscv64-unknown-elf-gcc` fails on
+    `-mtune=nuclei-300-series`
+  - official Nuclei GNU toolchain `2024.06` under `/home/gstar/Desktop/gcc`
+    compiles the SDK application successfully
+- The SDK-native app now performs software/hardware self-check logic:
+  - enables `MSTATUS.XS`
+  - computes `sw_reference_dot()`
+  - emits NICE `CLEAR/WLOAD/DLOAD/COMP/RSTAT`
+  - compares accelerator result against the software reference
+- Two software build entry points now produce `cnn_accel_demo.elf`:
+  - `third_party/nuclei-sdk/application/baremetal/cnn_accel_demo`
+  - `sw/sdk_project` via the corrected `Makefile.template`
+- The `sw/sdk_project` template has been aligned to the current Nuclei SDK
+  layout:
+  - use `Build/Makefile.base` instead of the stale `NMSIS/Makefile`
+  - fix `ARCH_EXT` so it no longer corrupts `-march`
+- The built ELF has been validated at instruction level:
+  - `CLEAR/WLOAD/DLOAD/COMP/RSTAT` appear as custom `0x0b` instructions in
+    the disassembly
+- The official toolchain's generic runner is not enough to close Phase 3 by itself:
+  - `riscv64-unknown-elf-run` can load the ELF, but without explicit memory it
+    faults on unmapped `0x80000100`
+  - after adding minimal ILM/DLM memory ranges, it still stops on illegal
+    instruction
+  - current evidence says it does not model the full `n300 + rv32imac + NICE`
+    execution context needed by this project
+- The full software-driven SoC path is now validated in the official E203 RTL simulation:
+  - SDK ELF exported to `.verilog`, then split into `.itcm.verilog` and `.dtcm.verilog`
+  - full-SoC run reaches software-issued `CLEAR/WLOAD/DLOAD/COMP/RSTAT`
+  - `RSTAT=320` observed from the software image, not from the synthetic patch overlay
+- Two integration blockers were resolved during Phase 3 closure:
+  - evalsoc startup assumptions were trimmed to an E203-safe subset for the SDK app bring-up path
+  - successful non-`RSTAT` NICE operations now emit completion responses so E203 long-pipe bookkeeping can retire them
+
 ## Execution Entry Points
 
 - Fast gate:
@@ -110,10 +146,8 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 
 - Keep `run_nice_light.sh` as the fast regression gate.
 - Keep `run_nice_patch.sh` as the official full-SoC diagnostic entry.
-- Move into software-path closure:
-  - install/verify the Nuclei software build path
-  - drive `CLEAR/WLOAD/DLOAD/COMP/RSTAT` from software instead of TB-only flows
-  - compare hardware-visible results against `sw_reference_dot()`
+- Phase 3 is closed on the current request/response-only NICE scope.
+- Next focus: package the validated software-path flow for regression and later board bring-up.
 
 ## Compression Rules
 
