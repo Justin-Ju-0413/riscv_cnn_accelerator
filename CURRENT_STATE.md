@@ -23,7 +23,7 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 - Main repo:
   - path: `/home/gstar/Desktop/riscv_cnn_accelerator`
   - branch: `bringup_v1`
-  - head: `a621629`
+  - head: `70eaaac`
 - SoC repo:
   - path: `/home/gstar/Desktop/e203_hbirdv2`
   - branch: `cnn_bringup_v1`
@@ -38,7 +38,7 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
   - `./Project_Manager.sh gen_model`
   - `./Project_Manager.sh run_hw`
   - `./Project_Manager.sh precheck`
-- Phase 4 recovery entry is now validated locally:
+- Phase 4 recovery entry is validated locally:
   - [run_sdk_fullsoc_regression.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh)
   - rebuilds the SDK app
   - regenerates and splits ITCM/DTCM images
@@ -47,11 +47,12 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 - Current local host tools confirmed present:
   - `riscv64-unknown-elf-gcc`
   - `riscv64-unknown-elf-gdb`
-- Current local host tools and board links still missing or unconfirmed after running `check_phase5_board_env.sh`:
-  - `openocd` not found in `PATH`
-  - FTDI/JTAG device `0403:6010` not detected via `lsusb`
-  - board-side UART device path not locked via `SERIAL_DEV`
-  - Nuclei model / `ncycm` still not confirmed present
+  - `openocd` at `/usr/bin/openocd`
+- Current local host tools and board links still missing or unconfirmed after rerunning
+  `check_phase5_board_env.sh`:
+  - FTDI/JTAG device `0403:6010` is still not detected via `lsusb`
+  - board-side UART device path is still not locked via `SERIAL_DEV`
+  - Nuclei model / `ncycm` is still not confirmed present
 - SDK-side board support confirmed present for the recommended first target:
   - `SOC=evalsoc`
   - `BOARD=nuclei_fpga_eval`
@@ -87,21 +88,24 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 
 ## Phase 5 Progress
 
-- Recommended first board target is now locked for preparation work:
+- Recommended first board target is locked for preparation work:
   - `SOC=evalsoc`
   - `BOARD=nuclei_fpga_eval`
   - `CORE=n300`
   - `DOWNLOAD=ilm`
-- Board-prep doc is now centralized in
+- Board-prep doc is centralized in
   [PHASE5_BOARD_PREP.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE5_BOARD_PREP.md).
-- A host dependency and connection checker is now available:
+- A host dependency and connection checker is available:
   - [check_phase5_board_env.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/check_phase5_board_env.sh)
-- Main unresolved hardware-prep gaps are now explicit:
-  - `openocd` installation
+- Current Week 6 status:
+  - host debug chain is now basically ready because `openocd` is installed
+  - remaining blockers are hardware visibility and UART observation
+- Main unresolved hardware-prep gaps are explicit:
   - FTDI/JTAG device presence
   - UART serial path
   - real board image containing the NICE-enabled SoC
   - board-side memory map confirmation
+  - optional Nuclei model availability
 
 ## Execution Entry Points
 
@@ -130,10 +134,11 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 
 ## Next Focus
 
-- `check_phase5_board_env.sh` now confirms the current machine still lacks `openocd`, FTDI/JTAG visibility, and a locked UART path.
-- Install or connect those missing pieces before attempting any board run.
+- `openocd` is installed; the next blockers are FTDI/JTAG visibility and a locked UART path.
+- Connect or pass through the real board so `lsusb` can see the expected JTAG device.
+- Lock `SERIAL_DEV` before the first hardware log capture.
 - Keep the Phase 4 simulation gate as the last check before hardware execution.
-- After dependencies are real, do the first OpenOCD + GDB attach and confirm board observability.
+- After hardware visibility is real, do the first OpenOCD + GDB attach and confirm board observability.
 
 ## Compression Rules
 
