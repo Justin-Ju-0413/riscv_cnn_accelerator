@@ -38,6 +38,9 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
   - `./Project_Manager.sh gen_model`
   - `./Project_Manager.sh run_hw`
   - `./Project_Manager.sh precheck`
+- Full pre-board simulation sweep now passes:
+  - [run_preboard_verification.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_preboard_verification.sh)
+  - covers model generation, SDK precheck, local RTL regression, official lightweight NICE regression, and SDK-driven full-SoC regression
 - Phase 4 recovery entry is validated locally:
   - [run_sdk_fullsoc_regression.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh)
   - rebuilds the SDK app
@@ -98,6 +101,7 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 - A host dependency and connection checker is available:
   - [check_phase5_board_env.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/check_phase5_board_env.sh)
 - Current Week 6 status:
+  - all pre-board simulations and tests are now passing
   - host debug chain is now basically ready because `openocd` is installed
   - remaining blockers are hardware visibility and UART observation
 - Main unresolved hardware-prep gaps are explicit:
@@ -109,6 +113,9 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 
 ## Execution Entry Points
 
+- Full pre-board verification sweep:
+  - [run_preboard_verification.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_preboard_verification.sh)
+  - `bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_preboard_verification.sh`
 - Pre-board regression gate:
   - [run_sdk_fullsoc_regression.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh)
   - `bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh`

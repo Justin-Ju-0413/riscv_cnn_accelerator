@@ -162,9 +162,19 @@ module tb_cpu_mock();
         end
     endtask
 
+    task issue_req_expect_ok;
+        input [31:0] inst_i;
+        input [31:0] rs1_i;
+        input [31:0] rs2_i;
+        begin
+            issue_req(inst_i, rs1_i, rs2_i);
+            read_rsp(32'd0, 1'b0, 1);
+        end
+    endtask
+
     task do_clear;
         begin
-            issue_req(INST_CLEAR, 32'b0, 32'b0);
+            issue_req_expect_ok(INST_CLEAR, 32'b0, 32'b0);
         end
     endtask
 
@@ -187,14 +197,14 @@ module tb_cpu_mock();
         input [31:0] w_word;
         input [31:0] d_word;
         begin
-            issue_req(INST_WLOAD, w_word, 32'd0);
-            issue_req(INST_WLOAD, w_word, 32'd1);
-            issue_req(INST_WLOAD, w_word, 32'd2);
-            issue_req(INST_WLOAD, w_word, 32'd3);
-            issue_req(INST_DLOAD, d_word, 32'd0);
-            issue_req(INST_DLOAD, d_word, 32'd1);
-            issue_req(INST_DLOAD, d_word, 32'd2);
-            issue_req(INST_DLOAD, d_word, 32'd3);
+            issue_req_expect_ok(INST_WLOAD, w_word, 32'd0);
+            issue_req_expect_ok(INST_WLOAD, w_word, 32'd1);
+            issue_req_expect_ok(INST_WLOAD, w_word, 32'd2);
+            issue_req_expect_ok(INST_WLOAD, w_word, 32'd3);
+            issue_req_expect_ok(INST_DLOAD, d_word, 32'd0);
+            issue_req_expect_ok(INST_DLOAD, d_word, 32'd1);
+            issue_req_expect_ok(INST_DLOAD, d_word, 32'd2);
+            issue_req_expect_ok(INST_DLOAD, d_word, 32'd3);
         end
     endtask
 
@@ -211,15 +221,15 @@ module tb_cpu_mock();
         input [31:0] expected_data;
         begin
             do_clear();
-            issue_req(INST_WLOAD, w0, 32'd0);
-            issue_req(INST_WLOAD, w1, 32'd1);
-            issue_req(INST_WLOAD, w2, 32'd2);
-            issue_req(INST_WLOAD, w3, 32'd3);
-            issue_req(INST_DLOAD, d0, 32'd0);
-            issue_req(INST_DLOAD, d1, 32'd1);
-            issue_req(INST_DLOAD, d2, 32'd2);
-            issue_req(INST_DLOAD, d3, 32'd3);
-            issue_req(INST_COMP, 32'b0, 32'b0);
+            issue_req_expect_ok(INST_WLOAD, w0, 32'd0);
+            issue_req_expect_ok(INST_WLOAD, w1, 32'd1);
+            issue_req_expect_ok(INST_WLOAD, w2, 32'd2);
+            issue_req_expect_ok(INST_WLOAD, w3, 32'd3);
+            issue_req_expect_ok(INST_DLOAD, d0, 32'd0);
+            issue_req_expect_ok(INST_DLOAD, d1, 32'd1);
+            issue_req_expect_ok(INST_DLOAD, d2, 32'd2);
+            issue_req_expect_ok(INST_DLOAD, d3, 32'd3);
+            issue_req_expect_ok(INST_COMP, 32'b0, 32'b0);
             issue_req(INST_RSTAT, 32'b0, 32'b0);
             expect_rsp_case(case_name, expected_data, 1'b0, 1);
         end
@@ -257,8 +267,8 @@ module tb_cpu_mock();
         expect_rsp_case("invalid_index", 32'd0, 1'b1, 1);
 
         do_clear();
-        issue_req(INST_WLOAD, 32'h01020304, 32'd0);
-        issue_req(INST_DLOAD, 32'h01010101, 32'd0);
+        issue_req_expect_ok(INST_WLOAD, 32'h01020304, 32'd0);
+        issue_req_expect_ok(INST_DLOAD, 32'h01010101, 32'd0);
         issue_req(INST_COMP, 32'b0, 32'b0);
         expect_rsp_case("comp_without_full_load", 32'd0, 1'b1, 1);
 
@@ -278,7 +288,17 @@ module tb_cpu_mock();
         busy_low_cycles = 0;
         while(!req_r) begin
             busy_low_cycles = busy_low_cycles + 1;
-            @(negedge clk);
+            if(rsp_v) begin
+                if(rdat !== 32'd0 || rsp_err !== 1'b0) begin
+                    $display(">>> TB FAILED: COMP completion response mismatch during busy case");
+                    $finish_and_return(1);
+                end
+                rsp_r = 1'b1;
+                @(negedge clk);
+                rsp_r = 1'b0;
+            end else begin
+                @(negedge clk);
+            end
         end
         if(busy_low_cycles < 1) begin
             $display(">>> TB FAILED: busy backpressure was not observed");
@@ -286,12 +306,13 @@ module tb_cpu_mock();
         end
         @(negedge clk);
         req_v = 1'b0;
+        read_rsp(32'd0, 1'b0, 1);
         issue_req(INST_RSTAT, 32'b0, 32'b0);
         expect_rsp_case("busy_blocks_new_req", 32'd0, 1'b1, 1);
 
         do_clear();
         load_uniform_vectors(32'h0A0A0A0A, 32'h02020202);
-        issue_req(INST_COMP, 32'b0, 32'b0);
+        issue_req_expect_ok(INST_COMP, 32'b0, 32'b0);
         issue_req(INST_RSTAT, 32'b0, 32'b0);
         expect_rsp_case("rstat_first_read", 32'd320, 1'b0, 1);
         issue_req(INST_RSTAT, 32'b0, 32'b0);
@@ -306,10 +327,12 @@ module tb_cpu_mock();
         do_clear();
         load_uniform_vectors(32'h0A0A0A0A, 32'h02020202);
         issue_req(INST_COMP, 32'b0, 32'b0);
+        read_rsp(32'd0, 1'b0, 1);
         do_reset_pulse();
         issue_req(INST_RSTAT, 32'b0, 32'b0);
         expect_rsp_case("reset_clears_state", 32'd0, 1'b1, 1);
 
+        $display("[TB_PASS] mock NICE regression completed");
         $finish;
     end
 endmodule
