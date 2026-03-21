@@ -16,7 +16,7 @@ All notable project updates are recorded here.
 - Fixed:
   - removed the last major ambiguity around the local-only nested `nuclei-sdk` state by exporting it into the main repository
 - Current blocker:
-  - no Phase 4 blocker remains on the current software-driven simulation scope
+  - Phase 5 still lacks `openocd`, visible FTDI/JTAG hardware `0403:6010`, and a locked `SERIAL_DEV` UART path on this machine
 
 ## Version V1.6
 
