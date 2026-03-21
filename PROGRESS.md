@@ -58,6 +58,7 @@
 | 2026-03-21 | Exported the nested `nuclei-sdk` delta into a portable patch, added a one-command SDK-to-full-SoC regression script, validated it end-to-end, and documented the collaborator recovery flow for Phase 4 engineering cleanup. | ✅ Phase 4 closed |
 | 2026-03-21 | Locked the first board-prep target to `evalsoc + nuclei_fpga_eval + n300 + ilm`, documented Phase 5 dependencies and debug hooks, added a board environment checker script, installed `openocd`, and confirmed the remaining blockers are FTDI/JTAG visibility plus a locked UART path. | ✅ Phase 5 baseline |
 | 2026-03-21 | Restored the local mock NICE regression to the current completion-response protocol, reran all pre-board simulations, and added a one-command pre-board verification sweep. | ✅ Pre-board verified |
+| 2026-03-21 | Documented the formal CNN-to-E203 integration boundary, separated formal SoC files from diagnostic flows, and locked the current integration scope before future FPGA work. | ✅ Integration formalized |
 
 ## Current Status
 
