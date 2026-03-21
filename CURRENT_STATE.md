@@ -23,7 +23,7 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 - Main repo:
   - path: `/home/gstar/Desktop/riscv_cnn_accelerator`
   - branch: `bringup_v1`
-  - head: `70eaaac`
+  - head: `faea289`
 - SoC repo:
   - path: `/home/gstar/Desktop/e203_hbirdv2`
   - branch: `cnn_bringup_v1`
@@ -137,6 +137,8 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
   - [PHASE4_RECOVERY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE4_RECOVERY.md)
 - Formal integration map:
   - [E203_FORMAL_INTEGRATION.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/E203_FORMAL_INTEGRATION.md)
+- Vivado/FPGA handoff map:
+  - [VIVADO_FPGA_HANDOFF.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/VIVADO_FPGA_HANDOFF.md)
 - SDK portability patch:
   - [nuclei-sdk-phase3-e203-safe.patch](/home/gstar/Desktop/riscv_cnn_accelerator/patches/nuclei-sdk-phase3-e203-safe.patch)
 - OpenOCD board config:
@@ -144,11 +146,11 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 
 ## Next Focus
 
-- `openocd` is installed; the next blockers are FTDI/JTAG visibility and a locked UART path.
-- Connect or pass through the real board so `lsusb` can see the expected JTAG device.
-- Lock `SERIAL_DEV` before the first hardware log capture.
-- Keep the Phase 4 simulation gate as the last check before hardware execution.
-- After hardware visibility is real, do the first OpenOCD + GDB attach and confirm board observability.
+- Formal integration definition is complete on the current request/response NICE scope.
+- Vivado/FPGA handoff assumptions are now documented in [VIVADO_FPGA_HANDOFF.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/VIVADO_FPGA_HANDOFF.md).
+- The next engineering decision is to choose the first FPGA shell target between `mcu200t` and `ddr200t`.
+- Keep the SoC-side integration files unchanged first, and let FPGA-specific work stay in the board shell and constraints.
+- Keep the pre-board verification gate in place before any later hardware session.
 
 ## Compression Rules
 
