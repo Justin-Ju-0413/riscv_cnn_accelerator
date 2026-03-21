@@ -2,6 +2,22 @@
 
 All notable project updates are recorded here.
 
+## Version V1.7
+
+- Date: 2026-03-21
+- Added:
+  - a portable `nuclei-sdk` patch export for the local E203-safe startup and SDK demo changes
+  - a reusable `scripts/apply_nuclei_sdk_phase3_patch.sh` helper
+  - a one-command `scripts/run_sdk_fullsoc_regression.sh` recovery/regression entry
+  - `docs/PHASE4_RECOVERY.md` to document collaborator recovery flow
+- Changed:
+  - `CURRENT_STATE.md` now points to the Phase 4 recovery entry and current pushed repo heads
+  - roadmap focus moved from closed Phase 3 work into engineering cleanup
+- Fixed:
+  - removed the last major ambiguity around the local-only nested `nuclei-sdk` state by exporting it into the main repository
+- Current blocker:
+  - no Phase 4 blocker remains on the current software-driven simulation scope
+
 ## Version V1.6
 
 - Date: 2026-03-20

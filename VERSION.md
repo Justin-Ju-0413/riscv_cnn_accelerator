@@ -1,8 +1,8 @@
 # Version
 
-- Current version: `V1.6`
-- Stage: `Phase 2 safety validation`
-- Last updated: `2026-03-20`
+- Current version: `V1.7`
+- Stage: `Phase 4 engineering cleanup complete`
+- Last updated: `2026-03-21`
 
 ## Rule
 
