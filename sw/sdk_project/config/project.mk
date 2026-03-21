@@ -2,7 +2,7 @@
 
 APP_NAME := cnn_accel_demo
 CORE ?= n300
-ARCH_EXT ?= rv32imac
+ARCH_EXT ?=
 ABI ?= ilp32
 BOARD ?= your_e203_board
 DOWNLOAD ?= ilm

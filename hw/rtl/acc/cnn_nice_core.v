@@ -115,6 +115,9 @@ module cnn_nice_core(
                     result_sum_q <= result_sum;
                     result_valid <= 1'b1;
                     busy <= 1'b0;
+                    rsp_rdat_q <= 32'b0;
+                    rsp_err_q <= 1'b0;
+                    rsp_pending <= 1'b1;
                 end
             end
 
@@ -139,12 +142,18 @@ module cnn_nice_core(
                             load_vec_sel_q <= nice_req_rs2[1:0];
                             w_load <= 1'b1;
                             w_loaded_mask[nice_req_rs2[1:0]] <= 1'b1;
+                            rsp_rdat_q <= 32'b0;
+                            rsp_err_q <= 1'b0;
+                            rsp_pending <= 1'b1;
                         end
                         FN_DLOAD: begin
                             load_data_q <= nice_req_rs1;
                             load_vec_sel_q <= nice_req_rs2[1:0];
                             d_load <= 1'b1;
                             d_loaded_mask[nice_req_rs2[1:0]] <= 1'b1;
+                            rsp_rdat_q <= 32'b0;
+                            rsp_err_q <= 1'b0;
+                            rsp_pending <= 1'b1;
                         end
                         FN_COMP: begin
                             if((w_loaded_mask == 4'b1111) && (d_loaded_mask == 4'b1111)) begin
@@ -176,6 +185,9 @@ module cnn_nice_core(
                             busy_wait_result <= 1'b0;
                             result_valid <= 1'b0;
                             result_sum_q <= 32'b0;
+                            rsp_rdat_q <= 32'b0;
+                            rsp_err_q <= 1'b0;
+                            rsp_pending <= 1'b1;
                         end
                         default: begin
                             rsp_rdat_q <= 32'b0;

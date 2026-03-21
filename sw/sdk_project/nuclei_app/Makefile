@@ -3,7 +3,7 @@ TARGET = cnn_accel_demo
 NUCLEI_SDK_ROOT ?= ../../..
 
 SRCDIRS = .
-INCDIRS = . ../../../..//sw/inc
+INCDIRS = . include
 
 COMMON_FLAGS :=
 
