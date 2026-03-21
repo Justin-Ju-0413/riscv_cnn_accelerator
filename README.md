@@ -26,11 +26,17 @@ To run the SDK-installation precheck:
 ./Project_Manager.sh precheck
 ```
 
+To rebuild the SDK app and run the official full-SoC software-driven regression:
+```bash
+bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh
+```
+
 See [PRE_SDK_CHECKLIST.md](PRE_SDK_CHECKLIST.md) for the ordered preparation list before installing Nuclei SDK.
 See [sw/sdk_project/README.md](sw/sdk_project/README.md) for the SDK project skeleton that is ready to be wired up after installation.
 Use [INTEGRATION_DECISIONS.md](INTEGRATION_DECISIONS.md) to freeze integration choices before touching the real E203 codebase.
 Use [POST_SDK_PLAYBOOK.md](POST_SDK_PLAYBOOK.md) after the SDK is installed.
 See [SDK_INSTALL.md](SDK_INSTALL.md) for the current local SDK installation status.
+See [docs/PHASE4_RECOVERY.md](docs/PHASE4_RECOVERY.md) for the current collaborator recovery and regression flow.
 
 ## Design Milestones
 - [x] Week 1: INT8 Software Golden Model (Python/C).

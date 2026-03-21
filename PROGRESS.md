@@ -48,13 +48,14 @@
 | 2026-03-20 | Re-encoded the CNN NICE instructions in RTL, software macros, light official TB, and full-SoC patch overlay; official full-SoC `vvp.exec` now reproduces `NICE_REQ`, `req_ready` low, and `RSTAT=320`. | ✅ Done |
 | 2026-03-20 | Promoted the corrected NICE encoding baseline to version `V1.5` and added unified `VERSION.md` / `CHANGELOG.md` project versioning. | ✅ Done |
 | 2026-03-20 | Updated `tb_cpu_mock.v` to the official NICE `xspec + funct7` encoding and passed Phase 2 safety cases: invalid index, partial-load `COMP`, `RSTAT` before and after compute, busy-time request blocking, illegal `funct7`, illegal opcode, and reset-clears-state. | ✅ Done |
-| 2026-03-20 | Extended the official lightweight E203 NICE testbench with selected Phase 2 cases and confirmed repeated `RSTAT`, invalid index, partial-load `COMP`, illegal `funct7`, illegal opcode, and reset-clears-state all pass. | ✅ Done |
+| 2026-03-20 | Extended the official lightweight E203 NICE testbench with selected Phase 2 cases and confirmed repeated `RSTAT`, invalid load index, partial-load `COMP`, illegal `funct7`, illegal opcode, and reset-clears-state all pass. | ✅ Done |
 | 2026-03-20 | Closed Phase 2 and promoted the validated interface-safety baseline to version `V1.6`. | ✅ Done |
 | 2026-03-20 | Installed distro `riscv64-unknown-elf-gcc` and confirmed it is insufficient for Nuclei SDK because it fails on `-mtune=nuclei-300-series`; official SDK FAQ matches this behavior. | ✅ Identified |
 | 2026-03-20 | Downloaded official Nuclei GNU toolchain `2024.06`, compiled `third_party/nuclei-sdk/application/baremetal/cnn_accel_demo`, and confirmed the resulting ELF contains the CNN NICE custom instructions. | ✅ Done |
 | 2026-03-20 | Corrected `sw/sdk_project` to match the current Nuclei SDK layout (`Build/Makefile.base`) and fixed its `ARCH_EXT` misuse; the project-local SDK entry now also builds `cnn_accel_demo.elf`. | ✅ Done |
 | 2026-03-21 | Tested the official toolchain's `riscv64-unknown-elf-run`; it can load the SDK ELF but is not a valid closure environment for the current `n300 + rv32imac + NICE` target, stopping first on unmapped ILM/DLM addresses and then on illegal instruction after minimal memory is added. | ✅ Identified |
 | 2026-03-21 | Trimmed the SDK app startup path to an E203-safe subset, regenerated ITCM/DTCM images from the rebuilt ELF, and confirmed software-driven `CLEAR/WLOAD/DLOAD/COMP/RSTAT` executes successfully in official full-SoC E203 simulation with `RSTAT=320`. | ✅ Phase 3 closed |
+| 2026-03-21 | Exported the nested `nuclei-sdk` delta into a portable patch, added a one-command SDK-to-full-SoC regression script, validated it end-to-end, and documented the collaborator recovery flow for Phase 4 engineering cleanup. | ✅ Phase 4 closed |
 
 ## Current Status
 
@@ -62,7 +63,7 @@
   - `./Project_Manager.sh gen_model`
   - `./Project_Manager.sh run_hw`
   - `./Project_Manager.sh precheck`
-- Current detailed Phase 1 status:
+- Current detailed Phase status:
   - see [CURRENT_STATE.md](/home/gstar/Desktop/riscv_cnn_accelerator/CURRENT_STATE.md)
 - Phase 2 status:
   - completed at `V1.6`
@@ -72,11 +73,17 @@
   - closed on the current request/response-only NICE scope
   - official toolchain-based software build path is working
   - software-driven full-SoC execution is validated in official E203 RTL simulation
+- Phase 4 status:
+  - portability patch exported from the local nested SDK repo
+  - one-command recovery/regression entry added and validated
+  - collaborator recovery doc added
+  - Phase 4 exit criteria are closed on the current software-driven simulation scope
 
 ## Next Recommended Steps
 
-- Keep appending new entries to this file with `Date / Item / Result`
+- Start Phase 5 board bring-up preparation from the validated Phase 4 recovery baseline.
 - Keep detailed execution state in
   [CURRENT_STATE.md](/home/gstar/Desktop/riscv_cnn_accelerator/CURRENT_STATE.md)
 - Keep long-range planning in
   [INTEGRATION_ROADMAP.md](/home/gstar/Desktop/riscv_cnn_accelerator/INTEGRATION_ROADMAP.md)
+- Keep appending new entries to this file with `Date / Item / Result`

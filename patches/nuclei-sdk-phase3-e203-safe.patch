@@ -1,0 +1,240 @@
+diff --git a/SoC/evalsoc/Common/Source/GCC/startup_evalsoc.S b/SoC/evalsoc/Common/Source/GCC/startup_evalsoc.S
+index 45f15d14..344d7c17 100644
+--- a/SoC/evalsoc/Common/Source/GCC/startup_evalsoc.S
++++ b/SoC/evalsoc/Common/Source/GCC/startup_evalsoc.S
+@@ -211,6 +211,7 @@ _start:
+      * with mtvec by setting CSR_MMISC_CTL
+      * bit 9 NMI_CAUSE_FFF to 1
+      */
++#ifndef E203_HBIRD_SAFE_STARTUP
+     li t0, MMISC_CTL_NMI_CAUSE_FFF
+     csrs CSR_MMISC_CTL, t0
+ 
+@@ -222,6 +223,7 @@ _start:
+     csrs CSR_MMISC_CTL, t0
+ #else
+     csrc CSR_MMISC_CTL, t0
++#endif
+ #endif
+ 
+     /*
+@@ -254,7 +256,8 @@ _start:
+     csrs mstatus, t0
+ #endif
+ 
+-    /* TODO: Enable I/D Cache if present determined by cpufeature.h */
++    #ifndef E203_HBIRD_SAFE_STARTUP
++/* TODO: Enable I/D Cache if present determined by cpufeature.h */
+     /* This should be only used by nuclei_gen which generate a correct cpufeature.h */
+     /* We use CPU_ISA macro to determine whether this cpufeature.h is generated or hand written */
+     /* This is used to speedup data loading */
+@@ -275,6 +278,7 @@ _start:
+ 
+     /* Enable mcycle and minstret counter */
+     csrci CSR_MCOUNTINHIBIT, 0x5
++#endif
+ 
+ #if defined(SMP_CPU_CNT) && (SMP_CPU_CNT > 1)
+     csrr a0, CSR_MHARTID
+@@ -338,12 +342,14 @@ __init_common:
+ .globl _start_premain
+ .type _start_premain, @function
+ _start_premain:
++#ifndef E203_HBIRD_SAFE_STARTUP
+     /*
+      * Call vendor defined SystemInit to
+      * initialize the micro-controller system
+      * SystemInit will just be called by boot cpu
+      */
+     call SystemInit
++#endif
+ 
+     /*
+      * Call C/C++ constructor start up code,
+@@ -370,9 +376,11 @@ __skip_init:
+      */
+     call _premain_init
+ 
++#ifndef E203_HBIRD_SAFE_STARTUP
+     /* BPU cold bringup need time, so enable BPU before enter to main */
+     li t0, MMISC_CTL_BPU
+     csrs CSR_MMISC_CTL, t0
++#endif
+ 
+     // Interrupt is still disabled here
+     /* ===== Call SMP Main Function  ===== */
+diff --git a/SoC/evalsoc/Common/Source/system_evalsoc.c b/SoC/evalsoc/Common/Source/system_evalsoc.c
+index 0a1ad734..f788227c 100644
+--- a/SoC/evalsoc/Common/Source/system_evalsoc.c
++++ b/SoC/evalsoc/Common/Source/system_evalsoc.c
+@@ -1324,6 +1324,9 @@ static void Trap_Init(void)
+  */
+ void _premain_init(void)
+ {
++#ifdef E203_HBIRD_SAFE_STARTUP
++    return;
++#else
+ #if defined(CODESIZE) && (CODESIZE == 1)
+     // TODO to reduce the code size of application
+     // No need to do so complex premain initialization steps
+@@ -1504,6 +1507,7 @@ void _premain_init(void)
+         Interrupt_Init();
+     }
+ 
++#endif
+ #endif
+ }
+ 
+diff --git a/application/baremetal/cnn_accel_demo/Makefile b/application/baremetal/cnn_accel_demo/Makefile
+new file mode 100644
+index 00000000..37c97422
+--- /dev/null
++++ b/application/baremetal/cnn_accel_demo/Makefile
+@@ -0,0 +1,10 @@
++TARGET = cnn_accel_demo
++
++NUCLEI_SDK_ROOT ?= ../../..
++
++SRCDIRS = .
++INCDIRS = . include
++
++COMMON_FLAGS := -DE203_HBIRD_SAFE_STARTUP
++
++include $(NUCLEI_SDK_ROOT)/Build/Makefile.base
+diff --git a/application/baremetal/cnn_accel_demo/include/custom_insn.h b/application/baremetal/cnn_accel_demo/include/custom_insn.h
+new file mode 100644
+index 00000000..f014a07c
+--- /dev/null
++++ b/application/baremetal/cnn_accel_demo/include/custom_insn.h
+@@ -0,0 +1,48 @@
++#ifndef CUSTOM_INSN_H
++#define CUSTOM_INSN_H
++
++#include <stdint.h>
++
++/*
++ * RISC-V Custom0 Instruction Definitions (Opcode: 0x0b)
++ * NICE uses bits [14:12] as xd/xs1/xs2, not a free funct3 field.
++ * Format: .insn r opcode, xspec, funct7, rd, rs1, rs2
++ */
++
++#define ACC_X_NONE  0
++#define ACC_X_RS2   1
++#define ACC_X_RS1   2
++#define ACC_X_RS1RS2 3
++#define ACC_X_RD    4
++
++#define ACC_FN_WLOAD 0
++#define ACC_FN_DLOAD 1
++#define ACC_FN_COMP  2
++#define ACC_FN_RSTAT 3
++#define ACC_FN_CLEAR 4
++
++// 1. WLOAD: Load weight data to hardware.
++// xspec = xs1|xs2, funct7 = 0
++#define ACC_WLOAD(data, index) \
++    asm volatile(".insn r 0x0b, %c0, %c1, x0, %2, %3" : : "i"(ACC_X_RS1RS2), "i"(ACC_FN_WLOAD), "r"(data), "r"(index))
++
++// 2. DLOAD: Load activation data to hardware.
++// xspec = xs1|xs2, funct7 = 1
++#define ACC_DLOAD(data, index) \
++    asm volatile(".insn r 0x0b, %c0, %c1, x0, %2, %3" : : "i"(ACC_X_RS1RS2), "i"(ACC_FN_DLOAD), "r"(data), "r"(index))
++
++// 3. COMP: Trigger parallel convolution calculation.
++// xspec = none, funct7 = 2
++#define ACC_COMP() \
++    asm volatile(".insn r 0x0b, %c0, %c1, x0, x0, x0" : : "i"(ACC_X_NONE), "i"(ACC_FN_COMP))
++
++// 4. RSTAT: Read 32-bit accumulated result from hardware.
++// xspec = xd, funct7 = 3
++#define ACC_RSTAT(rd) \
++    asm volatile(".insn r 0x0b, %c1, %c2, %0, x0, x0" : "=r"(rd) : "i"(ACC_X_RD), "i"(ACC_FN_RSTAT))
++
++// 5. CLEAR: Clear PE accumulators before a new output tile.
++#define ACC_CLEAR() \
++    asm volatile(".insn r 0x0b, %c0, %c1, x0, x0, x0" : : "i"(ACC_X_NONE), "i"(ACC_FN_CLEAR))
++
++#endif /* CUSTOM_INSN_H */
+diff --git a/application/baremetal/cnn_accel_demo/main.c b/application/baremetal/cnn_accel_demo/main.c
+new file mode 100644
+index 00000000..04ad8e53
+--- /dev/null
++++ b/application/baremetal/cnn_accel_demo/main.c
+@@ -0,0 +1,77 @@
++#include <stdio.h>
++#include <stdint.h>
++#include "custom_insn.h"
++#include "nuclei_sdk_soc.h"
++
++/*
++ * SDK-style application entry intended to live under
++ * nuclei-sdk/application/baremetal/cnn_accel_demo/.
++ */
++static int32_t sw_reference_dot(const int8_t *w, const int8_t *d)
++{
++    int32_t acc = 0;
++    int i;
++
++    for (i = 0; i < 16; ++i) {
++        acc += ((int32_t)w[i]) * ((int32_t)d[i]);
++    }
++
++    return acc;
++}
++
++int main(void)
++{
++    const int8_t weights[16] = {
++        10, 10, 10, 10,
++        10, 10, 10, 10,
++        10, 10, 10, 10,
++        10, 10, 10, 10
++    };
++    const int8_t data[16] = {
++        2, 2, 2, 2,
++        2, 2, 2, 2,
++        2, 2, 2, 2,
++        2, 2, 2, 2
++    };
++    uint32_t test_weights = 0x0A0A0A0A;
++    uint32_t test_data = 0x02020202;
++    int32_t sw_result = 0;
++    int32_t result = 0;
++
++    __RV_CSR_SET(CSR_MSTATUS, MSTATUS_XS);
++
++    #ifndef E203_HBIRD_SAFE_STARTUP
++    printf("\r\nCNN Accelerator Demo via NICE\r\n");
++#endif
++    sw_result = sw_reference_dot(weights, data);
++    #ifndef E203_HBIRD_SAFE_STARTUP
++    printf("Software reference result: %d\r\n", sw_result);
++#endif
++
++    ACC_CLEAR();
++
++    ACC_WLOAD(test_weights, 0);
++    ACC_WLOAD(test_weights, 1);
++    ACC_WLOAD(test_weights, 2);
++    ACC_WLOAD(test_weights, 3);
++
++    ACC_DLOAD(test_data, 0);
++    ACC_DLOAD(test_data, 1);
++    ACC_DLOAD(test_data, 2);
++    ACC_DLOAD(test_data, 3);
++
++    ACC_COMP();
++    ACC_RSTAT(result);
++
++    #ifndef E203_HBIRD_SAFE_STARTUP
++    printf("Accelerator result: %d\r\n", result);
++#endif
++
++    if (result == sw_result) {
++        printf("SDK app check passed.\r\n");
++        return 0;
++    }
++
++    printf("SDK app check failed.\r\n");
++    return 1;
++}
