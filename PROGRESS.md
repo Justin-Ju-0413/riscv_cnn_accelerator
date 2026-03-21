@@ -56,7 +56,7 @@
 | 2026-03-21 | Tested the official toolchain's `riscv64-unknown-elf-run`; it can load the SDK ELF but is not a valid closure environment for the current `n300 + rv32imac + NICE` target, stopping first on unmapped ILM/DLM addresses and then on illegal instruction after minimal memory is added. | ✅ Identified |
 | 2026-03-21 | Trimmed the SDK app startup path to an E203-safe subset, regenerated ITCM/DTCM images from the rebuilt ELF, and confirmed software-driven `CLEAR/WLOAD/DLOAD/COMP/RSTAT` executes successfully in official full-SoC E203 simulation with `RSTAT=320`. | ✅ Phase 3 closed |
 | 2026-03-21 | Exported the nested `nuclei-sdk` delta into a portable patch, added a one-command SDK-to-full-SoC regression script, validated it end-to-end, and documented the collaborator recovery flow for Phase 4 engineering cleanup. | ✅ Phase 4 closed |
-| 2026-03-21 | Locked the first board-prep target to `evalsoc + nuclei_fpga_eval + n300 + ilm`, documented Phase 5 dependencies and debug hooks, added a board environment checker script, and confirmed the current machine still lacks `openocd`, FTDI/JTAG visibility, and a locked UART path. | ✅ Phase 5 baseline |
+| 2026-03-21 | Locked the first board-prep target to `evalsoc + nuclei_fpga_eval + n300 + ilm`, documented Phase 5 dependencies and debug hooks, added a board environment checker script, installed `openocd`, and confirmed the remaining blockers are FTDI/JTAG visibility plus a locked UART path. | ✅ Phase 5 baseline |
 
 ## Current Status
 
@@ -79,10 +79,15 @@
   - one-command recovery/regression entry added and validated
   - collaborator recovery doc added
   - Phase 4 exit criteria are closed on the current software-driven simulation scope
+- Phase 5 status:
+  - board-prep baseline exists
+  - `openocd` is installed
+  - remaining blockers are FTDI/JTAG visibility and locked UART path
 
 ## Next Recommended Steps
 
-- Run `scripts/check_phase5_board_env.sh` and close the remaining host and hardware dependency gaps before the first board run.
+- Connect or pass through the real board so `lsusb` can see the expected JTAG device.
+- Lock `SERIAL_DEV` before the first board log capture.
 - Keep detailed execution state in
   [CURRENT_STATE.md](/home/gstar/Desktop/riscv_cnn_accelerator/CURRENT_STATE.md)
 - Keep long-range planning in

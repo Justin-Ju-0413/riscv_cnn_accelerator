@@ -23,16 +23,17 @@ Reason:
 Available now:
 - `riscv64-unknown-elf-gcc`
 - `riscv64-unknown-elf-gdb`
+- `openocd`
 - SDK source tree under `third_party/nuclei-sdk`
 - evalsoc board OpenOCD config:
   - [openocd_evalsoc.cfg](/home/gstar/Desktop/riscv_cnn_accelerator/third_party/nuclei-sdk/SoC/evalsoc/Board/nuclei_fpga_eval/openocd_evalsoc.cfg)
 
-Not yet confirmed on this machine after running `check_phase5_board_env.sh`:
-- `openocd`
+Remaining gaps on this machine after rerunning `check_phase5_board_env.sh`:
 - a connected FTDI/JTAG adapter matching the board config `0403:6010`
 - a locked UART serial device path
 - a real FPGA bitstream / board image containing the integrated NICE RTL
 - board-side memory-map confirmation against the current simulation assumptions
+- optional Nuclei model availability
 
 ## Debug Hooks To Keep
 
