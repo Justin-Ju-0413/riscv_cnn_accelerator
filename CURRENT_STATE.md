@@ -15,15 +15,15 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 
 ## Active Phase
 
-- Phase: `Phase 4 complete`
-- Objective: Phase 4 exit criteria are now closed with a validated one-command recovery and regression flow
+- Phase: `Phase 5 active`
+- Objective: lock the board target, dependency baseline, debug hooks, and simulation-to-board gaps before the first hardware run
 
 ## Repositories
 
 - Main repo:
   - path: `/home/gstar/Desktop/riscv_cnn_accelerator`
   - branch: `bringup_v1`
-  - head: `c1e8e11`
+  - head: `a621629`
 - SoC repo:
   - path: `/home/gstar/Desktop/e203_hbirdv2`
   - branch: `cnn_bringup_v1`
@@ -38,44 +38,26 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
   - `./Project_Manager.sh gen_model`
   - `./Project_Manager.sh run_hw`
   - `./Project_Manager.sh precheck`
-- Official full-SoC simulator baseline is now aligned with repo guidance:
-  - local `iverilog` upgraded to `12.0`
-  - direct official `vvp.exec` runs now advance into the patch window
-- Full-SoC environment fixes are in place:
-  - stable `vsim` path handling
-  - no empty `+PATCHCASE=`
-  - ASCII-path-only rule for official `iverilog/vvp`
-- Lightweight official-chain smoke test passes:
-  - official `e203_exu_nice -> e203_subsys_nice_core -> cnn_nice_core` path
-  - `req_ready` low while busy
-  - `RSTAT=320`
-- Phase 2 mock-harness safety checks now pass under the corrected official NICE
-  encoding:
-  - `normal_path`
-  - `negative_values`
-  - `boundary_values`
-  - `invalid_index`
-  - `comp_without_full_load`
-  - `rstat_without_comp`
-  - `busy_blocks_new_req`
-  - `rstat_repeat_read`
-  - `illegal_funct7`
-  - `illegal_opcode`
-  - `reset_clears_state`
-- The official lightweight chain now also covers selected Phase 2 cases:
-  - repeated `RSTAT`
-  - invalid load index
-  - `COMP` before full load
-  - illegal `funct7`
-  - illegal opcode
-  - reset clears state
-- Real integration bug fixed:
-  - `cnn_nice_core` now latches `load_data_q` and `load_vec_sel_q`
-  - fix mirrored to both repos
-- Full software-driven SoC execution is validated:
-  - SDK ELF exported to `.verilog`, then split into `.itcm.verilog` and `.dtcm.verilog`
-  - software-issued `CLEAR/WLOAD/DLOAD/COMP/RSTAT` observed in official E203 RTL simulation
-  - final `RSTAT=320` comes from the software image, not the synthetic overlay
+- Phase 4 recovery entry is now validated locally:
+  - [run_sdk_fullsoc_regression.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh)
+  - rebuilds the SDK app
+  - regenerates and splits ITCM/DTCM images
+  - runs the official full-SoC E203 simulation
+  - observes final `RSTAT=320`
+- Current local host tools confirmed present:
+  - `riscv64-unknown-elf-gcc`
+  - `riscv64-unknown-elf-gdb`
+- Current local host tools and board links still missing or unconfirmed after running `check_phase5_board_env.sh`:
+  - `openocd` not found in `PATH`
+  - FTDI/JTAG device `0403:6010` not detected via `lsusb`
+  - board-side UART device path not locked via `SERIAL_DEV`
+  - Nuclei model / `ncycm` still not confirmed present
+- SDK-side board support confirmed present for the recommended first target:
+  - `SOC=evalsoc`
+  - `BOARD=nuclei_fpga_eval`
+  - `CORE=n300`
+  - OpenOCD config exists at
+    [openocd_evalsoc.cfg](/home/gstar/Desktop/riscv_cnn_accelerator/third_party/nuclei-sdk/SoC/evalsoc/Board/nuclei_fpga_eval/openocd_evalsoc.cfg)
 
 ## Phase 2 Result
 
@@ -88,83 +70,70 @@ Integrate the CNN NICE accelerator into `e203_hbirdv2` completely and safely.
 
 ## Phase 3 Result
 
-- The official Nuclei GNU toolchain requirement is confirmed in practice:
-  - generic distro `riscv64-unknown-elf-gcc` fails on
-    `-mtune=nuclei-300-series`
-  - official Nuclei GNU toolchain `2024.06` under `/home/gstar/Desktop/gcc`
-    compiles the SDK application successfully
-- The SDK-native app now performs software/hardware self-check logic:
-  - enables `MSTATUS.XS`
-  - computes `sw_reference_dot()`
-  - emits NICE `CLEAR/WLOAD/DLOAD/COMP/RSTAT`
-  - compares accelerator result against the software reference
-- Two software build entry points produce `cnn_accel_demo.elf`:
-  - `third_party/nuclei-sdk/application/baremetal/cnn_accel_demo`
-  - `sw/sdk_project` via the corrected `Makefile.template`
-- The built ELF has been validated at instruction level:
-  - `CLEAR/WLOAD/DLOAD/COMP/RSTAT` appear as custom `0x0b` instructions in
-    the disassembly
-- The official toolchain's generic runner is not enough to close Phase 3 by itself:
-  - `riscv64-unknown-elf-run` can load the ELF, but without explicit memory it
-    faults on unmapped `0x80000100`
-  - after adding minimal ILM/DLM memory ranges, it still stops on illegal
-    instruction
-  - current evidence says it does not model the full `n300 + rv32imac + NICE`
-    execution context needed by this project
+- The official Nuclei GNU toolchain requirement is confirmed in practice.
+- The SDK-native app performs software/hardware self-check logic.
+- The software-driven full-SoC execution path is validated in official E203 RTL simulation.
 - Two integration blockers were resolved during Phase 3 closure:
   - evalsoc startup assumptions were trimmed to an E203-safe subset for the SDK app bring-up path
   - successful non-`RSTAT` NICE operations now emit completion responses so E203 long-pipe bookkeeping can retire them
 
 ## Phase 4 Result
 
-- The nested `third_party/nuclei-sdk` delta is now exported as a portable patch:
-  - [nuclei-sdk-phase3-e203-safe.patch](/home/gstar/Desktop/riscv_cnn_accelerator/patches/nuclei-sdk-phase3-e203-safe.patch)
-- A reusable patch helper is now available:
-  - [apply_nuclei_sdk_phase3_patch.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/apply_nuclei_sdk_phase3_patch.sh)
-- A one-command SDK-to-full-SoC regression entry is now available:
-  - [run_sdk_fullsoc_regression.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh)
-- Recovery and handoff instructions are now centralized in:
-  - [PHASE4_RECOVERY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE4_RECOVERY.md)
-- The one-command recovery path is now validated locally:
-  - rebuild SDK app
-  - regenerate and split ITCM/DTCM images
-  - run official full-SoC E203 simulation
-  - observe `RSTAT=320` and `rstat_320_seen=1`
+- The nested `third_party/nuclei-sdk` delta is exported as a portable patch.
+- A reusable patch helper is available.
+- A one-command SDK-to-full-SoC regression entry is available and validated.
+- Recovery and handoff instructions are centralized in
+  [PHASE4_RECOVERY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE4_RECOVERY.md).
+
+## Phase 5 Progress
+
+- Recommended first board target is now locked for preparation work:
+  - `SOC=evalsoc`
+  - `BOARD=nuclei_fpga_eval`
+  - `CORE=n300`
+  - `DOWNLOAD=ilm`
+- Board-prep doc is now centralized in
+  [PHASE5_BOARD_PREP.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE5_BOARD_PREP.md).
+- A host dependency and connection checker is now available:
+  - [check_phase5_board_env.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/check_phase5_board_env.sh)
+- Main unresolved hardware-prep gaps are now explicit:
+  - `openocd` installation
+  - FTDI/JTAG device presence
+  - UART serial path
+  - real board image containing the NICE-enabled SoC
+  - board-side memory map confirmation
 
 ## Execution Entry Points
 
-- Fast gate:
-  - [run_nice_light.sh](/home/gstar/Desktop/e203_hbirdv2/tb/run_nice_light.sh)
-  - `bash /home/gstar/Desktop/e203_hbirdv2/tb/run_nice_light.sh`
+- Pre-board regression gate:
+  - [run_sdk_fullsoc_regression.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh)
+  - `bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh`
+- Board environment checker:
+  - [check_phase5_board_env.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/check_phase5_board_env.sh)
+  - `bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/check_phase5_board_env.sh`
 - Full-SoC wrapper:
   - [run_nice_patch.sh](/home/gstar/Desktop/e203_hbirdv2/vsim/run_nice_patch.sh)
   - `bash /home/gstar/Desktop/e203_hbirdv2/vsim/run_nice_patch.sh`
-  - default testcase is now the smaller `rv32ui-p-simple`
-- Phase 4 one-command regression:
-  - [run_sdk_fullsoc_regression.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh)
-  - `bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh`
 
 ## Key Files
 
-- Main RTL fix:
-  - [cnn_nice_core.v](/home/gstar/Desktop/riscv_cnn_accelerator/hw/rtl/acc/cnn_nice_core.v)
-- SoC RTL fix:
-  - [cnn_nice_core.v](/home/gstar/Desktop/e203_hbirdv2/rtl/e203/subsys/cnn_nice_core.v)
-- SoC integration wrapper:
-  - [e203_subsys_nice_core.v](/home/gstar/Desktop/e203_hbirdv2/rtl/e203/subsys/e203_subsys_nice_core.v)
-- Full-SoC observability:
-  - [tb_top.v](/home/gstar/Desktop/e203_hbirdv2/tb/tb_top.v)
+- Board prep doc:
+  - [PHASE5_BOARD_PREP.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE5_BOARD_PREP.md)
+- Board environment checker:
+  - [check_phase5_board_env.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/check_phase5_board_env.sh)
+- Phase 4 recovery doc:
+  - [PHASE4_RECOVERY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE4_RECOVERY.md)
 - SDK portability patch:
   - [nuclei-sdk-phase3-e203-safe.patch](/home/gstar/Desktop/riscv_cnn_accelerator/patches/nuclei-sdk-phase3-e203-safe.patch)
-- Recovery doc:
-  - [PHASE4_RECOVERY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE4_RECOVERY.md)
+- OpenOCD board config:
+  - [openocd_evalsoc.cfg](/home/gstar/Desktop/riscv_cnn_accelerator/third_party/nuclei-sdk/SoC/evalsoc/Board/nuclei_fpga_eval/openocd_evalsoc.cfg)
 
 ## Next Focus
 
-- Phase 4 is closed on the current software-driven simulation scope.
-- Keep `run_nice_light.sh` as the fast regression gate.
-- Keep `run_nice_patch.sh` as the underlying official full-SoC wrapper.
-- Next focus: Phase 5 board bring-up preparation.
+- `check_phase5_board_env.sh` now confirms the current machine still lacks `openocd`, FTDI/JTAG visibility, and a locked UART path.
+- Install or connect those missing pieces before attempting any board run.
+- Keep the Phase 4 simulation gate as the last check before hardware execution.
+- After dependencies are real, do the first OpenOCD + GDB attach and confirm board observability.
 
 ## Compression Rules
 

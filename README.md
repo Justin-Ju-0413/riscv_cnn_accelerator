@@ -37,6 +37,7 @@ Use [INTEGRATION_DECISIONS.md](INTEGRATION_DECISIONS.md) to freeze integration c
 Use [POST_SDK_PLAYBOOK.md](POST_SDK_PLAYBOOK.md) after the SDK is installed.
 See [SDK_INSTALL.md](SDK_INSTALL.md) for the current local SDK installation status.
 See [docs/PHASE4_RECOVERY.md](docs/PHASE4_RECOVERY.md) for the current collaborator recovery and regression flow.
+See [docs/PHASE5_BOARD_PREP.md](docs/PHASE5_BOARD_PREP.md) for the current board bring-up preparation baseline.
 
 ## Design Milestones
 - [x] Week 1: INT8 Software Golden Model (Python/C).

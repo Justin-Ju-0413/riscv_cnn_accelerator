@@ -1,7 +1,7 @@
 # Version
 
 - Current version: `V1.7`
-- Stage: `Phase 4 engineering cleanup complete`
+- Stage: `Phase 5 board bring-up preparation`
 - Last updated: `2026-03-21`
 
 ## Rule
