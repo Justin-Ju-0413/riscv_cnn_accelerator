@@ -1,23 +1,48 @@
-# 仿真生成文件
-hw/sim/*.vcd
-hw/sim/*.out
-hw/sim/*.vvp
-
-# 软件编译产物
-sw/build/
+# Build artifacts
 *.o
-*.elf
-*.bin
-
-# Vivado 综合/实现生成文件
-fpga/work/
-*.jou
+*.a
+*.so
+*.d
+*.out
+*.vcd
+*.fst
 *.log
-*.pb
-*.wdb
-*.dir/
-.Xil/
+*.wlf
+*.out
 
-# Python 缓存
+# Simulation
+hw/sim/build/
+hw/sim/*.out
+hw/sim/*.vcd
+tb_*.vcd
+
+# Firmware build
+sw/sdk_project/build/
+sw/sdk_project/*.elf
+sw/sdk_project/*.map
+sw/sdk_project/*.hex
+sw/sdk_project/*.srec
+sw/sdk_project/*.dasm
+sw/sdk_project/*.dump
+sw/sdk_project/*.itcm.verilog
+sw/sdk_project/*.dtcm.verilog
+sw/sdk_project/main.c.o
+sw/sdk_project/main.c.o.d
+
+# Nuclei SDK (fetched separately)
+third_party/nuclei-sdk/
+
+# E203 RTL reference (fetched separately)
+e203_hbirdv2/
+
+# OS / editor
+*.swp
+*.swo
+*~
+.DS_Store
+.vscode/
+.idea/
+
+# Python
 __pycache__/
 *.pyc
