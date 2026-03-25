@@ -11,7 +11,7 @@ SERIAL_DEV="${SERIAL_DEV:-}"
 TARGET_BOARD="${TARGET_BOARD:-nuclei_fpga_eval}"
 TARGET_SOC="${TARGET_SOC:-evalsoc}"
 TARGET_CORE="${TARGET_CORE:-n300}"
-FPGA_NAME="${FPGA_NAME:-mcu200t}"
+FPGA_NAME="${FPGA_NAME:-davinci_a7_35t}"
 
 pass() {
   echo "[PHASE5_OK] $1"
@@ -65,11 +65,11 @@ check_path "${SDK_DIR}/application/baremetal/cnn_accel_demo" "SDK app path"
 check_path "${SOC_DIR}/fpga/Makefile" "official FPGA top Makefile"
 
 case "${FPGA_NAME}" in
-  mcu200t|ddr200t)
+  davinci_a7_35t|mcu200t|ddr200t)
     pass "FPGA shell target: ${FPGA_NAME}"
     ;;
   *)
-    fail "unsupported FPGA_NAME=${FPGA_NAME}; expected mcu200t or ddr200t"
+    fail "unsupported FPGA_NAME=${FPGA_NAME}; expected davinci_a7_35t, mcu200t, or ddr200t"
     exit 1
     ;;
 esac
