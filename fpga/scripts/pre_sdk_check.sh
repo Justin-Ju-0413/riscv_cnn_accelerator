@@ -26,6 +26,21 @@ check_path() {
     fi
 }
 
+check_path_any() {
+    local label="$1"
+    shift
+    local path
+    for path in "$@"; do
+        if [ -e "$path" ]; then
+            printf '[OK]   %s: %s\n' "$label" "$path"
+            return 0
+        fi
+    done
+
+    printf '[MISS] %s: expected path missing -> %s\n' "$label" "$1"
+    status=1
+}
+
 echo '== Basic Tool Check =='
 check_cmd bash "Shell"
 check_cmd make "Build tool"
@@ -43,7 +58,10 @@ check_path "$ROOT_DIR/sw/build/sdk_env.sh.template" "SDK env template"
 check_path "$ROOT_DIR/sw/sdk_project/Makefile.template" "SDK project Makefile template"
 check_path "$ROOT_DIR/sw/sdk_project/application/main.c" "SDK project application entry"
 check_path "$ROOT_DIR/sw/sdk_project/config/project.mk" "SDK project config"
-check_path "$ROOT_DIR/PRE_SDK_CHECKLIST.md" "Pre-SDK checklist"
+check_path_any "Pre-SDK checklist" \
+    "$ROOT_DIR/PRE_SDK_CHECKLIST.md" \
+    "$ROOT_DIR/docs/PRE_SDK_CHECKLIST.md" \
+    "$ROOT_DIR/docs/archive/PRE_SDK_CHECKLIST.md"
 check_path "$ROOT_DIR/third_party/nuclei-sdk/README.md" "Local Nuclei SDK clone"
 check_path "$ROOT_DIR/third_party/nuclei-sdk/setup_config.sh.template" "SDK setup config template"
 

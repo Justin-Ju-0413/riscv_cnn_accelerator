@@ -1,4 +1,21 @@
+#ifndef MODEL_DATA_H
+#define MODEL_DATA_H
+
 #include <stdint.h>
-const int8_t EXPECTED_W[16] = {-2, 34, 12, -56, 91, -77, 5, 18, -99, 43, 27, -11, 64, -8, 3, 120};
-const int8_t EXPECTED_D[16] = {5, -9, 44, 7, -12, 88, -31, 6, 14, -5, 19, -64, 22, 11, -3, 9};
-const int32_t PYTHON_GOLDEN_REF = -6088;
+
+/* Fixed golden case for the minimal CNN v1 host reference. */
+enum {
+    CNN_V1_INPUT_H = 4,
+    CNN_V1_INPUT_W = 4,
+    CNN_V1_KERNEL_H = 3,
+    CNN_V1_KERNEL_W = 3,
+    CNN_V1_OUTPUT_H = 2,
+    CNN_V1_OUTPUT_W = 2,
+};
+
+const int8_t CNN_V1_INPUT[16] = {1, -2, 3, 0, 4, 5, -6, 1, -7, 8, 9, -10, 11, -12, 13, 14};
+const int8_t CNN_V1_KERNEL[9] = {2, -1, 0, -3, 1, 4, 1, -2, 3};
+const int32_t CNN_V1_CONV_GOLDEN[4] = {-23, -64, 142, -35};
+const int32_t CNN_V1_RELU_GOLDEN[4] = {0, 0, 142, 0};
+
+#endif /* MODEL_DATA_H */

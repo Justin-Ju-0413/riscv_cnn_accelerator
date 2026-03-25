@@ -1,5 +1,7 @@
 # Vivado/FPGA Handoff
 
+> **Version**: V1.7 | **Updated**: 2026-03-24 | **Owner**: Justin JU
+
 ## Purpose
 
 Lock the official FPGA handoff boundary for the current CNN-integrated
@@ -196,10 +198,14 @@ new evidence of incompatibility:
 
 The next concrete step after this document is:
 
-1. choose the first FPGA shell target between `mcu200t` and `ddr200t`
-2. confirm whether the board you will eventually use matches that shell
+1. keep `mcu200t` as the default first shell target
+2. confirm whether the real board eventually matches `mcu200t` or forces `ddr200t`
 3. inspect the chosen `system.v` and XDC files for any board-specific pin or clock mismatch
-4. only then decide whether a first `make setup` or `make bit` attempt is worth doing
+4. run the local shell-aware checker:
+   - `bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/check_phase5_board_env.sh`
+5. print the exact first-run commands:
+   - `bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/print_fpga_bringup_commands.sh`
+6. only then decide whether a first `make setup` or `make bit` attempt is worth doing
 
 Until that target is locked, keep the current work at the formal integration and
 pre-board verification level.

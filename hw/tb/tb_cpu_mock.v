@@ -17,6 +17,7 @@ module tb_cpu_mock();
 
     localparam [6:0] NICE_OPCODE = 7'h0B;
     localparam [2:0] X_NONE = 3'b000;
+    localparam [2:0] X_RS1 = 3'b010;
     localparam [2:0] X_RS1RS2 = 3'b011;
     localparam [2:0] X_RD = 3'b100;
     localparam [6:0] FN_WLOAD = 7'd0;
@@ -24,6 +25,7 @@ module tb_cpu_mock();
     localparam [6:0] FN_COMP  = 7'd2;
     localparam [6:0] FN_RSTAT = 7'd3;
     localparam [6:0] FN_CLEAR = 7'd4;
+    localparam [6:0] FN_CFG   = 7'd5;
     localparam [6:0] FN_BAD   = 7'd127;
     localparam [31:0] INST_BAD_OP = 32'h00000013;
 
@@ -35,11 +37,84 @@ module tb_cpu_mock();
         end
     endfunction
 
+    function [31:0] pack4_s8;
+        input signed [7:0] b0;
+        input signed [7:0] b1;
+        input signed [7:0] b2;
+        input signed [7:0] b3;
+        begin
+            pack4_s8 = {b3, b2, b1, b0};
+        end
+    endfunction
+
+    function [31:0] relu32;
+        input signed [31:0] value;
+        begin
+            relu32 = (value > 0) ? value : 32'd0;
+        end
+    endfunction
+
+    function integer vec4_equal;
+        input [31:0] lhs0;
+        input [31:0] lhs1;
+        input [31:0] lhs2;
+        input [31:0] lhs3;
+        input [31:0] rhs0;
+        input [31:0] rhs1;
+        input [31:0] rhs2;
+        input [31:0] rhs3;
+        begin
+            vec4_equal = (lhs0 === rhs0) &&
+                         (lhs1 === rhs1) &&
+                         (lhs2 === rhs2) &&
+                         (lhs3 === rhs3);
+        end
+    endfunction
+
+    function signed [7:0] conv4x4_px;
+        input integer row;
+        input integer col;
+        begin
+            case(row)
+                0: case(col)
+                    0: conv4x4_px = 8'sd1;
+                    1: conv4x4_px = 8'sd2;
+                    2: conv4x4_px = 8'sd3;
+                    3: conv4x4_px = 8'sd4;
+                    default: conv4x4_px = 8'sd0;
+                endcase
+                1: case(col)
+                    0: conv4x4_px = 8'sd5;
+                    1: conv4x4_px = 8'sd6;
+                    2: conv4x4_px = 8'sd7;
+                    3: conv4x4_px = 8'sd8;
+                    default: conv4x4_px = 8'sd0;
+                endcase
+                2: case(col)
+                    0: conv4x4_px = 8'sd9;
+                    1: conv4x4_px = 8'sd10;
+                    2: conv4x4_px = 8'sd11;
+                    3: conv4x4_px = 8'sd12;
+                    default: conv4x4_px = 8'sd0;
+                endcase
+                3: case(col)
+                    0: conv4x4_px = 8'sd13;
+                    1: conv4x4_px = 8'sd14;
+                    2: conv4x4_px = 8'sd15;
+                    3: conv4x4_px = 8'sd16;
+                    default: conv4x4_px = 8'sd0;
+                endcase
+                default: conv4x4_px = 8'sd0;
+            endcase
+        end
+    endfunction
+
     wire [31:0] INST_WLOAD = make_nice_instr(X_RS1RS2, FN_WLOAD);
     wire [31:0] INST_DLOAD = make_nice_instr(X_RS1RS2, FN_DLOAD);
     wire [31:0] INST_COMP  = make_nice_instr(X_NONE, FN_COMP);
     wire [31:0] INST_RSTAT = make_nice_instr(X_RD, FN_RSTAT);
     wire [31:0] INST_CLEAR = make_nice_instr(X_NONE, FN_CLEAR);
+    wire [31:0] INST_CFG   = make_nice_instr(X_RS1, FN_CFG);
     wire [31:0] INST_BAD_FN = make_nice_instr(X_NONE, FN_BAD);
 
     e203_nice_harness dut(
@@ -178,6 +253,105 @@ module tb_cpu_mock();
         end
     endtask
 
+    task do_cfg;
+        input [31:0] cfg_bits;
+        begin
+            issue_req_expect_ok(INST_CFG, cfg_bits, 32'b0);
+        end
+    endtask
+
+    task run_conv3x3_zero_pad_case;
+        input [8*40-1:0] case_name;
+        input integer out_row;
+        input integer out_col;
+        input [31:0] expected_raw;
+        input [31:0] expected_relu;
+        reg [31:0] w0;
+        reg [31:0] w1;
+        reg [31:0] w2;
+        reg [31:0] w3;
+        reg [31:0] d0;
+        reg [31:0] d1;
+        reg [31:0] d2;
+        reg [31:0] d3;
+        begin
+            // 3x3 kernel of all ones, packed into 16 lanes with explicit zero padding.
+            w0 = 32'h01010101;
+            w1 = 32'h01010101;
+            w2 = 32'h00000001;
+            w3 = 32'h00000000;
+
+            // 4x4 input, row-major, with the 3x3 window flattened into lanes 0..8.
+            d0 = pack4_s8(
+                conv4x4_px(out_row + 0, out_col + 0),
+                conv4x4_px(out_row + 0, out_col + 1),
+                conv4x4_px(out_row + 0, out_col + 2),
+                conv4x4_px(out_row + 1, out_col + 0)
+            );
+            d1 = pack4_s8(
+                conv4x4_px(out_row + 1, out_col + 1),
+                conv4x4_px(out_row + 1, out_col + 2),
+                conv4x4_px(out_row + 2, out_col + 0),
+                conv4x4_px(out_row + 2, out_col + 1)
+            );
+            d2 = pack4_s8(
+                conv4x4_px(out_row + 2, out_col + 2),
+                8'sd0,
+                8'sd0,
+                8'sd0
+            );
+            d3 = 32'b0;
+
+            do_clear();
+            issue_req_expect_ok(INST_WLOAD, w0, 32'd0);
+            issue_req_expect_ok(INST_WLOAD, w1, 32'd1);
+            issue_req_expect_ok(INST_WLOAD, w2, 32'd2);
+            issue_req_expect_ok(INST_WLOAD, w3, 32'd3);
+            issue_req_expect_ok(INST_DLOAD, d0, 32'd0);
+            issue_req_expect_ok(INST_DLOAD, d1, 32'd1);
+            issue_req_expect_ok(INST_DLOAD, d2, 32'd2);
+            issue_req_expect_ok(INST_DLOAD, d3, 32'd3);
+            issue_req_expect_ok(INST_COMP, 32'b0, 32'b0);
+            issue_req(INST_RSTAT, 32'b0, 32'b0);
+            expect_rsp_case(case_name, expected_raw, 1'b0, 1);
+            if(relu32(expected_raw) !== expected_relu) begin
+                $display(">>> TB FAILED: ReLU reference helper mismatch for %0s", case_name);
+                $finish_and_return(1);
+            end
+        end
+    endtask
+
+    task run_relu_reference_case;
+        input [8*40-1:0] case_name;
+        input [31:0] raw0;
+        input [31:0] raw1;
+        input [31:0] raw2;
+        input [31:0] raw3;
+        input [31:0] expected0;
+        input [31:0] expected1;
+        input [31:0] expected2;
+        input [31:0] expected3;
+        reg [31:0] relu0;
+        reg [31:0] relu1;
+        reg [31:0] relu2;
+        reg [31:0] relu3;
+        begin
+            relu0 = relu32(raw0);
+            relu1 = relu32(raw1);
+            relu2 = relu32(raw2);
+            relu3 = relu32(raw3);
+            if(!vec4_equal(relu0, relu1, relu2, relu3,
+                           expected0, expected1, expected2, expected3)) begin
+                $display(">>> TB FAILED: ReLU reference case %0s mismatch", case_name);
+                $display(">>> TB FAILED: raw=[%0d,%0d,%0d,%0d] relu=[%0d,%0d,%0d,%0d]",
+                         raw0, raw1, raw2, raw3, relu0, relu1, relu2, relu3);
+                $finish_and_return(1);
+            end
+            $display("[%0s] raw=[%0d,%0d,%0d,%0d] relu=[%0d,%0d,%0d,%0d] => PASS",
+                     case_name, raw0, raw1, raw2, raw3, relu0, relu1, relu2, relu3);
+        end
+    endtask
+
     task do_reset_pulse;
         begin
             @(negedge clk);
@@ -257,10 +431,30 @@ module tb_cpu_mock();
                          32'h05050505, 32'h05050505, 32'h05050505, 32'h05050505,
                          -32'sd160);
 
+        do_cfg(32'd1);
+        run_compute_case("negative_values_relu_on",
+                         32'hFEFEFEFE, 32'hFEFEFEFE, 32'hFEFEFEFE, 32'hFEFEFEFE,
+                         32'h05050505, 32'h05050505, 32'h05050505, 32'h05050505,
+                         32'd0);
+        do_cfg(32'd0);
+
         run_compute_case("boundary_values",
                          32'h7F7F7F7F, 32'h80808080, 32'h00000000, 32'h7F80007F,
                          32'h01010101, 32'h01010101, 32'h01010101, 32'h01010101,
                          32'd122);
+
+        run_conv3x3_zero_pad_case("conv3x3_tl_zero_pad", 0, 0, 32'd54, 32'd54);
+        run_conv3x3_zero_pad_case("conv3x3_tr_zero_pad", 0, 1, 32'd63, 32'd63);
+        run_conv3x3_zero_pad_case("conv3x3_bl_zero_pad", 1, 0, 32'd90, 32'd90);
+        run_conv3x3_zero_pad_case("conv3x3_br_zero_pad", 1, 1, 32'd99, 32'd99);
+
+        run_relu_reference_case("relu_reference_smoke",
+                                -32'sd23, -32'sd64, 32'sd142, -32'sd35,
+                                32'd0, 32'd0, 32'd142, 32'd0);
+
+        do_cfg(32'd1);
+        run_conv3x3_zero_pad_case("conv3x3_tl_zero_pad_relu", 0, 0, 32'd54, 32'd54);
+        do_cfg(32'd0);
 
         do_clear();
         issue_req(INST_WLOAD, 32'hAAAAAAAA, 32'd4);
