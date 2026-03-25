@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RISC-V CNN 加速器 SoC Bring-Up 汇报</title>
+  
+  <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/tailwindcss/3.0.23/tailwind.min.js"></script>
+  <link href="https://fonts.loli.net/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans SC', 'Inter', sans-serif;
+      background: #000;
+      color: #fff;
+      overflow: hidden;
+    }
+    
+    .slides-container {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0a0a0a;
+    }
+    
+    .slide {
+      width: 100%;
+      height: 100%;
+      max-width: 450px;
+      max-height: 800px;
+      aspect-ratio: 9/16;
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
+    }
+    
+    .slide.active { opacity: 1; transform: translateX(0); }
+    .slide.prev { opacity: 0; transform: translateX(-100%); }
+    
+    .light-spot {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.3;
+      pointer-events: none;
+    }
+    .light-spot-1 { width: 300px; height: 300px; background: #3b82f6; top: -100px; right: -100px; animation: float1 20s ease-in-out infinite; }
+    .light-spot-2 { width: 250px; height: 250px; background: #8b5cf6; bottom: -80px; left: -80px; animation: float2 25s ease-in-out infinite; }
+    .light-spot-3 { width: 200px; height: 200px; background: #06b6d4; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: float3 18s ease-in-out infinite; }
+    .light-spot-4 { width: 180px; height: 180px; background: #10b981; top: 20%; left: -50px; animation: float1 22s ease-in-out infinite reverse; }
+    
+    @keyframes float1 { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-50px, 30px); } 50% { transform: translate(30px, 50px); } 75% { transform: translate(50px, -20px); } }
+    @keyframes float2 { 0%, 100% { transform: translate(0, 0); } 33% { transform: translate(40px, -40px); } 66% { transform: translate(-30px, 30px); } }
+    @keyframes float3 { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.2); } }
+    
+    .slide-content { position: relative; z-index: 10; text-align: center; width: 100%; }
+    
+    .progress-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 100; }
+    .progress-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); cursor: pointer; transition: all 0.3s; }
+    .progress-dot.active { background: #fff; transform: scale(1.3); }
+    .progress-dot:hover { background: rgba(255,255,255,0.6); }
+    .page-number { position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); font-size: 0.875rem; color: rgba(255,255,255,0.4); z-index: 100; }
+    
+    .tag { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+    .tag-blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .tag-green { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .tag-purple { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+    .tag-cyan { background: rgba(6, 182, 212, 0.2); color: #22d3ee; }
+  </style>
+</head>
+<body>
+  <div class="slides-container">
+    
+    <!-- Slide 1: 封面 -->
+    <div class="slide active">
+      <div class="light-spot light-spot-1"></div>
+      <div class="light-spot light-spot-2"></div>
+      <div class="slide-content">
+        <div class="tag tag-blue mb-6">Week 5-6 阶段汇报</div>
+        <h1 class="text-4xl font-black mb-4 leading-tight">RISC-V CNN 加速器</h1>
+        <h2 class="text-3xl font-bold text-gray-300 mb-6">SoC Bring-Up</h2>
+        <p class="text-lg font-light text-gray-500">基于 Hummingbird E203 的 NICE 接口集成</p>
+        <div class="mt-12 text-sm text-gray-600">
+          <p>Branch: <span class="text-gray-400">bringup_v1</span></p>
+          <p class="mt-1">Version: <span class="text-gray-400">V1.7</span></p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Slide 2: 标题冲击页 -->
+    <div class="slide">
+      <div class="light-spot light-spot-3"></div>
+      <div class="slide-content">
+        <h1 class="text-4xl font-black leading-tight">
+          从算法到硅片<br>
+          <span class="text-blue-400">一步到位</span>
+        </h1>
+        <p class="text-lg font-light text-gray-500 mt-6">INT8 · 4x4 PE阵列 · NICE接口</p>
+      </div>
+    </div>
+    
+    <!-- Slide 3: 数据展示页 -->
+    <div class="slide">
+      <div class="light-spot light-spot-1"></div>
+      <div class class="light-spot light-spot-4"></div>
+      <div class="slide-content">
+        <p class="text-sm font-light text-gray-500 mb-2">核心成果</p>
+        <span class="text-7xl font-black text-blue-400">RSTAT=320</span>
+        <p class="text-xl font-light text-gray-400 mt-4">全SoC仿真验证通过</p>
+        <div class="mt-8 flex justify-center gap-4 flex-wrap">
+          <span class="tag tag-green">Phase 1-3 ✅</span>
+          <span class="tag tag-purple">Pre-board ✅</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Slide 4: 步骤说明页 - 架构 -->
+    <div class="slide">
+      <div class="light-spot light-spot-2"></div>
+      <div class class="light-spot light-spot-4"></div>
+      <div class="slide-content">
+        <span class="text-6xl font-black text-purple-500 mb-4">01</span>
+        <h2 class="text-3xl font-bold mb-4">系统架构</h2>
+        <p class="text-lg font-light text-gray-400 mb-6">4x4 PE 阵列 · Output Stationary</p>
+        <div class="text-left bg-gray-900/50 rounded-2xl p-4 text-sm">
+          <p class="text-gray-300 mb-2">• <span class="text-blue-400">INT8</span> 卷积加速</p>
+          <p class="text-gray-300 mb-2">• <span class="text-purple-400">NICE</span> 自定义指令接口</p>
+          <p class="text-gray-300 mb-2">• <span class="text-cyan-400">E203</span> RISC-V 处理器集成</p>
+          <p class="text-gray-300">• 完整软件SDK支持</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Slide 5: 列表页 - 工作内容 -->
+    <div class="slide">
+      <div class="light-spot light-spot-1"></div>
+      <div class="light-spot light-spot-3"></div>
+      <div class="slide-content">
+        <h2 class="text-2xl font-bold mb-8">完成的工作</h2>
+        <ul class="space-y-4 text-left">
+          <li class="flex items-start">
+            <span class="text-green-400 mr-3">✓</span>
+            <span class="text-gray-300">Python Golden Model + INT8量化</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-400 mr-3">✓</span>
+            <span class="text-gray-300">4x4 PE Array RTL实现</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-400 mr-3">✓</span>
+            <span class="text-gray-300">NICE接口FSM + 自定义Opcode</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-400 mr-3">✓</span>
+            <span class="text-gray-300">E203全SoC集成与仿真</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-400 mr-3">✓</span>
+            <span class="text-gray-300">SDK驱动 + Nuclei工具链</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    <!-- Slide 6: 时间线 -->
+    <div class="slide">
+      <div class="light-spot light-spot-2"></div>
+      <div class="light-spot light-spot-4"></div>
+      <div class="slide-content">
+        <h2 class="text-2xl font-bold mb-8">验证进度</h2>
+        <div class="space-y-4 text-left">
+          <div class="flex items-center gap-3">
+            <span class="tag tag-green text-xs">Week 1-4</span>
+            <span class="text-gray-300 text-sm">算法 · RTL · 集成 · 验证</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="tag tag-blue text-xs">Week 5</span>
+            <span class="text-gray-300 text-sm">E203 NICE集成</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="tag tag-purple text-xs">Week 6</span>
+            <span class="text-gray-300 text-sm">全SoC仿真 + SDK验证</span>
+          </div>
+        </div>
+        <div class="mt-8 p-4 bg-gray-900/50 rounded-xl">
+          <p class="text-sm text-gray-400">当前状态</p>
+          <p class="text-lg font-bold text-green-400 mt-1">Pre-board 验证完成</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Slide 7: 技术亮点 -->
+    <div class="slide">
+      <div class="light-spot light-spot-1"></div>
+      <div class="light-spot light-spot-2"></div>
+      <div class="slide-content">
+        <h2 class="text-2xl font-bold mb-6">技术亮点</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-gray-900/50 rounded-xl p-4">
+            <p class="text-2xl font-black text-blue-400">INT8</p>
+            <p class="text-xs text-gray-500 mt-1">量化卷积</p>
+          </div>
+          <div class="bg-gray-900/50 rounded-xl p-4">
+            <p class="text-2xl font-black text-purple-400">NICE</p>
+            <p class="text-xs text-gray-500 mt-1">自定义指令</p>
+          </div>
+          <div class="bg-gray-900/50 rounded-xl p-4">
+            <p class="text-2xl font-black text-cyan-400">E203</p>
+            <p class="text-xs text-gray-500 mt-1">RISC-V SoC</p>
+          </div>
+          <div class="bg-gray-900/50 rounded-xl p-4">
+            <p class="text-2xl font-black text-green-400">320</p>
+            <p class="text-xs text-gray-500 mt-1">MAC cycles</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Slide 8: 当前状态 -->
+    <div class="slide">
+      <div class="light-spot light-spot-3"></div>
+      <div class="slide-content">
+        <h2 class="text-2xl font-bold mb-6">当前状态</h2>
+        <div class="text-left space-y-3">
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-green-400"></span>
+            <span class="text-gray-300">SDK软件路径验证</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-green-400"></span>
+            <span class="text-gray-300">全SoC仿真RSTAT=320</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-green-400"></span>
+            <span class="text-gray-300">NICE接口安全验证</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
+            <span class="text-gray-300">JTAG/UART硬件待确认</span>
+          </div>
+        </div>
+        <div class="mt-6 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+          <p class="text-sm text-yellow-400">待确定: 首款FPGA目标板 (mcu200t / ddr200t)</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Slide 9: 下一步 -->
+    <div class="slide">
+      <div class="light-spot light-spot-1"></div>
+      <div class="light-spot light-spot-4"></div>
+      <div class="slide-content">
+        <span class="text-6xl font-black text-cyan-500 mb-4">→</span>
+        <h2 class="text-3xl font-bold mb-4">下一步</h2>
+        <div class="text-left bg-gray-900/50 rounded-2xl p-4 space-y-3">
+          <p class="text-gray-300">1. 确定 FPGA 目标板</p>
+          <p class="text-gray-300">2. Vivado bitstream 生成</p>
+          <p class="text-gray-300">3. JTAG 硬件调试</p>
+          <p class="text-gray-300">4. 板上验证</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Slide 10: 结尾页 -->
+    <div class="slide">
+      <div class="light-spot light-spot-1"></div>
+      <div class="light-spot light-spot-2"></div>
+      <div class="light-spot light-spot-3"></div>
+      <div class="slide-content">
+        <h1 class="text-3xl font-bold mb-6">感谢聆听</h1>
+        <p class="text-lg font-light text-gray-400 mb-8">Questions & Discussion</p>
+        <div class="text-sm text-gray-600">
+          <p>RISC-V CNN 加速器 · SoC Bring-Up</p>
+          <p class="mt-2">Version 1.7 · 2026.03</p>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <div class="progress-bar" id="progressBar"></div>
+  <div class="page-number" id="pageNumber">1 / 10</div>
+  
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const progressBar = document.getElementById('progressBar');
+    const pageNumber = document.getElementById('pageNumber');
+    let currentSlide = 0;
+    
+    slides.forEach((_, index) => {
+      const dot = document.createElement('div');
+      dot.className = `progress-dot ${index === 0 ? 'active' : ''}`;
+      dot.addEventListener('click', () => goToSlide(index));
+      progressBar.appendChild(dot);
+    });
+    
+    function updateSlides() {
+      slides.forEach((slide, index) => {
+        slide.classList.remove('active', 'prev');
+        if (index === currentSlide) slide.classList.add('active');
+        else if (index < currentSlide) slide.classList.add('prev');
+      });
+      document.querySelectorAll('.progress-dot').forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentSlide);
+      });
+      pageNumber.textContent = `${currentSlide + 1} / ${slides.length}`;
+    }
+    
+    function nextSlide() { if (currentSlide < slides.length - 1) { currentSlide++; updateSlides(); } }
+    function prevSlide() { if (currentSlide > 0) { currentSlide--; updateSlides(); } }
+    function goToSlide(index) { currentSlide = index; updateSlides(); }
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+      else if (e.key === 'ArrowLeft') prevSlide();
+    });
+    
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+    document.addEventListener('touchend', (e) => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) { if (diff > 0) nextSlide(); else prevSlide(); }
+    });
+  </script>
+</body>
+</html>

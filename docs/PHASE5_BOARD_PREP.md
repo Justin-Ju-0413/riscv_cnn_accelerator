@@ -1,6 +1,6 @@
 # Phase 5 Board Bring-Up Preparation
 
-> **Version**: V1.7 | **Updated**: 2026-03-24 | **Owner**: Justin JU
+> **Version**: V1.9 | **Updated**: 2026-03-26 | **Owner**: Justin JU
 
 ## Goal
 
