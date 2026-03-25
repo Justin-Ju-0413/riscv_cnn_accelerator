@@ -23,6 +23,8 @@ The current formal handoff path is:
 - integrated CNN co-unit RTL:
   [cnn_nice_core.v](/home/gstar/Desktop/e203_hbirdv2/rtl/e203/subsys/cnn_nice_core.v)
 - official FPGA board shell:
+  [system.v](/home/gstar/Desktop/e203_hbirdv2/fpga/davinci_a7_35t/src/system.v)
+  or
   [system.v](/home/gstar/Desktop/e203_hbirdv2/fpga/mcu200t/src/system.v)
   or [system.v](/home/gstar/Desktop/e203_hbirdv2/fpga/ddr200t/src/system.v)
 
@@ -52,6 +54,8 @@ For FPGA work, the practical board top module is `system`, not `e203_soc_top`.
 
 Use one of these depending on the board target:
 
+- Davinci A7-35T shell:
+  [system.v](/home/gstar/Desktop/e203_hbirdv2/fpga/davinci_a7_35t/src/system.v)
 - MCU200T shell:
   [system.v](/home/gstar/Desktop/e203_hbirdv2/fpga/mcu200t/src/system.v)
 - DDR200T shell:
@@ -142,7 +146,10 @@ Build-manifest file to keep aligned with the RTL set:
 Board-shell files that are expected to absorb FPGA-specific work:
 
 - [system.v](/home/gstar/Desktop/e203_hbirdv2/fpga/mcu200t/src/system.v)
+- [system.v](/home/gstar/Desktop/e203_hbirdv2/fpga/davinci_a7_35t/src/system.v)
 - [system.v](/home/gstar/Desktop/e203_hbirdv2/fpga/ddr200t/src/system.v)
+- [nuclei-config.xdc](/home/gstar/Desktop/e203_hbirdv2/fpga/davinci_a7_35t/constrs/nuclei-config.xdc)
+- [nuclei-master.xdc](/home/gstar/Desktop/e203_hbirdv2/fpga/davinci_a7_35t/constrs/nuclei-master.xdc)
 - [nuclei-config.xdc](/home/gstar/Desktop/e203_hbirdv2/fpga/mcu200t/constrs/nuclei-config.xdc)
 - [nuclei-master.xdc](/home/gstar/Desktop/e203_hbirdv2/fpga/mcu200t/constrs/nuclei-master.xdc)
 - [nuclei-config.xdc](/home/gstar/Desktop/e203_hbirdv2/fpga/ddr200t/constrs/nuclei-config.xdc)
@@ -198,8 +205,8 @@ new evidence of incompatibility:
 
 The next concrete step after this document is:
 
-1. keep `mcu200t` as the default first shell target
-2. confirm whether the real board eventually matches `mcu200t` or forces `ddr200t`
+1. keep `davinci_a7_35t` as the default first shell target
+2. confirm whether the real board manual requires pin or clock changes before the first bitstream attempt
 3. inspect the chosen `system.v` and XDC files for any board-specific pin or clock mismatch
 4. run the local shell-aware checker:
    - `bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/check_phase5_board_env.sh`

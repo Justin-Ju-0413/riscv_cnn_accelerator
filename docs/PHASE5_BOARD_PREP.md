@@ -14,7 +14,7 @@ Use the current SDK-aligned evalsoc path as the first hardware target:
 - `BOARD=nuclei_fpga_eval`
 - `CORE=n300`
 - `DOWNLOAD=ilm`
-- `FPGA_NAME=mcu200t` as the default shell to inspect and try first
+- `FPGA_NAME=davinci_a7_35t` as the default shell to inspect and try first
 
 Reason:
 - the working SDK app already builds against `evalsoc`
@@ -30,11 +30,15 @@ Keep the software-visible board target and the FPGA shell target distinct:
   - `BOARD=nuclei_fpga_eval`
   - `CORE=n300`
 - official FPGA shell target:
-  - default `FPGA_NAME=mcu200t`
-  - fallback `FPGA_NAME=ddr200t` only if the real board requires it
+  - default `FPGA_NAME=davinci_a7_35t`
+  - fallback `FPGA_NAME=mcu200t` / `ddr200t` only if the board path changes back to the official eval boards
 
 Current official shell entry files:
 
+- Davinci A7-35T shell:
+  - [system.v](/home/gstar/Desktop/e203_hbirdv2/fpga/davinci_a7_35t/src/system.v)
+  - [nuclei-config.xdc](/home/gstar/Desktop/e203_hbirdv2/fpga/davinci_a7_35t/constrs/nuclei-config.xdc)
+  - [nuclei-master.xdc](/home/gstar/Desktop/e203_hbirdv2/fpga/davinci_a7_35t/constrs/nuclei-master.xdc)
 - MCU200T shell:
   - [system.v](/home/gstar/Desktop/e203_hbirdv2/fpga/mcu200t/src/system.v)
   - [nuclei-config.xdc](/home/gstar/Desktop/e203_hbirdv2/fpga/mcu200t/constrs/nuclei-config.xdc)
@@ -101,7 +105,7 @@ These are the main gaps still separating Phase 4 simulation closure from board e
 3. Print the exact first-run commands:
    - `bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/print_fpga_bringup_commands.sh`
 4. Confirm the actual hardware target still matches `SOC=evalsoc BOARD=nuclei_fpga_eval CORE=n300 DOWNLOAD=ilm`.
-5. Confirm the default shell target `FPGA_NAME=mcu200t` is still the best match for the real board.
+5. Confirm the default shell target `FPGA_NAME=davinci_a7_35t` is still aligned with the real board manual and pin map.
 6. Confirm `openocd` is installed and the FTDI adapter is visible.
 7. Lock the UART device path and baud rate for log collection.
 8. Confirm the FPGA image or board firmware really contains the integrated NICE-enabled SoC.
