@@ -1,5 +1,7 @@
 # Phase 4 Recovery And Regression Flow
 
+> **Version**: V1.9 | **Updated**: 2026-03-26 | **Owner**: Justin JU
+
 ## Goal
 
 Make the current Phase 3 closure reproducible without relying on hidden local state.
