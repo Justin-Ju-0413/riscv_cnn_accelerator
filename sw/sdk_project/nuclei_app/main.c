@@ -1,67 +1,62 @@
 #include <stdio.h>
 #include <stdint.h>
-#include "custom_insn.h"
 #include "nuclei_sdk_soc.h"
+#include "cnn_v1_demo.h"
+#include "cnn_v1_benchmark.h"
 
-/*
- * SDK-style application entry intended to live under
- * nuclei-sdk/application/baremetal/cnn_accel_demo/.
- */
-static int32_t sw_reference_dot(const int8_t *w, const int8_t *d)
+static void print_feature_map_2x2(const char *title, const int32_t values[4])
 {
-    int32_t acc = 0;
+    printf("%s\r\n", title);
+    printf("  [%11ld, %11ld]\r\n", (long)values[0], (long)values[1]);
+    printf("  [%11ld, %11ld]\r\n", (long)values[2], (long)values[3]);
+}
+
+static int compare_feature_maps_2x2(const int32_t lhs[4], const int32_t rhs[4])
+{
     int i;
 
-    for (i = 0; i < 16; ++i) {
-        acc += ((int32_t)w[i]) * ((int32_t)d[i]);
+    for (i = 0; i < 4; ++i) {
+        if (lhs[i] != rhs[i]) {
+            return 0;
+        }
     }
 
-    return acc;
+    return 1;
 }
 
 int main(void)
 {
-    const int8_t weights[16] = {
-        10, 10, 10, 10,
-        10, 10, 10, 10,
-        10, 10, 10, 10,
-        10, 10, 10, 10
-    };
-    const int8_t data[16] = {
-        2, 2, 2, 2,
-        2, 2, 2, 2,
-        2, 2, 2, 2,
-        2, 2, 2, 2
-    };
-    uint32_t test_weights = 0x0A0A0A0A;
-    uint32_t test_data = 0x02020202;
-    int32_t sw_result = 0;
-    int32_t result = 0;
+    int32_t sw_output[4];
+    int32_t hw_output[4];
+    const int32_t *expected_output = CNN_V1_DEMO_ENABLE_RELU ? CNN_V1_DEMO_EXPECTED_RELU : CNN_V1_DEMO_EXPECTED_RAW;
+    int pass;
+    uint64_t cpu_cycles;
+    uint64_t accel_cycles;
 
     __RV_CSR_SET(CSR_MSTATUS, MSTATUS_XS);
 
-    printf("\r\nCNN Accelerator Demo via NICE\r\n");
-    sw_result = sw_reference_dot(weights, data);
-    printf("Software reference result: %d\r\n", sw_result);
+    printf("\r\nCNN v1 Demo via NICE\r\n");
+    printf("Kernel: 3x3 INT8, Input: 4x4 INT8, Output: 2x2\r\n");
+    printf("ReLU: %s\r\n", CNN_V1_DEMO_ENABLE_RELU ? "on" : "off");
 
-    ACC_CLEAR();
+    cpu_cycles = cnn_v1_measure_reference_conv3x3_4x4(CNN_V1_DEMO_INPUT,
+                                                       CNN_V1_DEMO_KERNEL,
+                                                       sw_output,
+                                                       CNN_V1_DEMO_ENABLE_RELU);
+    accel_cycles = cnn_v1_measure_accel_conv3x3_4x4(CNN_V1_DEMO_INPUT,
+                                                     CNN_V1_DEMO_KERNEL,
+                                                     hw_output,
+                                                     CNN_V1_DEMO_ENABLE_RELU);
 
-    ACC_WLOAD(test_weights, 0);
-    ACC_WLOAD(test_weights, 1);
-    ACC_WLOAD(test_weights, 2);
-    ACC_WLOAD(test_weights, 3);
+    print_feature_map_2x2("Software reference output:", sw_output);
+    print_feature_map_2x2("Accelerator output:", hw_output);
+    print_feature_map_2x2("Expected output:", expected_output);
+    cnn_v1_print_benchmark_report(cpu_cycles, accel_cycles);
+    fflush(stdout);
 
-    ACC_DLOAD(test_data, 0);
-    ACC_DLOAD(test_data, 1);
-    ACC_DLOAD(test_data, 2);
-    ACC_DLOAD(test_data, 3);
-
-    ACC_COMP();
-    ACC_RSTAT(result);
-
-    printf("Accelerator result: %d\r\n", result);
-
-    if (result == sw_result) {
+    pass = compare_feature_maps_2x2(sw_output, expected_output) &&
+           compare_feature_maps_2x2(hw_output, expected_output);
+    if (pass) {
         printf("SDK app check passed.\r\n");
         return 0;
     }

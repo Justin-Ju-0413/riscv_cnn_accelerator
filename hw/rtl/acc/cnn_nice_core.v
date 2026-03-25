@@ -33,6 +33,7 @@ module cnn_nice_core(
     localparam [6:0] FN_COMP  = 7'd2;
     localparam [6:0] FN_RSTAT = 7'd3;
     localparam [6:0] FN_CLEAR = 7'd4;
+    localparam [6:0] FN_CFG   = 7'd5;
 
     reg acc_clr;
     reg en_pe;
@@ -49,10 +50,12 @@ module cnn_nice_core(
     reg [31:0] load_data_q;
     reg [1:0] load_vec_sel_q;
     reg rsp_err_q;
+    reg relu_en_q;
     wire [6:0] funct7;
     wire is_nice_opcode;
     wire rs2_idx_valid;
-    wire [31:0] result_sum;
+    wire signed [31:0] result_sum;
+    wire signed [31:0] result_sum_post;
 
     assign funct7 = nice_req_instr[31:25];
     assign is_nice_opcode = (nice_req_instr[6:0] == NICE_OPCODE);
@@ -71,6 +74,7 @@ module cnn_nice_core(
     assign nice_icb_cmd_wdata = 32'b0;
     assign nice_icb_cmd_wmask = 4'b0;
     assign nice_icb_rsp_ready = 1'b1;
+    assign result_sum_post = (relu_en_q && result_sum[31]) ? 32'sd0 : result_sum;
 
     pe_array u_pe_array(
         .clk(clk),
@@ -102,6 +106,7 @@ module cnn_nice_core(
             load_data_q <= 32'b0;
             load_vec_sel_q <= 2'b0;
             rsp_err_q <= 1'b0;
+            relu_en_q <= 1'b0;
         end else begin
             acc_clr <= 1'b0;
             en_pe <= 1'b0;
@@ -112,7 +117,7 @@ module cnn_nice_core(
                 if(busy_wait_result) begin
                     busy_wait_result <= 1'b0;
                 end else begin
-                    result_sum_q <= result_sum;
+                    result_sum_q <= result_sum_post;
                     result_valid <= 1'b1;
                     busy <= 1'b0;
                     rsp_rdat_q <= 32'b0;
@@ -185,6 +190,12 @@ module cnn_nice_core(
                             busy_wait_result <= 1'b0;
                             result_valid <= 1'b0;
                             result_sum_q <= 32'b0;
+                            rsp_rdat_q <= 32'b0;
+                            rsp_err_q <= 1'b0;
+                            rsp_pending <= 1'b1;
+                        end
+                        FN_CFG: begin
+                            relu_en_q <= nice_req_rs1[0];
                             rsp_rdat_q <= 32'b0;
                             rsp_err_q <= 1'b0;
                             rsp_pending <= 1'b1;
