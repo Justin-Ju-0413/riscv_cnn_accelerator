@@ -54,7 +54,7 @@ accidentally functional.
 **Key outputs**
 
 - Hardened NICE-side RTL boundary
-- Expanded regression coverage in local and official lightweight environments
+- Expanded regression coverage in local and official E203-aligned flows
 - Version milestone promoted to `V1.6`
 
 **Validation**
@@ -181,5 +181,5 @@ project has not yet crossed the final board-execution boundary.
 ## How To Use This Document
 
 - Read this file to understand project history by phase.
-- Read [CURRENT_STATE.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/CURRENT_STATE.md) for the current truth.
+- Read [CURRENT_STATE.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/CURRENT_STATE.md) for current truth.
 - Read [PROGRESS.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PROGRESS.md) for date-by-date detail.

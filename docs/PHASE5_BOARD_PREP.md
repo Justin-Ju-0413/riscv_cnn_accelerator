@@ -58,7 +58,7 @@ Available now:
 - evalsoc board OpenOCD config:
   - [openocd_evalsoc.cfg](/home/gstar/Desktop/riscv_cnn_accelerator/third_party/nuclei-sdk/SoC/evalsoc/Board/nuclei_fpga_eval/openocd_evalsoc.cfg)
 
-Remaining gaps on this machine after rerunning `check_phase5_board_env.sh`:
+Remaining board-facing gaps on this machine after rerunning `check_phase5_board_env.sh`:
 - a connected FTDI/JTAG adapter matching the board config `0403:6010`
 - a locked UART serial device path
 - a detected `vivado` executable or explicit `VIVADO_BIN`
@@ -138,7 +138,8 @@ continue
 
 ## Phase 5 Exit Direction
 
-Phase 5 will be considered ready to close when the following are explicit and low-ambiguity:
+Phase 5 is ready to close only when the following are explicit and low-ambiguity:
+
 - required host tools
 - actual board target and download path
 - JTAG attach method

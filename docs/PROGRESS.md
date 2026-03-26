@@ -8,20 +8,6 @@ This file is the chronological record of project work. Use
 `PHASE_HISTORY.md` for stage-organized reading and `CURRENT_STATE.md` for the
 current truth.
 
-## Phase Map
-
-| Phase | Meaning |
-|-------|---------|
-| Phase 1 | SoC minimum closure |
-| Phase 2 | Interface safety validation |
-| Phase 3 | Software path closure |
-| Phase 4 | Engineering cleanup and recovery |
-| Phase 5 | Board bring-up preparation |
-
-## Current Working Branch
-
-- `bringup_v1`
-
 ## Timeline
 
 | Date | Phase | Item | Result |
@@ -44,11 +30,3 @@ current truth.
 | 2026-03-21 | Phase 5 | Consolidated the first delivery package and prepared the project for GitHub sync. | Delivery organized |
 | 2026-03-26 | Phase 5 | Added a minimal CNN v1 delivery summary and aligned the board-prep package with the current baseline. | V1.8 documented |
 | 2026-03-26 | Phase 5 | Added `PHASE_HISTORY.md`, added `PROJECT_RULES.md`, and unified the core document set under `V1.9`. | Docs package updated |
-
-## Reading Guidance
-
-| Need | Document |
-|------|----------|
-| Resume work now | [CURRENT_STATE.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/CURRENT_STATE.md) |
-| Understand by phase | [PHASE_HISTORY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE_HISTORY.md) |
-| Understand the current package | [SUMMARY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/SUMMARY.md) |

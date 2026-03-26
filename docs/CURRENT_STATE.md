@@ -4,7 +4,7 @@
 
 ## Purpose
 
-Session recovery file. Read this first before continuing implementation work.
+Session recovery file. Use this as the single source of current truth.
 
 ## Current Snapshot
 
@@ -76,15 +76,16 @@ Session recovery file. Read this first before continuing implementation work.
 
 | Goal | Document |
 |------|----------|
-| Understand the whole delivery | [SUMMARY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/SUMMARY.md) |
-| Understand all historical work by phase | [PHASE_HISTORY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE_HISTORY.md) |
-| See dated progress | [PROGRESS.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PROGRESS.md) |
-| Continue board preparation | [PHASE5_BOARD_PREP.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE5_BOARD_PREP.md) |
-| Follow long-term collaboration requirements | [PROJECT_RULES.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PROJECT_RULES.md) |
+| Understand the delivered package | [SUMMARY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/SUMMARY.md) |
+| Understand history by phase | [PHASE_HISTORY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE_HISTORY.md) |
+| See dated events | [PROGRESS.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PROGRESS.md) |
+| Continue board work | [PHASE5_BOARD_PREP.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE5_BOARD_PREP.md) |
+| Follow standing rules | [PROJECT_RULES.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PROJECT_RULES.md) |
 
-## Reading Rules
+## Immediate Next Actions
 
-- Use this document for current truth only.
-- Use `PHASE_HISTORY.md` for stage-by-stage history.
-- Use `PROGRESS.md` for chronological reconstruction.
-- Update this file when the current baseline or active blockers change.
+1. Confirm the real board target and shell mapping.
+2. Confirm `vivado` or explicit `VIVADO_BIN`.
+3. Confirm FTDI/JTAG visibility.
+4. Lock `SERIAL_DEV` for UART logging.
+5. Attempt the first bitstream-backed board run only after the pre-board gate still passes.
