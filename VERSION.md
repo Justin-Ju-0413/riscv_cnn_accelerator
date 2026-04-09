@@ -1,8 +1,8 @@
 # Version
 
-- Current version: `V1.8`
-- Stage: `Phase 5 board bring-up preparation`
-- Last updated: `2026-03-21`
+- Current version: `V2.0`
+- Stage: `Phase 5 A7-100T Route A functional bring-up`
+- Last updated: `2026-04-10`
 
 ## Rule
 
