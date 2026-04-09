@@ -1,6 +1,6 @@
 # Development Progress Log
 
-> **Version**: V1.9 | **Updated**: 2026-03-26 | **Owner**: Justin JU
+> **Version**: V2.0 | **Updated**: 2026-04-10 | **Owner**: Justin JU
 
 ## Purpose
 
@@ -44,6 +44,10 @@ current truth.
 | 2026-03-21 | Phase 5 | Consolidated the first delivery package and prepared the project for GitHub sync. | Delivery organized |
 | 2026-03-26 | Phase 5 | Added a minimal CNN v1 delivery summary and aligned the board-prep package with the current baseline. | V1.8 documented |
 | 2026-03-26 | Phase 5 | Added `PHASE_HISTORY.md`, added `PROJECT_RULES.md`, and unified the core document set under `V1.9`. | Docs package updated |
+| 2026-04-09 | Phase 5 | Confirmed `PTD04 + Vivado` can identify `xc7a100t` and program the A7-100T board. | FPGA download path closed |
+| 2026-04-09 | Phase 5 | Shifted the hardware priority from "GDB first" to Route A functional validation with UART, LED, and ILA evidence. | Bring-up strategy updated |
+| 2026-04-10 | Phase 5 | Added UART stage prints, FPGA memory pre-initialization, LED stage output, and runtime ILA plumbing for A7-100T. | Route A instrumentation implemented |
+| 2026-04-10 | Phase 5 | Rebuilt the A7-100T bitstream successfully with the new Route A hardware evidence path. | Route A build closure |
 
 ## Reading Guidance
 

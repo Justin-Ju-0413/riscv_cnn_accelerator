@@ -2,6 +2,23 @@
 
 All notable project updates are recorded here.
 
+## Version V2.0
+
+- Date: 2026-04-10
+- Added:
+  - `docs/DAVINCI_A7_100T_BRINGUP_V2_0.md` as the A7-100T board bring-up truth source for the current hardware phase
+  - a native Windows Vivado launcher `scripts/Invoke-Vivado-Fpga.ps1`
+- Changed:
+  - board bring-up focus moved from "GDB first" to "Route A functional validation first"
+  - `VERSION.md`, `CURRENT_STATE.md`, `PROGRESS.md`, and `README.md` now reflect the A7-100T Route A baseline
+  - the SDK app now emits fixed board-facing UART milestones for hardware evidence capture
+- Fixed:
+  - restored a working A7-100T bitstream path with clean FPGA install staging
+  - added ITCM/DTCM image pre-initialization into the FPGA memory flow
+  - resolved the LED bank-voltage constraint mismatch on A7-100T
+- Current blocker:
+  - board-side evidence still needs to be collected through UART, LED, and ILA on real hardware
+
 ## Version V1.8
 
 - Date: 2026-03-21

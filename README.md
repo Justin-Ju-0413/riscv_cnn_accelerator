@@ -11,7 +11,7 @@ Hummingbird E203 RISC-V core through the NICE interface.
 - Interface: NICE valid/ready request-response flow
 - Data precision: INT8 weights and activations, INT32 accumulation
 - Architecture: 4x4 PE array with output-stationary dataflow
-- Current delivery baseline: minimal CNN v1 + board-prep automation
+- Current delivery baseline: A7-100T Route A functional bring-up
 
 ## Project Structure
 
@@ -51,6 +51,7 @@ bash scripts/run_preboard_verification.sh
 |------|----------|
 | Documentation entry | `docs/PROJECT_INDEX.md` |
 | Current truth | `docs/CURRENT_STATE.md` |
+| A7-100T board bring-up truth | `docs/DAVINCI_A7_100T_BRINGUP_V2_0.md` |
 | Delivery summary | `docs/SUMMARY.md` |
 | Phase-organized history | `docs/PHASE_HISTORY.md` |
 | Standing collaboration rules | `docs/PROJECT_RULES.md` |
@@ -63,7 +64,7 @@ bash scripts/run_preboard_verification.sh
 ## Version And Baseline
 
 - Branch: `bringup_v1`
-- Unified document version: `V1.9`
+- Unified document version: `V2.0`
 - Historical software-driven SoC closure: `RSTAT=320`
 - Current minimal CNN v1 baseline: `expected_rstat = 19`
 - E203 baseline: `riscv-mcu/e203_hbirdv2`
@@ -71,6 +72,6 @@ bash scripts/run_preboard_verification.sh
 ## Current Status
 
 - Phase 1 to Phase 4 are closed.
-- Phase 5 board bring-up preparation is the active stage.
-- Remaining gaps are board-facing: Vivado confirmation, FTDI/JTAG visibility,
-  UART path lock, and the first bitstream-backed run.
+- Phase 5 A7-100T functional bring-up is the active stage.
+- Remaining gaps are board-facing: UART log capture, LED/ILA evidence, and the
+  later `PTD04 + BSCANE2` debug-chain research track.
