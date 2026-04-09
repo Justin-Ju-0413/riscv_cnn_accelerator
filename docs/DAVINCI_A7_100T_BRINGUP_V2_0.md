@@ -14,6 +14,10 @@ The near-term target is no longer "GDB first". The active priority is:
 2. collect UART, LED, and ILA evidence
 3. keep `PTD04 + BSCANE2` as a later debug-chain research track
 
+This V2.0 freeze does not claim that the CPU debug chain is working through
+`PTD04`. `OpenOCD + GDB load ELF + break main` is explicitly out of scope for
+the current success milestone.
+
 ## Verified Facts
 
 - Board target: `davinci_a7_100t`
@@ -110,6 +114,27 @@ The next blockers are board evidence collection tasks:
 - verify UART stage prints on real hardware
 - arm ILA and confirm CPU forward progress plus NICE handshake activity
 - confirm LED0 reaches the later software stage
+
+## Route A Success Criteria
+
+Route A is considered successful when the board evidence closes the loop
+without requiring CPU single-step debug:
+
+- UART prints the fixed milestones:
+  - `boot`
+  - `main`
+  - `accel cfg`
+  - `start`
+  - `done`
+  - `result`
+- LED0 changes state in the later execution stage
+- Vivado ILA shows:
+  - `probe_pc` changing after reset release
+  - memory command/response activity
+  - NICE CSR or NICE request/response handshake activity
+
+If these conditions are met, the board is treated as running the Route A image
+correctly even though the CPU debug path is still unresolved.
 
 ## Route B Status
 
