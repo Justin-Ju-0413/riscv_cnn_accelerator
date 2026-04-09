@@ -20,6 +20,21 @@ ITCM_IMAGE="${APP_DIR}/cnn_accel_demo.itcm"
 DTCM_IMAGE="${APP_DIR}/cnn_accel_demo.dtcm"
 EXPECTED_RSTAT="${EXPECTED_RSTAT:-19}"
 
+find_tool_bin() {
+  local root="$1"
+  local tool="$2"
+
+  if [[ -x "${root}/bin/${tool}" ]]; then
+    echo "${root}/bin/${tool}"
+    return
+  fi
+
+  if [[ -x "${root}/gcc/bin/${tool}" ]]; then
+    echo "${root}/gcc/bin/${tool}"
+    return
+  fi
+}
+
 require_path() {
   local path="$1"
   local label="$2"
@@ -34,7 +49,11 @@ require_path "${SOC_DIR}" "SoC directory"
 require_path "${APP_DIR}" "SDK application directory"
 require_path "${SPLIT_HELPER}" "verilog split helper"
 require_path "${FULLSOC_RUNNER}" "full-SoC runner"
-require_path "${GCC_ROOT}/bin/riscv64-unknown-elf-gcc" "Nuclei GCC toolchain"
+GCC_BIN="$(find_tool_bin "${GCC_ROOT}" riscv64-unknown-elf-gcc || true)"
+if [[ -z "${GCC_BIN}" ]]; then
+  echo "[PHASE4_ERROR] missing Nuclei GCC toolchain under ${GCC_ROOT}" >&2
+  exit 1
+fi
 
 if [[ "${AUTO_APPLY_SDK_PATCH}" == "1" ]]; then
   require_path "${PATCH_HELPER}" "SDK patch helper"
@@ -47,8 +66,12 @@ require_path "${INSTALL_HELPER}" "SDK app install helper"
 export NUCLEI_SDK_ROOT="${SDK_DIR}"
 export RISCV_GCC_ROOT="${GCC_ROOT}"
 export NUCLEI_TOOL_ROOT="${GCC_ROOT}"
-export CROSS_COMPILE="${GCC_ROOT}/bin/riscv64-unknown-elf-"
-export PATH="${GCC_ROOT}/bin:${PATH}"
+export CROSS_COMPILE="${GCC_BIN%gcc}"
+if [[ -d "${GCC_ROOT}/gcc/bin" ]]; then
+  export PATH="${GCC_ROOT}/gcc/bin:${PATH}"
+else
+  export PATH="${GCC_ROOT}/bin:${PATH}"
+fi
 
 make -C "${APP_DIR}" clean all CORE=n300 DOWNLOAD=ilm
 make -C "${APP_DIR}" dasm CORE=n300 DOWNLOAD=ilm
