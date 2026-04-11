@@ -11,6 +11,7 @@ Use this file to find the one document that owns each topic.
 | Document | Owns |
 |----------|------|
 | `QUICKSTART.md` | Fast resume |
+| `BRANCH_STRATEGY.md` | Branch governance and branch mapping |
 | `CURRENT_STATE.md` | Current truth |
 | `PHASE_HISTORY.md` | Phase-by-phase history |
 | `PROGRESS.md` | Date-by-date log |
@@ -39,6 +40,7 @@ Use this file to find the one document that owns each topic.
 
 ## Suggested Reading Paths
 
+- Confirm the correct branch first: `BRANCH_STRATEGY.md`
 - Resume work: `QUICKSTART.md` -> `CURRENT_STATE.md` -> `PHASE5_BOARD_PREP.md`
 - Understand the project: `SUMMARY.md` -> `PHASE_HISTORY.md`
 - Reconstruct the timeline: `PROGRESS.md`

@@ -9,10 +9,14 @@ Use this file to recover context in under a minute.
 ## Current Baseline
 
 - Branch: `bringup_v1`
+- Branch role: stable formal line
 - Active phase: `Phase 5`
 - Delivery baseline: minimal CNN v1 + board-prep automation
 - Historical software-driven SoC closure: `RSTAT=320`
 - Current minimal CNN v1 full-SoC result: `expected_rstat = 19`
+
+For live A7-100T / Route-A development, switch to
+`codex/a7-bringup-v2-main`.
 
 ## Fast Verification
 

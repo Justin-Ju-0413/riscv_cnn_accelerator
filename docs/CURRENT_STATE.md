@@ -6,11 +6,18 @@
 
 Session recovery file. Use this as the single source of current truth.
 
+## Branch Governance Note
+
+This branch is the stable formal baseline. Keep new changes here limited to
+stability cleanup, documentation cleanup, and stage-summary packaging. For
+current A7-100T / Route-A development use `codex/a7-bringup-v2-main`.
+
 ## Current Snapshot
 
 | Item | Value |
 |------|-------|
 | Branch | `bringup_v1` |
+| Branch role | Stable formal line |
 | Active phase | `Phase 5` |
 | Current baseline | Minimal CNN v1 + board-prep automation |
 | Latest document package | `V1.9` |
@@ -89,3 +96,9 @@ Session recovery file. Use this as the single source of current truth.
 3. Confirm FTDI/JTAG visibility.
 4. Lock `SERIAL_DEV` for UART logging.
 5. Attempt the first bitstream-backed board run only after the pre-board gate still passes.
+
+## Related Branches
+
+- Historical default line: `main`
+- Paired SoC stable line: `cnn_bringup_v1`
+- Current active development line: `codex/a7-bringup-v2-main`

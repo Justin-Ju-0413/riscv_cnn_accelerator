@@ -3,6 +3,21 @@
 Lightweight CNN accelerator integrated into the Hummingbird E203 SoC through
 the NICE interface.
 
+## Branch Entry
+
+This branch is the stable formal line for reporting, baseline recovery, and
+stage delivery. The GitHub default branch `main` is kept only as the historical
+default line, and the current active development line is
+`codex/a7-bringup-v2-main`.
+
+| Role | This repo branch | Paired SoC repo branch |
+|------|------------------|------------------------|
+| Historical default line | `main` | `master` |
+| Stable formal line | `bringup_v1` | `cnn_bringup_v1` |
+| Current active development line | `codex/a7-bringup-v2-main` | `codex/a7-bringup-v2-soc` |
+
+See `docs/BRANCH_STRATEGY.md` for the full branch policy and branch snapshot.
+
 ## Core Facts
 
 - Host core: Hummingbird E203 (`RV32IMAC`)
@@ -23,6 +38,7 @@ riscv_cnn_accelerator/
 ├── docs/                    # Project docs
 │   ├── QUICKSTART.md
 │   ├── CURRENT_STATE.md
+│   ├── BRANCH_STRATEGY.md
 │   ├── SUMMARY.md
 │   ├── PHASE_HISTORY.md
 │   ├── PROGRESS.md
@@ -46,6 +62,7 @@ bash scripts/run_preboard_verification.sh
 
 ## Read Next
 
+- Branch policy: `docs/BRANCH_STRATEGY.md`
 - Fast resume: `docs/QUICKSTART.md`
 - Current truth: `docs/CURRENT_STATE.md`
 - Full history: `docs/PHASE_HISTORY.md`
