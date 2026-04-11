@@ -5,6 +5,20 @@
 This project implements a lightweight CNN accelerator integrated with the
 Hummingbird E203 RISC-V core through the NICE interface.
 
+## Branch Entry
+
+This branch is the current active development line for A7-100T / Route-A
+bring-up. The stable formal line remains `bringup_v1`, and the historical
+default line remains `main`.
+
+| Role | This repo branch | Paired SoC repo branch |
+|------|------------------|------------------------|
+| Historical default line | `main` | `master` |
+| Stable formal line | `bringup_v1` | `cnn_bringup_v1` |
+| Current active development line | `codex/a7-bringup-v2-main` | `codex/a7-bringup-v2-soc` |
+
+See `docs/BRANCH_STRATEGY.md` for the full branch policy and branch snapshot.
+
 ### Key Features
 
 - Host core: Hummingbird E203 (`RV32IMAC`)
@@ -25,6 +39,7 @@ riscv_cnn_accelerator/
 ├── docs/                    # Project documentation
 │   ├── QUICKSTART.md
 │   ├── CURRENT_STATE.md
+│   ├── BRANCH_STRATEGY.md
 │   ├── SUMMARY.md
 │   ├── PHASE_HISTORY.md
 │   ├── PROJECT_RULES.md
@@ -50,6 +65,7 @@ bash scripts/run_preboard_verification.sh
 | Need | Document |
 |------|----------|
 | Documentation entry | `docs/PROJECT_INDEX.md` |
+| Branch policy and branch snapshot | `docs/BRANCH_STRATEGY.md` |
 | Current truth | `docs/CURRENT_STATE.md` |
 | A7-100T board bring-up truth | `docs/DAVINCI_A7_100T_BRINGUP_V2_0.md` |
 | Delivery summary | `docs/SUMMARY.md` |
@@ -63,11 +79,13 @@ bash scripts/run_preboard_verification.sh
 
 ## Version And Baseline
 
-- Branch: `bringup_v1`
+- Branch: `codex/a7-bringup-v2-main`
+- Branch role: current active development line
 - Unified document version: `V2.0`
 - Historical software-driven SoC closure: `RSTAT=320`
 - Current minimal CNN v1 baseline: `expected_rstat = 19`
-- E203 baseline: `riscv-mcu/e203_hbirdv2`
+- Stable paired branch: `e203_hbirdv2:cnn_bringup_v1`
+- Active paired branch: `e203_hbirdv2:codex/a7-bringup-v2-soc`
 
 ## Current Status
 
