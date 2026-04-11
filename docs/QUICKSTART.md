@@ -25,11 +25,15 @@ bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regressio
 
 | Item | Value |
 |------|-------|
-| Branch | `bringup_v1` |
+| Branch | `codex/a7-bringup-v2-main` |
+| Branch role | Current active development line |
 | Active phase | `Phase 5` |
 | Historical SoC closure result | `RSTAT=320` |
 | Current minimal CNN v1 result | `expected_rstat = 19` |
 | Unified doc version | `V1.9` |
+
+Use `bringup_v1` when you need the stable formal baseline for reporting or
+recovery.
 
 ## Start Reading Here
 

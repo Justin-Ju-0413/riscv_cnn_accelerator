@@ -6,11 +6,18 @@
 
 Session recovery file. Read this first before continuing implementation work.
 
+## Branch Governance Note
+
+This branch is the current active development line. Use it for the live
+A7-100T / Route-A bring-up stream. Keep `bringup_v1` as the stable formal
+baseline and `main` as the historical default line.
+
 ## Current Snapshot
 
 | Item | Value |
 |------|-------|
-| Branch | `bringup_v1` |
+| Branch | `codex/a7-bringup-v2-main` |
+| Branch role | Current active development line |
 | Active phase | `Phase 5` |
 | Current baseline | A7-100T Route A functional bring-up |
 | Latest document package | `V2.0` |
@@ -19,8 +26,8 @@ Session recovery file. Read this first before continuing implementation work.
 
 | Repo | Path | Branch |
 |------|------|--------|
-| Main repo | `E:\riscv-workspace\repos\riscv_cnn_accelerator` | `bringup_v1` |
-| SoC repo | `E:\riscv-workspace\repos\e203_hbirdv2` | `cnn_bringup_v1` |
+| Main repo | `E:\riscv-workspace\repos\riscv_cnn_accelerator` | `codex/a7-bringup-v2-main` |
+| SoC repo | `E:\riscv-workspace\repos\e203_hbirdv2` | `codex/a7-bringup-v2-soc` |
 
 ## Closed Technical Baseline
 
@@ -92,6 +99,7 @@ Session recovery file. Read this first before continuing implementation work.
 
 ## Reading Rules
 
+- Use `BRANCH_STRATEGY.md` to keep the stable and active lines aligned.
 - Use this document for current truth only.
 - Use `PHASE_HISTORY.md` for stage-by-stage history.
 - Use `PROGRESS.md` for chronological reconstruction.
