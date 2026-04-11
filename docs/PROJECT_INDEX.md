@@ -7,6 +7,7 @@
 | Document | Purpose | Use |
 |----------|---------|-----|
 | `QUICKSTART.md` | Fast entry | Understand the project in under a minute |
+| `BRANCH_STRATEGY.md` | Branch governance | Identify the correct stable and active branches |
 | `CURRENT_STATE.md` | Current truth | Resume the next work session |
 | `PHASE_HISTORY.md` | Phase-organized history | Understand what was completed in each phase |
 | `PROJECT_RULES.md` | Standing requirements | Store long-term user rules and docs-push workflow |
@@ -53,7 +54,7 @@ Archived legacy or superseded documents are kept under `archive/`.
 
 | Scenario | Reading order |
 |----------|---------------|
-| New session | `QUICKSTART.md` -> `CURRENT_STATE.md` -> `PROJECT_RULES.md` |
+| New session | `BRANCH_STRATEGY.md` -> `QUICKSTART.md` -> `CURRENT_STATE.md` -> `PROJECT_RULES.md` |
 | Understand the project | `QUICKSTART.md` -> `SUMMARY.md` -> `PHASE_HISTORY.md` |
 | Resume implementation | `CURRENT_STATE.md` -> `PHASE_HISTORY.md` -> relevant technical doc |
 | Prepare reporting | `SUMMARY.md` -> `PROGRESS.md` -> `SPEECH.md` |
@@ -63,6 +64,7 @@ Archived legacy or superseded documents are kept under `archive/`.
 | Document | Version |
 |----------|---------|
 | `SUMMARY.md` | V1.9 |
+| `BRANCH_STRATEGY.md` | V1.9 |
 | `CURRENT_STATE.md` | V1.9 |
 | `PHASE_HISTORY.md` | V1.9 |
 | `PROGRESS.md` | V1.9 |

@@ -6,11 +6,19 @@
 
 Session recovery file. Read this first before continuing implementation work.
 
+## Branch Governance Note
+
+This branch is the historical default line retained for compatibility. For the
+stable formal baseline use `bringup_v1`. For current A7-100T / Route-A
+development use `codex/a7-bringup-v2-main`. See `BRANCH_STRATEGY.md` before
+starting new work from this branch.
+
 ## Current Snapshot
 
 | Item | Value |
 |------|-------|
-| Branch | `bringup_v1` |
+| Branch | `main` |
+| Branch role | Historical default line |
 | Active phase | `Phase 5` |
 | Current baseline | Minimal CNN v1 + board-prep automation |
 | Latest document package | `V1.9` |
@@ -19,8 +27,8 @@ Session recovery file. Read this first before continuing implementation work.
 
 | Repo | Path | Branch |
 |------|------|--------|
-| Main repo | `/home/gstar/Desktop/riscv_cnn_accelerator` | `bringup_v1` |
-| SoC repo | `/home/gstar/Desktop/e203_hbirdv2` | `cnn_bringup_v1` |
+| Main repo | `/home/gstar/Desktop/riscv_cnn_accelerator` | `main` |
+| SoC repo | `/home/gstar/Desktop/e203_hbirdv2` | `master` |
 
 ## Closed Technical Baseline
 
@@ -84,7 +92,9 @@ Session recovery file. Read this first before continuing implementation work.
 
 ## Reading Rules
 
-- Use this document for current truth only.
+- Use `BRANCH_STRATEGY.md` to confirm whether you should stay on this branch.
+- Treat this file as the documentation state of `main`, not the active
+  day-to-day engineering line.
 - Use `PHASE_HISTORY.md` for stage-by-stage history.
 - Use `PROGRESS.md` for chronological reconstruction.
 - Update this file when the current baseline or active blockers change.

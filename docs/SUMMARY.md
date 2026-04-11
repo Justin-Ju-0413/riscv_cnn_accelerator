@@ -27,7 +27,12 @@ Affected docs:
 
 ## Current Delivery Status
 
-**Branch**: `bringup_v1`
+**Branch**: `main`
+
+**Branch role**: historical default line
+
+For the stable formal branch use `bringup_v1`. For the current active
+development branch use `codex/a7-bringup-v2-main`.
 
 The project has advanced from a NICE dot-product closure baseline to a minimal
 CNN v1 delivery baseline with board-prep automation and clearer documentation
