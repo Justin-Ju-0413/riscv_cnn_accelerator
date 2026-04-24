@@ -41,6 +41,18 @@
 | `SPEECH.md` | Report script | Spoken presentation summary |
 | `SoC_BringUp_Week5-6.pptx` | Presentation deck | Week 5-6 reporting slides |
 
+## Thesis and Final Defense
+
+| Document | Purpose | Use |
+|----------|---------|-----|
+| `thesis_and_defense/THESIS_WRITING_CENTER.md` | Thesis workspace rule | Keep the thesis story aligned with current evidence |
+| `thesis_and_defense/THESIS_TASK_BOARD.md` | Thesis task board | Plan chapter drafts and thesis evidence |
+| `thesis_and_defense/references/REFERENCE_PLAN.md` | Reference plan | Organize papers, manuals, and tool references |
+| `thesis_and_defense/FINAL_DEFENSE_CENTER.md` | Final defense workspace rule | Prepare defense slides, scripts, QA, and evidence |
+| `thesis_and_defense/DEFENSE_TASK_BOARD.md` | Final defense task board | Track defense deck, QA, rehearsal, and evidence package |
+| `thesis_and_defense/THESIS_AND_DEFENSE_START_PLAN.md` | Start plan | Start thesis and defense work without changing the development baseline |
+| `thesis_and_defense/NOTION_SYNC_PLAN.md` | Notion sync plan | Mirror the same thesis and defense structure into Notion |
+
 ## Knowledge Base
 
 `knowledge/` contains topic-oriented notes extracted from the project for quick
@@ -58,6 +70,8 @@ Archived legacy or superseded documents are kept under `archive/`.
 | Understand the project | `QUICKSTART.md` -> `SUMMARY.md` -> `PHASE_HISTORY.md` |
 | Resume implementation | `CURRENT_STATE.md` -> `PHASE_HISTORY.md` -> relevant technical doc |
 | Prepare reporting | `SUMMARY.md` -> `PROGRESS.md` -> `SPEECH.md` |
+| Start thesis | `thesis_and_defense/THESIS_WRITING_CENTER.md` -> `thesis_and_defense/THESIS_TASK_BOARD.md` -> `thesis_and_defense/references/REFERENCE_PLAN.md` |
+| Prepare final defense | `thesis_and_defense/FINAL_DEFENSE_CENTER.md` -> `thesis_and_defense/DEFENSE_TASK_BOARD.md` -> `thesis_and_defense/THESIS_AND_DEFENSE_START_PLAN.md` |
 
 ## Versioned Core Doc Set
 
