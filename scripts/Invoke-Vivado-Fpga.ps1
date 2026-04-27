@@ -35,16 +35,11 @@ $normalize = {
     ($PathValue -replace "\\", "/")
 }
 
-$toTclList = {
-    param([string[]]$Values)
-    (($Values | ForEach-Object { "{${_}}" }) -join " ")
-}
-
 $normalizedFpgaRoot = & $normalize $fpgaRoot
 $normalizedSources = $vsrcFiles | ForEach-Object { & $normalize $_ }
 
 $env:BASEDIR = $normalizedFpgaRoot
-$env:VSRCS = & $toTclList $normalizedSources
+$env:VSRCS = ($normalizedSources -join "`n")
 $env:EXTRA_VSRCS = ""
 
 $commonArgs = @(

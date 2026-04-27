@@ -4,11 +4,25 @@
 *.so
 *.d
 *.out
+*.bit
+*.mcs
+*.ltx
+*.elf
+*.map
+*.hex
+*.srec
+*.dasm
+*.dump
+*.itcm.verilog
+*.dtcm.verilog
 *.vcd
 *.fst
 *.log
 *.wlf
 *.out
+
+# Local Vivado scratch checks
+.tmp_*.tcl
 
 # Simulation
 hw/sim/build/
