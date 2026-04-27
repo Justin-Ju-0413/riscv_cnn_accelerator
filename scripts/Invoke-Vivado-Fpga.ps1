@@ -1,9 +1,9 @@
 param(
     [ValidateSet("bit", "setup")]
     [string]$Action = "bit",
-    [string]$SocDir = "E:\riscv-workspace\repos\e203_hbirdv2",
+    [string]$SocDir = "C:\Users\16084\Documents\New project\e203_hbirdv2",
     [string]$FpgaName = "davinci_a7_100t",
-    [string]$VivadoBat = "C:\Xilinx\Vivado\2023.2\bin\vivado.bat"
+    [string]$VivadoBat = "D:\Xilinx\Vivado\2023.2\bin\vivado.bat"
 )
 
 $ErrorActionPreference = "Stop"
