@@ -52,6 +52,11 @@
 | `thesis_and_defense/DEFENSE_TASK_BOARD.md` | Final defense task board | Track defense deck, QA, rehearsal, and evidence package |
 | `thesis_and_defense/THESIS_AND_DEFENSE_START_PLAN.md` | Start plan | Start thesis and defense work without changing the development baseline |
 | `thesis_and_defense/NOTION_SYNC_PLAN.md` | Notion sync plan | Mirror the same thesis and defense structure into Notion |
+| `thesis_and_defense/final_defense_plan/MASTER_PLAN.md` | Final roadmap | Track current progress through final defense |
+| `thesis_and_defense/final_defense_plan/ENGINEERING_CLOSURE_PLAN.md` | Engineering closure | Track hello_e203 and cnn_accel_demo board evidence |
+| `thesis_and_defense/final_defense_plan/THESIS_WRITING_PLAN.md` | Thesis writing | Align chapters, figures, and references with evidence |
+| `thesis_and_defense/final_defense_plan/FINAL_DEFENSE_PLAN.md` | Final defense | Prepare PPT, script, QA, and evidence package |
+| `thesis_and_defense/final_defense_plan/WEEKLY_CHECKLIST.md` | Weekly checklist | Track weekly deliverables to final defense |
 
 ## Knowledge Base
 
@@ -72,6 +77,7 @@ Archived legacy or superseded documents are kept under `archive/`.
 | Prepare reporting | `SUMMARY.md` -> `PROGRESS.md` -> `SPEECH.md` |
 | Start thesis | `thesis_and_defense/THESIS_WRITING_CENTER.md` -> `thesis_and_defense/THESIS_TASK_BOARD.md` -> `thesis_and_defense/references/REFERENCE_PLAN.md` |
 | Prepare final defense | `thesis_and_defense/FINAL_DEFENSE_CENTER.md` -> `thesis_and_defense/DEFENSE_TASK_BOARD.md` -> `thesis_and_defense/THESIS_AND_DEFENSE_START_PLAN.md` |
+| Roadmap to final defense | `thesis_and_defense/final_defense_plan/MASTER_PLAN.md` -> `thesis_and_defense/final_defense_plan/WEEKLY_CHECKLIST.md` |
 
 ## Versioned Core Doc Set
 
