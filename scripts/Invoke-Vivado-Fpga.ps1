@@ -1,6 +1,8 @@
 param(
     [ValidateSet("bit", "setup")]
     [string]$Action = "bit",
+    [ValidateSet("soc", "heartbeat", "heartbeat_direct")]
+    [string]$BuildMode = "soc",
     [string]$SocDir = "C:\Users\16084\Documents\New project\e203_hbirdv2",
     [string]$FpgaName = "davinci_a7_100t",
     [string]$VivadoBat = "D:\Xilinx\Vivado\2023.2\bin\vivado.bat"
@@ -28,6 +30,18 @@ $vsrcFiles = Get-ChildItem -Path $installRtl -Recurse -File -Filter *.v |
 
 if (-not $vsrcFiles -or $vsrcFiles.Count -eq 0) {
     throw "No Verilog sources found under $installRtl"
+}
+
+if ($BuildMode -in @("heartbeat", "heartbeat_direct")) {
+    $topName = if ($BuildMode -eq "heartbeat_direct") { "heartbeat_direct_system.v" } else { "heartbeat_system.v" }
+    $heartbeatTop = Join-Path $boardDir "src\$topName"
+    if (-not (Test-Path $heartbeatTop)) {
+        throw "Heartbeat top not found: $heartbeatTop"
+    }
+
+    $installedTop = Join-Path $installRtl "system.v"
+    $vsrcFiles = @($vsrcFiles | Where-Object { $_ -ne $installedTop })
+    $vsrcFiles += (Get-Item -LiteralPath $heartbeatTop).FullName
 }
 
 $normalize = {
@@ -65,6 +79,7 @@ if ($Action -eq "setup") {
 }
 
 Write-Host "Vivado board dir: $boardDir"
+Write-Host "Build mode: $BuildMode"
 Write-Host "VSRCS count: $($vsrcFiles.Count)"
 Write-Host "Launching: $VivadoBat $($args -join ' ')"
 
