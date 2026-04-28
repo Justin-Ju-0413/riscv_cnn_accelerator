@@ -1,7 +1,7 @@
 param(
     [ValidateSet("bit", "setup")]
     [string]$Action = "bit",
-    [ValidateSet("soc", "heartbeat", "heartbeat_direct", "heartbeat_mmcm_ledonly", "heartbeat_mmcm_dualclk", "heartbeat_mmcm_sysclk_ila")]
+    [ValidateSet("soc", "soc_sysclk_ila", "heartbeat", "heartbeat_direct", "heartbeat_mmcm_ledonly", "heartbeat_mmcm_dualclk", "heartbeat_mmcm_sysclk_ila")]
     [string]$BuildMode = "soc",
     [string]$SocDir = "C:\Users\16084\Documents\New project\e203_hbirdv2",
     [string]$FpgaName = "davinci_a7_100t",
@@ -35,6 +35,7 @@ if (-not $vsrcFiles -or $vsrcFiles.Count -eq 0) {
 if ($BuildMode -ne "soc") {
     $topNames = @{
         heartbeat = "heartbeat_system.v"
+        soc_sysclk_ila = "soc_sysclk_ila_system.v"
         heartbeat_direct = "heartbeat_direct_system.v"
         heartbeat_mmcm_ledonly = "heartbeat_mmcm_ledonly_system.v"
         heartbeat_mmcm_dualclk = "heartbeat_mmcm_dualclk_system.v"
@@ -76,6 +77,14 @@ if ($BuildMode -eq "heartbeat_mmcm_sysclk_ila") {
     $extraXdc = Join-Path $boardDir "script\heartbeat_mmcm_sysclk_ila.xdc"
     if (-not (Test-Path $extraXdc)) {
         throw "Heartbeat MMCM sysclk ILA XDC not found: $extraXdc"
+    }
+    $env:EXTRA_XDCS = (& $normalize $extraXdc)
+}
+
+if ($BuildMode -eq "soc_sysclk_ila") {
+    $extraXdc = Join-Path $boardDir "script\soc_sysclk_ila.xdc"
+    if (-not (Test-Path $extraXdc)) {
+        throw "SoC sysclk ILA XDC not found: $extraXdc"
     }
     $env:EXTRA_XDCS = (& $normalize $extraXdc)
 }
