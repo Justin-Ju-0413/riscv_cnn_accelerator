@@ -1,7 +1,7 @@
 param(
     [ValidateSet("bit", "setup")]
     [string]$Action = "bit",
-    [ValidateSet("soc", "heartbeat", "heartbeat_direct")]
+    [ValidateSet("soc", "heartbeat", "heartbeat_direct", "heartbeat_mmcm_ledonly", "heartbeat_mmcm_dualclk")]
     [string]$BuildMode = "soc",
     [string]$SocDir = "C:\Users\16084\Documents\New project\e203_hbirdv2",
     [string]$FpgaName = "davinci_a7_100t",
@@ -32,8 +32,14 @@ if (-not $vsrcFiles -or $vsrcFiles.Count -eq 0) {
     throw "No Verilog sources found under $installRtl"
 }
 
-if ($BuildMode -in @("heartbeat", "heartbeat_direct")) {
-    $topName = if ($BuildMode -eq "heartbeat_direct") { "heartbeat_direct_system.v" } else { "heartbeat_system.v" }
+if ($BuildMode -ne "soc") {
+    $topNames = @{
+        heartbeat = "heartbeat_system.v"
+        heartbeat_direct = "heartbeat_direct_system.v"
+        heartbeat_mmcm_ledonly = "heartbeat_mmcm_ledonly_system.v"
+        heartbeat_mmcm_dualclk = "heartbeat_mmcm_dualclk_system.v"
+    }
+    $topName = $topNames[$BuildMode]
     $heartbeatTop = Join-Path $boardDir "src\$topName"
     if (-not (Test-Path $heartbeatTop)) {
         throw "Heartbeat top not found: $heartbeatTop"
@@ -55,6 +61,15 @@ $normalizedSources = $vsrcFiles | ForEach-Object { & $normalize $_ }
 $env:BASEDIR = $normalizedFpgaRoot
 $env:VSRCS = ($normalizedSources -join "`n")
 $env:EXTRA_VSRCS = ""
+$env:EXTRA_XDCS = ""
+
+if ($BuildMode -eq "heartbeat_mmcm_dualclk") {
+    $extraXdc = Join-Path $boardDir "script\heartbeat_mmcm_dualclk.xdc"
+    if (-not (Test-Path $extraXdc)) {
+        throw "Heartbeat MMCM dual-clock XDC not found: $extraXdc"
+    }
+    $env:EXTRA_XDCS = (& $normalize $extraXdc)
+}
 
 $commonArgs = @(
     "-nojournal",
