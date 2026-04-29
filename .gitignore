@@ -42,6 +42,7 @@ sw/sdk_project/*.itcm.verilog
 sw/sdk_project/*.dtcm.verilog
 sw/sdk_project/main.c.o
 sw/sdk_project/main.c.o.d
+sw/hello_e203/build/
 
 # Nuclei SDK (fetched separately)
 third_party/nuclei-sdk/
