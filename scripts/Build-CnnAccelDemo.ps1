@@ -72,8 +72,7 @@ $gccArgs += @(
     "-Wl,-Map=$mapArg",
     "-o", $elfArg,
     $startupArg,
-    $mainArg,
-    "-lgcc"
+    $mainArg
 )
 
 & $gcc @gccArgs
