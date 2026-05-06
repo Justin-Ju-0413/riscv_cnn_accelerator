@@ -11,6 +11,20 @@
 #include "../inc/lenet5_shifts.h"
 #include "../inc/mnist_test_images.h"
 
+/* __ashrdi3: 64-bit arithmetic right shift (needed by -nostdlib on RV32) */
+int64_t __ashrdi3(int64_t v, int shift) {
+    union { int64_t ll; struct { uint32_t lo; int32_t hi; } s; } u;
+    u.ll = v;
+    if (shift >= 32) {
+        u.s.lo = (uint32_t)(u.s.hi >> (shift - 32));
+        u.s.hi = u.s.hi >> 31;
+    } else if (shift > 0) {
+        u.s.lo = (u.s.lo >> shift) | ((uint32_t)u.s.hi << (32 - shift));
+        u.s.hi = u.s.hi >> shift;
+    }
+    return u.ll;
+}
+
 /* --- Hardware registers --- */
 #define GPIOA    0x10012000UL
 #define UART0    0x10013000UL
@@ -138,7 +152,7 @@ static int argmax(const int32_t *v, int n) {
 /* --- UART --- */
 static void uart_init(void) {
     GPIO_IOFCFG |= (1u<<16)|(1u<<17);
-    UART_LCR=0x80; UART_DLL=27; UART_LCR=0x03; UART_FCR=0x06;
+    UART_LCR=0x80; UART_DLL=138; UART_LCR=0x03; UART_FCR=0x06;
 }
 static void up(char c) { while(!(UART_LSR&(1u<<5))); UART_THR=(uint32_t)(uint8_t)c; }
 static void us(const char *s) { while(*s) up(*s++); }
