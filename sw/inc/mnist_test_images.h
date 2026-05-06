@@ -1,5 +1,4 @@
-// MNIST test images (first 10, stored as uint8 [0,255])
-// Convert to signed in C: (int8_t)((uint8_t)img[i] - 128)
+// MNIST test images (first 10, INT8 quantized)
 #ifndef MNIST_TEST_IMAGES_H
 #define MNIST_TEST_IMAGES_H
 
