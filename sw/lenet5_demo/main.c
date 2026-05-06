@@ -1,0 +1,260 @@
+/*
+ * LeNet-5 MNIST Inference on RISC-V E203 + NICE CNN Accelerator
+ *
+ * Uses NICE 4x4 PE array for Conv1 & Conv2 (tiled 5x5 -> 4x4).
+ * Pooling and FC layers in software.
+ * Weights: INT8 quantized, 98.68% MNIST test accuracy.
+ */
+#include <stdint.h>
+#include "../inc/custom_insn.h"
+#include "../inc/lenet5_weights.h"
+#include "../inc/mnist_test_images.h"
+
+/* --- Hardware registers --- */
+#define GPIOA    0x10012000UL
+#define UART0    0x10013000UL
+
+#define GPIO_PADDIR  (*(volatile uint32_t *)(GPIOA + 0x00))
+#define GPIO_PADOUT  (*(volatile uint32_t *)(GPIOA + 0x08))
+#define GPIO_IOFCFG  (*(volatile uint32_t *)(GPIOA + 0x1c))
+#define UART_THR     (*(volatile uint32_t *)(UART0 + 0x00))
+#define UART_DLL     (*(volatile uint32_t *)(UART0 + 0x00))
+#define UART_LCR     (*(volatile uint32_t *)(UART0 + 0x0c))
+#define UART_FCR     (*(volatile uint32_t *)(UART0 + 0x08))
+#define UART_LSR     (*(volatile uint32_t *)(UART0 + 0x14))
+
+#define LED0 (1u << 0)
+
+/* --- Pack 4x INT8 -> u32 (b0=LSB) --- */
+static inline uint32_t p4(int8_t a, int8_t b, int8_t c, int8_t d) {
+    return ((uint32_t)(uint8_t)a)
+         | ((uint32_t)(uint8_t)b << 8)
+         | ((uint32_t)(uint8_t)c << 16)
+         | ((uint32_t)(uint8_t)d << 24);
+}
+
+/* --- NICE 4x4 tile MAC (no CLEAR - caller must CLEAR before first tile) --- */
+static inline int32_t nice_4x4(const uint32_t w[4], const uint32_t d[4]) {
+    int32_t r;
+    ACC_WLOAD(w[0],0); ACC_WLOAD(w[1],1); ACC_WLOAD(w[2],2); ACC_WLOAD(w[3],3);
+    ACC_DLOAD(d[0],0); ACC_DLOAD(d[1],1); ACC_DLOAD(d[2],2); ACC_DLOAD(d[3],3);
+    ACC_COMP();
+    ACC_RSTAT(r);
+    return r;
+}
+
+/* ================================================================
+ * NICE-accelerated KxK convolution (single input channel)
+ * Kernel size K, input HxW, output (H-K+1)x(W-K+1)
+ * Tiles 5x5 kernel into four 4x4 PE operations per output pixel.
+ * ================================================================ */
+static void nice_conv(const int8_t *in, int H, int W,
+                      const int8_t *kern, int K, int32_t bias,
+                      int32_t *out)
+{
+    int Ho = H - K + 1, Wo = W - K + 1;
+
+    /* Pre-build 4 kernel tiles (covering the 5x5 with overlapping 4x4s) */
+    uint32_t kw[4][4];
+    int offsets[4][2] = {{0,0}, {0,1}, {1,0}, {1,1}};
+    for (int t = 0; t < 4; t++) {
+        int dy = offsets[t][0], dx = offsets[t][1];
+        for (int ww = 0; ww < 4; ww++) {
+            // Pack kernel ROW (matches cnn_v1_driver.h convention)
+            kw[t][ww] = p4(
+                (dy+ww<K&&dx+0<K)?kern[(dy+ww)*K+(dx+0)]:0,
+                (dy+ww<K&&dx+1<K)?kern[(dy+ww)*K+(dx+1)]:0,
+                (dy+ww<K&&dx+2<K)?kern[(dy+ww)*K+(dx+2)]:0,
+                (dy+ww<K&&dx+3<K)?kern[(dy+ww)*K+(dx+3)]:0);
+        }
+    }
+
+    for (int oy = 0; oy < Ho; oy++) {
+        for (int ox = 0; ox < Wo; ox++) {
+            ACC_CLEAR();  // clear PEs once per output pixel
+            for (int t = 0; t < 4; t++) {
+                int dy = offsets[t][0], dx = offsets[t][1];
+                uint32_t dw[4];
+                for (int ww = 0; ww < 4; ww++) {
+                    // Pack input ROW (matches cnn_v1_driver.h convention)
+                    dw[ww] = p4(
+                        in[(oy+dy+ww)*W+(ox+dx+0)],
+                        in[(oy+dy+ww)*W+(ox+dx+1)],
+                        in[(oy+dy+ww)*W+(ox+dx+2)],
+                        in[(oy+dy+ww)*W+(ox+dx+3)]);
+                }
+                nice_4x4(kw[t], dw);  // accumulates into PEs without CLEAR
+            }
+            int32_t result;
+            ACC_RSTAT(result);
+            out[oy * Wo + ox] = (result + bias > 0) ? (result + bias) : 0;
+        }
+    }
+}
+
+/* Software 2x2 max pool */
+static void pool_2x2(const int32_t *in, int H, int W, int32_t *out) {
+    int H2 = H / 2, W2 = W / 2;
+    for (int y = 0; y < H2; y++)
+        for (int x = 0; x < W2; x++) {
+            int32_t m = in[(y*2)*W+(x*2)], v;
+            v = in[(y*2)*W+(x*2+1)]; if (v>m) m=v;
+            v = in[(y*2+1)*W+(x*2)]; if (v>m) m=v;
+            v = in[(y*2+1)*W+(x*2+1)]; if (v>m) m=v;
+            out[y*W2+x] = m;
+        }
+}
+
+/* Software FC: INT8 weights * INT32 input -> INT32 output + optional ReLU
+ * Uses INT64 accumulator to prevent overflow, then right-shifts to rescale.
+ * The rescale factor (rshift) compensates for the INT8 weight scaling.
+ */
+static void fc(const int32_t *in, int Ni,
+               const int8_t *w, const int32_t *b, int No,
+               int32_t *out, int relu, int rshift)
+{
+    for (int j = 0; j < No; j++) {
+        int64_t s = b ? (int64_t)b[j] : 0LL;
+        for (int i = 0; i < Ni; i++) {
+            s += (int64_t)w[j*Ni+i] * (int64_t)in[i];
+        }
+        s = s >> rshift;  // rescale
+        out[j] = (relu && s < 0) ? 0 : (int32_t)s;
+    }
+}
+
+/* Argmax */
+static int argmax(const int32_t *v, int n) {
+    int b = 0; int32_t bv = v[0];
+    for (int i = 1; i < n; i++) { if (v[i] > bv) { bv = v[i]; b = i; } }
+    return b;
+}
+
+/* --- UART --- */
+static void uart_init(void) {
+    GPIO_IOFCFG |= (1u<<16)|(1u<<17);
+    UART_LCR=0x80; UART_DLL=27; UART_LCR=0x03; UART_FCR=0x06;
+}
+static void up(char c) { while(!(UART_LSR&(1u<<5))); UART_THR=(uint32_t)(uint8_t)c; }
+static void us(const char *s) { while(*s) up(*s++); }
+static void ud(int32_t v) {
+    if(v<0){up('-');v=-v;}
+    char b[12]; int i=0;
+    do{b[i++]='0'+(v%10);v/=10;}while(v);
+    while(i) up(b[--i]);
+}
+
+/* --- LED --- */
+static void led(int on) {
+    GPIO_PADDIR |= LED0;
+    if(on) GPIO_PADOUT |= LED0; else GPIO_PADOUT &= ~LED0;
+}
+
+/* ================================================================
+ * LeNet-5 Main
+ * ================================================================ */
+int main(void) {
+    uart_init(); led(1);
+
+    us("\r\n========================================\r\n");
+    us("LeNet-5 MNIST on E203 + NICE Accelerator\r\n");
+    us("Version: v6 (row-packing fix)\r\n");
+    us("========================================\r\n\r\n");
+
+    /* Working buffers (on stack - limited to ~32KB for DTCM safety) */
+    int32_t fm1[6*24*24];    /* Conv1 output:  6x24x24 */
+    int32_t p1[6*12*12];     /* Pool1 output:  6x12x12 */
+    int32_t fm2[16*8*8];     /* Conv2 output: 16x8x8   */
+    int32_t p2[16*4*4];      /* Pool2 output: 16x4x4   */
+    int32_t f1[120], f2[84], f3[10];
+
+    int ok = 0, n_img = 10;
+
+    for (int n = 0; n < n_img; n++) {
+        /* Select test image (stored as uint8 [0,255]) */
+        const uint8_t *raw;
+        switch(n) {
+            case 0: raw=mnist_img_0; break; case 1: raw=mnist_img_1; break;
+            case 2: raw=mnist_img_2; break; case 3: raw=mnist_img_3; break;
+            case 4: raw=mnist_img_4; break; case 5: raw=mnist_img_5; break;
+            case 6: raw=mnist_img_6; break; case 7: raw=mnist_img_7; break;
+            case 8: raw=mnist_img_8; break; default: raw=mnist_img_9; break;
+        }
+
+        /* Convert uint8 pixel [0,255] -> signed int8 [-128,127] */
+        int8_t img[784];
+        for (int i = 0; i < 784; i++) img[i] = (int8_t)((int)raw[i] - 128);
+
+        /* ---- Conv1 (NICE): 1x28x28 -> 6x24x24, kernel 5x5 ---- */
+        for (int k = 0; k < 6; k++)
+            nice_conv(img, 28, 28, &lenet5_conv1_weight[k*25], 5,
+                      lenet5_conv1_bias[k], &fm1[k*24*24]);
+
+        /* ---- Pool1: 6x24x24 -> 6x12x12 ---- */
+        for (int k = 0; k < 6; k++)
+            pool_2x2(&fm1[k*24*24], 24, 24, &p1[k*12*12]);
+
+        /* ---- Conv2 (NICE): 6x12x12 -> 16x8x8, kernel 5x5 ---- */
+        /* For each output channel, sum NICE conv over all 6 input channels */
+        for (int ko = 0; ko < 16; ko++) {
+            for (int y = 0; y < 8; y++)
+                for (int x = 0; x < 8; x++)
+                    fm2[ko*64 + y*8 + x] = lenet5_conv2_bias[ko];
+
+            for (int ki = 0; ki < 6; ki++) {
+                /* Extract ki-th channel from p1 and rebuild as int8 for conv */
+                int8_t ch_in[144]; /* 12x12 */
+                for (int i = 0; i < 144; i++) {
+                    // Rescale INT32 pool output back to INT8 range
+                    int32_t v = p1[ki*144 + i] >> 8;
+                    if (v > 127) v = 127;
+                    else if (v < -128) v = -128;
+                    ch_in[i] = (int8_t)v;
+                }
+                const int8_t *kern = &lenet5_conv2_weight[(ko*6+ki)*25];
+                int32_t tmp[64];
+                nice_conv(ch_in, 12, 12, kern, 5, 0, tmp);
+                for (int i = 0; i < 64; i++) fm2[ko*64 + i] += tmp[i];
+            }
+            /* ReLU */
+            for (int i = 0; i < 64; i++)
+                if (fm2[ko*64 + i] < 0) fm2[ko*64 + i] = 0;
+        }
+
+        /* ---- Pool2: 16x8x8 -> 16x4x4 ---- */
+        for (int k = 0; k < 16; k++)
+            pool_2x2(&fm2[k*64], 8, 8, &p2[k*16]);
+
+        /* ---- FC1: 256 -> 120 (software, INT64 acc, rshift=8) ---- */
+        fc(p2, 256, lenet5_fc1_weight, lenet5_fc1_bias, 120, f1, 1, 12);
+
+        /* ---- FC2: 120 -> 84 ---- */
+        fc(f1, 120, lenet5_fc2_weight, lenet5_fc2_bias, 84, f2, 1, 12);
+
+        /* ---- FC3: 84 -> 10 (no ReLU, raw logits) ---- */
+        fc(f2, 84, lenet5_fc3_weight, lenet5_fc3_bias, 10, f3, 0, 12);
+
+        /* ---- Classify ---- */
+        int pred = argmax(f3, 10);
+        int exp  = mnist_labels[n];
+
+        us("Img "); ud(n);
+        us(" pred="); ud(pred);
+        us(" exp="); ud(exp);
+        if (pred == exp) { us(" OK\r\n"); ok++; } else { us(" FAIL\r\n"); }
+    }
+
+    us("\r\nResult: "); ud(ok); us("/"); ud(n_img); us(" correct\r\n");
+    if (ok == n_img) { us(">>> LeNet-5 DEMO PASSED <<<\r\n"); led(1); }
+    else             { us("Accuracy: "); ud(ok*10); us("%\r\n"); }
+
+    us("========================================\r\n");
+
+    while (1) {
+        for (volatile int i=0;i<500000;i++);
+        led(0);
+        for (volatile int i=0;i<500000;i++);
+        led(1);
+    }
+    return 0;
+}
