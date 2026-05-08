@@ -26,13 +26,17 @@
 
 // 1. WLOAD: Load weight data to hardware.
 // xspec = xs1|xs2, funct7 = 0
+// NOTE: rs2 encodes the vector index (0-3), not a GPR.  GCC's "r" constraint
+// already excludes x0 from the allocatable set, but the E203 IFU also has a
+// hardware bug where rs2=x0 skips ir_rs2idx capture (fixed in decode RTL).
 #define ACC_WLOAD(data, index) \
-    __asm__ __volatile__(".insn r 0x0b, %c0, %c1, x0, %2, %3" : : "i"(ACC_X_RS1RS2), "i"(ACC_FN_WLOAD), "r"(data), "r"(index))
+    __asm__ __volatile__(".insn r 0x0b, %c0, %c1, x0, %2, %3" : : "i"(ACC_X_RS1RS2), "i"(ACC_FN_WLOAD), "r"(data), "r"((uint32_t)(index)))
 
 // 2. DLOAD: Load activation data to hardware.
 // xspec = xs1|xs2, funct7 = 1
+// Same rs2 encoding note as WLOAD above.
 #define ACC_DLOAD(data, index) \
-    __asm__ __volatile__(".insn r 0x0b, %c0, %c1, x0, %2, %3" : : "i"(ACC_X_RS1RS2), "i"(ACC_FN_DLOAD), "r"(data), "r"(index))
+    __asm__ __volatile__(".insn r 0x0b, %c0, %c1, x0, %2, %3" : : "i"(ACC_X_RS1RS2), "i"(ACC_FN_DLOAD), "r"(data), "r"((uint32_t)(index)))
 
 // 3. COMP: Trigger parallel convolution calculation.
 // xspec = none, funct7 = 2
