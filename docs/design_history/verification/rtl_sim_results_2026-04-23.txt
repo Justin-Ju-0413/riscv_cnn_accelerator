@@ -1,0 +1,26 @@
+RTL Simulation - PASSED (16/16 test cases)
+Date: 2026-05-05
+Platform: Ubuntu VM (192.168.10.128), Icarus Verilog
+
+Test Results:
+[normal_path] expected=320 got=320 => PASS
+[negative_values] expected=4294967136 got=4294967136 => PASS
+[negative_values_relu_on] expected=0 got=0 => PASS
+[boundary_values] expected=122 got=122 => PASS
+[conv3x3_tl_zero_pad] expected=54 got=54 => PASS
+[conv3x3_tr_zero_pad] expected=63 got=63 => PASS
+[conv3x3_bl_zero_pad] expected=90 got=90 => PASS
+[conv3x3_br_zero_pad] expected=99 got=99 => PASS
+[relu_reference_smoke] raw=[...,142,...] relu=[0,0,142,0] => PASS
+[conv3x3_tl_zero_pad_relu] expected=54 got=54 => PASS
+[invalid_index] err=1 => PASS
+[comp_without_full_load] err=1 => PASS
+[rstat_without_comp] err=1 => PASS
+[busy_blocks_new_req] err=1 => PASS
+[rstat_first_read] expected=320 got=320 => PASS
+[rstat_repeat_read] expected=320 got=320 => PASS
+
+Coverage:
+- Normal operation: 10 tests (all PASS)
+- Error handling: 4 tests (all PASS)
+- Result persistence: 1 test (PASS)

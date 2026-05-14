@@ -1,0 +1,10 @@
+cnn_accel_demo: boot
+Kernel: 3x3 INT8, Input: 4x4 INT8, Output: 2x2
+ReLU: on
+CPU reference done, cycles=1516
+Accelerator done, cycles=287
+SW output: 12 23 0 19
+HW output: 12 23 0 19
+Expected : 12 23 0 19
+Speedup: 5.282 x
+>>> CNN v1 DEMO PASSED <<<

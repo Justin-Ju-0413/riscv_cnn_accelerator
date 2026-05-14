@@ -1,0 +1,3 @@
+hello_e203: boot
+hello_e203: uart ok
+hello_e203: loop

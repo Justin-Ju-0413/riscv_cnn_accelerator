@@ -76,6 +76,7 @@ bash scripts/run_preboard_verification.sh
 | Recovery flow | `docs/PHASE4_RECOVERY.md` |
 | Board preparation | `docs/PHASE5_BOARD_PREP.md` |
 | FPGA handoff | `docs/VIVADO_FPGA_HANDOFF.md` |
+| Engineering design history | `docs/design_history/README.md` |
 
 ## Version And Baseline
 
@@ -90,6 +91,7 @@ bash scripts/run_preboard_verification.sh
 ## Current Status
 
 - Phase 1 to Phase 4 are closed.
-- Phase 5 A7-100T functional bring-up is the active stage.
-- Remaining gaps are board-facing: UART log capture, LED/ILA evidence, and the
-  later `PTD04 + BSCANE2` debug-chain research track.
+- A7-100T Route A board bring-up evidence is archived under `docs/design_history`.
+- CNN/NICE board validation and the NICE rs2 index capture fix are recorded in
+  `docs/design_history/board_bringup/2026-05-09_nice_rs2_fix_verification/`.
+- Later `PTD04 + BSCANE2` debug-chain work remains a follow-up research track.
