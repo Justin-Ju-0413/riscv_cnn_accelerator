@@ -67,6 +67,8 @@ bash scripts/run_preboard_verification.sh
 | Documentation entry | `docs/PROJECT_INDEX.md` |
 | Branch policy and branch snapshot | `docs/BRANCH_STRATEGY.md` |
 | Current truth | `docs/CURRENT_STATE.md` |
+| Future R&D plan | `docs/roadmap/FUTURE_RND_PLAN.md` |
+| Benchmark record guide | `docs/benchmarks/README.md` |
 | A7-100T board bring-up truth | `docs/DAVINCI_A7_100T_BRINGUP_V2_0.md` |
 | Delivery summary | `docs/SUMMARY.md` |
 | Phase-organized history | `docs/PHASE_HISTORY.md` |
@@ -95,3 +97,5 @@ bash scripts/run_preboard_verification.sh
 - CNN/NICE board validation and the NICE rs2 index capture fix are recorded in
   `docs/design_history/board_bringup/2026-05-09_nice_rs2_fix_verification/`.
 - Later `PTD04 + BSCANE2` debug-chain work remains a follow-up research track.
+- Future development should follow `docs/roadmap/FUTURE_RND_PLAN.md` and record
+  new measurements with `./Project_Manager.sh new_benchmark_record short-name`.

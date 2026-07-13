@@ -12,6 +12,7 @@ Usage:
   ./Project_Manager.sh precheck
   ./Project_Manager.sh status
   ./Project_Manager.sh install_sdk_app
+  ./Project_Manager.sh new_benchmark_record short-name
 EOF
 }
 
@@ -41,6 +42,10 @@ case "$cmd" in
         ;;
     install_sdk_app)
         "$ROOT_DIR/sw/build/install_sdk_app.sh"
+        ;;
+    new_benchmark_record)
+        shift
+        "$ROOT_DIR/scripts/new_benchmark_record.sh" "$@"
         ;;
     *)
         usage
