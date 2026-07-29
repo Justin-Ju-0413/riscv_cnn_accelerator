@@ -17,6 +17,7 @@ cycle.
 | Default historical line | `main` | `main` |
 | Retained accelerator milestone | `bringup_v1` | None |
 | Validated engineering baseline | `codex/a7-bringup-v2-main` | `codex/a7-bringup-v2-soc` |
+| MPhil tensor/scan research | `codex/mphil-tensor-scan-20260729` | `codex/mphil-tensor-scan-20260729-soc` |
 
 See `docs/BRANCH_STRATEGY.md` for the full branch policy and branch snapshot.
 
@@ -27,6 +28,10 @@ See `docs/BRANCH_STRATEGY.md` for the full branch policy and branch snapshot.
 - Data precision: INT8 weights and activations, INT32 accumulation
 - Architecture: 4x4 PE array with output-stationary dataflow
 - Current delivery baseline: validated A7-100T CNN/NICE prototype
+- Research PoC: capability-discovered, aligned NICE ICB reads into two
+  parameterized scratchpad banks
+- Compatibility: legacy funct7 `0–5` and the original 19-test regression remain
+  unchanged
 
 ## Project Structure
 
@@ -58,6 +63,8 @@ source ~/.profile
 bash scripts/check_dev_env.sh
 ./Project_Manager.sh gen_model
 ./Project_Manager.sh run_hw
+./Project_Manager.sh run_mphil_golden
+./Project_Manager.sh run_hw_v2
 ./Project_Manager.sh precheck
 bash scripts/run_sdk_fullsoc_regression.sh
 bash scripts/run_preboard_verification.sh
@@ -71,6 +78,9 @@ bash scripts/run_preboard_verification.sh
 | Branch policy and branch snapshot | `docs/BRANCH_STRATEGY.md` |
 | Current truth | `docs/CURRENT_STATE.md` |
 | Immediate next-work plan | `docs/roadmap/NEXT_WORK_PLAN_2026_07_27.md` |
+| MPhil tensor/SSM proposal | `docs/roadmap/MPHIL_TENSOR_SSM_RESEARCH_PLAN_2026.md` |
+| NICE v2 ABI and ICB PoC | `docs/roadmap/NICE_V2_ABI_AND_ICB_POC.md` |
+| Literature/reproducibility matrix | `docs/roadmap/LITERATURE_REPRODUCIBILITY_MATRIX_2026.md` |
 | Future R&D plan | `docs/roadmap/FUTURE_RND_PLAN.md` |
 | Benchmark record guide | `docs/benchmarks/README.md` |
 | A7-100T board bring-up truth | `docs/DAVINCI_A7_100T_BRINGUP_V2_0.md` |
@@ -86,12 +96,12 @@ bash scripts/run_preboard_verification.sh
 
 ## Version And Baseline
 
-- Branch: `codex/a7-bringup-v2-main`
-- Branch role: current active development line
+- Branch: `codex/mphil-tensor-scan-20260729`
+- Branch role: MPhil pre-research line based on the validated environment branch
 - Unified document version: `V2.0`
 - Historical software-driven SoC closure: `RSTAT=320`
 - Current minimal CNN v1 baseline: `expected_rstat = 19`
-- Active paired branch: `e203_hbirdv2:codex/a7-bringup-v2-soc`
+- Active paired branch: `e203_hbirdv2:codex/mphil-tensor-scan-20260729-soc`
 - Default SoC branch: `e203_hbirdv2:main`
 
 ## Current Status
@@ -100,10 +110,18 @@ bash scripts/run_preboard_verification.sh
 - A7-100T Route A board bring-up evidence is archived under `docs/design_history`.
 - CNN/NICE board validation and the NICE rs2 index capture fix are recorded in
   `docs/design_history/board_bringup/2026-05-09_nice_rs2_fix_verification/`.
-- The immediate post-FYP task is to reproduce the RTL and FullSoC baseline in a
-  clean Ubuntu 24.04 WSL2 environment and record the result.
+- The clean Ubuntu 24.04 WSL2 RTL and FullSoC baseline has been reproduced.
+- The first MPhil PoC implements `CAP`, an aligned single-word `MLOAD`, two
+  16-word scratchpad banks, `MSTAT` readback, and memory timeout/error handling.
+- Seven Python golden tests, 16 NICE v2 directed RTL checks, the original
+  19-test RTL regression, `LIGHT_PASS`, `PHASE4_PASS` with `RSTAT=19`, and
+  `PREBOARD_PASS` were completed on 2026-07-29.
+- `MCFG`, `MEXEC`, and `MSTORE` are reserved and deliberately return an error;
+  tiled GEMM, convolution mapping, scan execution, and DMA are not yet
+  implemented.
 - Vivado and board reruns are optional gates for this maintenance cycle.
-- Later Attention/MatMul prototyping and Vision Mamba research follow after the
-  reproducibility gate is closed.
+- No Vivado or physical board rerun was performed for this research branch.
+- The next experiment is a Full-SoC v2 memory-path microbenchmark and a measured
+  legacy load/compute/readback cycle breakdown.
 - Future development should follow `docs/roadmap/FUTURE_RND_PLAN.md` and record
   new measurements with `./Project_Manager.sh new_benchmark_record short-name`.

@@ -1,6 +1,6 @@
 # Project Document Index
 
-> **Version**: V1.9 | **Updated**: 2026-03-26 | **Owner**: Justin JU
+> **Version**: V2.1 | **Updated**: 2026-07-29 | **Owner**: Justin JU
 
 ## Core Docs
 
@@ -39,9 +39,12 @@
 
 | Document | Purpose | Use |
 |----------|---------|-----|
+| `roadmap/MPHIL_TENSOR_SSM_RESEARCH_PLAN_2026.md` | Authoritative MPhil proposal | Frame the research question, contribution, evaluation, stop rules, and 24-month milestones |
+| `roadmap/NICE_V2_ABI_AND_ICB_POC.md` | Experimental ABI and phase-one scope | Implement or review the compatible memory-path prototype |
+| `roadmap/LITERATURE_REPRODUCIBILITY_MATRIX_2026.md` | Literature screening matrix | Bound overlap with CALAS work and record reproducibility requirements |
 | `roadmap/DEEP_RESEARCH_RA_BRIEF.md` | Deep research brief | Hand research assistants a concrete literature, gap-analysis, benchmark, experiment, and proposal plan |
 | `roadmap/FUTURE_RND_PLAN.md` | Post-FYP R&D plan | Continue from validated prototype toward buffering, operator expansion, optimization, and portability |
-| `roadmap/MPHIL_YEAR_MONTH_PLAN.md` | MPhil year/month roadmap | Track 24 months of research, engineering, experiments, thesis, and publication work |
+| `roadmap/MPHIL_YEAR_MONTH_PLAN.md` | Earlier CNN-oriented MPhil roadmap | Historical planning context; the tensor/SSM research plan is authoritative |
 | `roadmap/FRONTIER_RESEARCH_SURVEY_2026.md` | Frontier research survey | Compare newer RISC-V edge-AI research directions and choose MPhil-fit topics |
 | `benchmarks/README.md` | Benchmark record guide | Record future correctness, performance, resource, timing, and claim-boundary evidence |
 
@@ -89,7 +92,7 @@ Archived legacy or superseded documents are kept under `archive/`.
 | New session | `BRANCH_STRATEGY.md` -> `QUICKSTART.md` -> `CURRENT_STATE.md` -> `PROJECT_RULES.md` |
 | Understand the project | `QUICKSTART.md` -> `SUMMARY.md` -> `PHASE_HISTORY.md` |
 | Resume implementation | `CURRENT_STATE.md` -> `PHASE_HISTORY.md` -> relevant technical doc |
-| Continue future R&D | `roadmap/DEEP_RESEARCH_RA_BRIEF.md` -> `roadmap/FRONTIER_RESEARCH_SURVEY_2026.md` -> `roadmap/FUTURE_RND_PLAN.md` -> `roadmap/MPHIL_YEAR_MONTH_PLAN.md` -> `benchmarks/README.md` -> `CURRENT_STATE.md` |
+| Continue MPhil R&D | `roadmap/MPHIL_TENSOR_SSM_RESEARCH_PLAN_2026.md` -> `roadmap/NICE_V2_ABI_AND_ICB_POC.md` -> `roadmap/LITERATURE_REPRODUCIBILITY_MATRIX_2026.md` -> `benchmarks/README.md` -> `CURRENT_STATE.md` |
 | Prepare reporting | `SUMMARY.md` -> `PROGRESS.md` -> `SPEECH.md` |
 | Trace engineering evidence | `design_history/README.md` -> `design_history/source_baselines/ENGINEERING_BASELINES.md` |
 | Start thesis | `thesis_and_defense/THESIS_WRITING_CENTER.md` -> `thesis_and_defense/THESIS_TASK_BOARD.md` -> `thesis_and_defense/references/REFERENCE_PLAN.md` |
@@ -102,10 +105,10 @@ Archived legacy or superseded documents are kept under `archive/`.
 |----------|---------|
 | `SUMMARY.md` | V1.9 |
 | `BRANCH_STRATEGY.md` | V2.0 |
-| `CURRENT_STATE.md` | V1.9 |
+| `CURRENT_STATE.md` | V2.1 |
 | `PHASE_HISTORY.md` | V1.9 |
 | `PROGRESS.md` | V1.9 |
-| `PROJECT_INDEX.md` | V1.9 |
+| `PROJECT_INDEX.md` | V2.1 |
 | `PROJECT_RULES.md` | V1.9 |
 | `QUICKSTART.md` | V1.9 |
 | `E203_FORMAL_INTEGRATION.md` | V1.9 |

@@ -19,34 +19,6 @@ VERILOG_IMAGE="${APP_DIR}/cnn_accel_demo.verilog"
 ITCM_IMAGE="${APP_DIR}/cnn_accel_demo.itcm"
 DTCM_IMAGE="${APP_DIR}/cnn_accel_demo.dtcm"
 EXPECTED_RSTAT="${EXPECTED_RSTAT:-19}"
-MEM_INIT_HEADER="${SOC_DIR}/rtl/e203/core/e203_fpga_mem_init.vh"
-mem_init_header_backup=""
-mem_init_header_was_present=0
-
-restore_mem_init_header() {
-  if [[ ${mem_init_header_was_present} -eq 1 ]]; then
-    mv -f "${mem_init_header_backup}" "${MEM_INIT_HEADER}"
-  else
-    rm -f "${MEM_INIT_HEADER}"
-  fi
-}
-
-write_mem_init_header() {
-  if [[ -e "${MEM_INIT_HEADER}" ]]; then
-    mem_init_header_was_present=1
-    mem_init_header_backup="$(mktemp "${MEM_INIT_HEADER}.XXXXXX.bak")"
-    cp -p "${MEM_INIT_HEADER}" "${mem_init_header_backup}"
-  fi
-
-  printf '%s\n' \
-    '`ifndef E203_FPGA_MEM_INIT_VH' \
-    '`define E203_FPGA_MEM_INIT_VH' \
-    "\`define E203_ITCM_INIT_FILE \"${ITCM_IMAGE}.verilog\"" \
-    "\`define E203_DTCM_INIT_FILE \"${DTCM_IMAGE}.verilog\"" \
-    '`endif' > "${MEM_INIT_HEADER}"
-}
-
-trap restore_mem_init_header EXIT
 
 find_tool_bin() {
   local root="$1"
@@ -106,7 +78,6 @@ make -C "${APP_DIR}" dasm CORE=n300 DOWNLOAD=ilm
 make -C "${APP_DIR}" cnn_accel_demo.verilog CORE=n300 DOWNLOAD=ilm
 
 "${SPLIT_HELPER}" "${VERILOG_IMAGE}"
-write_mem_init_header
 
 runner_stdout_log="$(mktemp "${ROOT_DIR}/.tmp_fullsoc_stdout.XXXXXX.log")"
 

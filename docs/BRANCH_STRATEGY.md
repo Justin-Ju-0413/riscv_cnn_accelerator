@@ -1,59 +1,84 @@
 # Branch Strategy
 
-> Snapshot date: 2026-07-27 (Asia/Shanghai)
+> Snapshot date: 2026-04-11 (Asia/Hong_Kong)
 
-This snapshot reflects the branches that actually exist on GitHub. The
-accelerator and SoC default branches have diverged from the validated
-engineering branches, so this maintenance cycle does not merge or force-update
-either `main`.
+This document defines the branch roles shared by `riscv_cnn_accelerator` and
+`e203_hbirdv2`. The goal is to keep a clear two-layer structure:
 
-## Current Branches
+- a stable formal line for reporting, recovery, and stage delivery
+- a current active development line for ongoing A7-100T / Route-A bring-up work
 
-| Repository | Branch | Role | Use for new engineering work |
-|------------|--------|------|------------------------------|
-| `riscv_cnn_accelerator` | `main` | Default historical line | No |
-| `riscv_cnn_accelerator` | `bringup_v1` | Retained stable milestone | Recovery/reporting only |
-| `riscv_cnn_accelerator` | `codex/a7-bringup-v2-main` | Validated FYP engineering baseline | Yes |
-| `e203_hbirdv2` | `main` | Default/upstream-oriented line | No |
-| `e203_hbirdv2` | `codex/a7-bringup-v2-soc` | Validated paired SoC baseline | Yes |
+## Current Branch Roles
 
-The former SoC branches `master` and `cnn_bringup_v1` no longer exist on the
-remote and must not be used in setup instructions.
+| Repository | Branch | Role | Continue daily development | Paired branch |
+|------------|--------|------|----------------------------|---------------|
+| `riscv_cnn_accelerator` | `main` | Historical default line | No | `e203_hbirdv2:master` |
+| `riscv_cnn_accelerator` | `bringup_v1` | Stable formal line | Limited to stability, docs, and stage summaries | `e203_hbirdv2:cnn_bringup_v1` |
+| `riscv_cnn_accelerator` | `codex/a7-bringup-v2-main` | Current active development line | Yes | `e203_hbirdv2:codex/a7-bringup-v2-soc` |
+| `e203_hbirdv2` | `master` | Historical default line | No | `riscv_cnn_accelerator:main` |
+| `e203_hbirdv2` | `cnn_bringup_v1` | Stable formal line | Limited to stability, docs, and stage summaries | `riscv_cnn_accelerator:bringup_v1` |
+| `e203_hbirdv2` | `codex/a7-bringup-v2-soc` | Current active development line | Yes | `riscv_cnn_accelerator:codex/a7-bringup-v2-main` |
 
-## Active Pair
+## Branch Snapshot
 
-- Accelerator: `codex/a7-bringup-v2-main`
-- SoC: `codex/a7-bringup-v2-soc`
+| Repository | Branch | Role | Recent commit date | Recent commit title | Continue daily development | Paired branch |
+|------------|--------|------|--------------------|---------------------|----------------------------|---------------|
+| `riscv_cnn_accelerator` | `main` | Historical default line | 2026-03-26 | `docs: reorganize project docs and unify v1.9 package` | No | `e203_hbirdv2:master` |
+| `riscv_cnn_accelerator` | `bringup_v1` | Stable formal line | 2026-03-27 | `Simplify project documentation structure` | Limited | `e203_hbirdv2:cnn_bringup_v1` |
+| `riscv_cnn_accelerator` | `codex/a7-bringup-v2-main` | Current active development line | 2026-04-10 | `freeze: finalize A7 route-a v2.0 snapshot` | Yes | `e203_hbirdv2:codex/a7-bringup-v2-soc` |
+| `e203_hbirdv2` | `master` | Historical default line | 2025-08-06 | `doc: add information about wechat group (#31)` | No | `riscv_cnn_accelerator:main` |
+| `e203_hbirdv2` | `cnn_bringup_v1` | Stable formal line | 2026-03-26 | `Add Davinci A7-35T FPGA shell` | Limited | `riscv_cnn_accelerator:bringup_v1` |
+| `e203_hbirdv2` | `codex/a7-bringup-v2-soc` | Current active development line | 2026-04-10 | `fpga: add A7-100T route-a bring-up baseline` | Yes | `riscv_cnn_accelerator:codex/a7-bringup-v2-main` |
 
-These branches contain the A7-100T bring-up, CNN/NICE board evidence, and NICE
-`rs2` decoder fix. Keep them paired whenever a change affects both
-repositories.
+## Cross-Repository Branch Mapping
 
-## Maintenance Branches
+The expected paired branch relationships are:
 
-The 2026-07-27 reproducibility update uses:
+- `bringup_v1` ↔ `cnn_bringup_v1`
+- `codex/a7-bringup-v2-main` ↔ `codex/a7-bringup-v2-soc`
+- `main` ↔ `master`
 
-- `riscv_cnn_accelerator:codex/env-baseline-20260727`
-- `e203_hbirdv2:codex/env-baseline-20260727-soc`
+When one repository is checked out on a stable or active line, the other
+repository should normally be checked out on the matching paired line.
 
-Each branch targets its corresponding active engineering branch through a
-Draft PR. Neither PR targets `main`.
+## Usage Rules
 
-## Rules
+- Do not treat `main` or `master` as the current engineering entry point.
+- Use the stable formal lines for stable documentation cleanup, reporting,
+  baseline restoration, and stage summaries.
+- Use the active development lines for the live A7-100T / Route-A bring-up
+  stream, including UART, LED, and ILA evidence-chain work.
+- Avoid mixing experimental work directly into the stable formal lines unless
+  the work has already been validated and is being packaged for reporting.
+- Keep both repositories aligned by updating the paired stable or active
+  branches together when documenting a shared milestone.
 
-- Do not merge or force-update either `main` as part of a documentation or
-  environment-maintenance change.
-- Do not re-create removed branches merely to match old documentation.
-- Keep RTL/API changes out of reproducibility-only branches.
-- Stage explicit files; do not include generated Vivado, simulation, UART, or
-  ILA artifacts unless they are intentional benchmark evidence.
-- Preserve the claim boundaries documented in `CURRENT_STATE.md`.
-- After the environment baseline is reproducible, create a new research branch
-  for Attention/MatMul or Vision Mamba work rather than extending this
-  maintenance branch indefinitely.
+## Upgrade Path Recommendation
 
-## Future Promotion
+Do not create new `v2` baseline branches yet unless both repositories have
+settled and the active Route-A line is serving as the de facto stable baseline.
 
-Promotion of the active branches to new stable/default branches is a separate
-release task. It requires a reviewed cross-repository diff, a complete
-regression run, and an explicit decision about the diverged `main` commits.
+When the current active line is stable enough, promote it by cutting:
+
+- `codex/a7-bringup-v2-main` -> `bringup_v2`
+- `codex/a7-bringup-v2-soc` -> `cnn_bringup_v2`
+
+This keeps `v1` as the formal historical milestone while leaving the active
+branch free for further bring-up work until the snapshot is truly ready.
+
+## Future Branch Naming Recommendations
+
+Use branch names that expose three things as early as possible:
+
+- layer or role, such as `stable`, `active`, or `experiment`
+- target, such as `a7-100t-route-a`, `uart-ila`, or `bringup`
+- version or milestone, such as `v2` or `v2_1`
+
+For paired branches across the two repositories, keep the same shared prefix
+and let only the repository-role suffix differ when necessary.
+
+Recommended examples:
+
+- `stable/bringup-v2-main` and `stable/bringup-v2-soc`
+- `active/a7-100t-route-a-v2-main` and `active/a7-100t-route-a-v2-soc`
+- `experiment/uart-ila-evidence-v2-main` and `experiment/uart-ila-evidence-v2-soc`

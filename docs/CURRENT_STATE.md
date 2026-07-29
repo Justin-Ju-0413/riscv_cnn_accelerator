@@ -1,23 +1,24 @@
 # Current State
 
-> **Version**: V2.0 | **Updated**: 2026-07-27 | **Owner**: Justin JU
+> **Version**: V2.1 | **Updated**: 2026-07-29 | **Owner**: Justin JU
 
 ## Purpose
 
-This is the engineering session-recovery file. It records the validated FYP
-baseline, the current development environment, and the next gate before new
-research work begins.
+This is the engineering and research session-recovery file. It records the
+validated FYP baseline, the first MPhil data-movement proof of concept, the
+current development environment, and the next measurable gate.
 
 ## Current Snapshot
 
 | Item | Value |
 |------|-------|
-| Engineering branch | `codex/a7-bringup-v2-main` |
-| Paired SoC branch | `codex/a7-bringup-v2-soc` |
+| Engineering baseline | `codex/env-baseline-20260727` |
+| MPhil research branch | `codex/mphil-tensor-scan-20260729` |
+| Paired SoC research branch | `codex/mphil-tensor-scan-20260729-soc` |
 | Lifecycle | FYP engineering and defense closed |
 | Validated platform | Hummingbird E203 + NICE + Davinci Pro A7-100T |
-| Immediate task | Clean-environment baseline reproduction |
-| Later research | E203/NICE Attention/MatMul prototype, then Vision Mamba |
+| Immediate task | Full-SoC v2 memory microbenchmark and cycle breakdown |
+| Research direction | data-movement-aware tensor + small SSM scan substrate |
 
 The default `main` branches remain historical/default lines. They are not being
 merged with the active engineering branches in this maintenance cycle.
@@ -44,12 +45,34 @@ verified.
 - The NICE `rs2` index-capture bug was fixed in the E203 decoder and
   board-regressed on 2026-05-09.
 
+## MPhil Proof of Concept
+
+The 2026-07-29 research branch adds a backward-compatible NICE v2 prototype:
+
+- funct7 `0–5` and `custom_insn.h` remain unchanged;
+- `CAP=6` reports ABI `2.0`, 16 words per implemented bank, and capability bits;
+- `MLOAD=8` performs one aligned ICB read into an activation or weight
+  scratchpad;
+- `MSTAT=11` provides self-checking scratchpad readback;
+- command/response backpressure, ICB errors, reset invalidation, and timeouts
+  are checked;
+- `MCFG=7`, `MEXEC=9`, and `MSTORE=10` are reserved and return an error.
+
+This is not yet DMA, tiled GEMM, convolution execution, or an SSM accelerator.
+The memory path has been executed in the standalone directed harness; Full-SoC
+regression currently proves legacy compatibility only.
+
 ## Recorded Evidence
 
 | Evidence | Recorded result |
 |----------|-----------------|
-| RTL regression | `16/16` passed |
+| Original RTL regression | `19/19` passed and `TB_PASS` |
+| NICE v2 directed RTL | `16/16` passed and `NICE_V2_PASS` |
+| Python tensor/scan golden | `7/7` passed |
+| Lightweight SoC | `LIGHT_PASS` |
 | FullSoC regression | `7/7` passed |
+| Current Full-SoC completion | `PHASE4_PASS`, `RSTAT=19` |
+| Current pre-board sweep | `PREBOARD_PASS` |
 | Historical dot-product closure | `RSTAT=320` |
 | Minimal CNN v1 FullSoC result | `expected_rstat = 19` |
 | 3x3 convolution-kernel cycle test | `1516 / 287 = 5.282x` |
@@ -81,12 +104,13 @@ toolchain GDB is not used because it requires `libtinfo.so.5`, which Ubuntu
 
 ## Immediate Gate
 
-1. Run the read-only environment check.
-2. Re-run the RTL regression.
-3. Re-run the software-driven FullSoC regression.
-4. Run the pre-board verification sweep.
-5. Add a benchmark record with exact commits, tool versions, results, and claim
-   boundaries.
+1. Add a Full-SoC SDK microbenchmark that runs `CAP → MLOAD → MSTAT`.
+2. Record scalar and legacy NICE load/compute/readback cycles and instruction
+   counts.
+3. Measure bytes moved and compare register-load traffic with the minimal
+   scratchpad path.
+4. Freeze `MCFG` tile fields only after those measurements.
+5. Implement the smallest tiled GEMM that reuses the verified 4×4 PE array.
 
 Vivado programming and a physical board rerun are optional for this gate. If
 they are not run, record them as `not run`, not as failures.
@@ -95,16 +119,19 @@ they are not run, record them as `not run`, not as failures.
 
 - No complete LeNet-5 end-to-end accelerator timing result.
 - No full board-side MNIST accuracy run.
-- No line buffer, local SRAM buffer, DMA-like path, or NICE memory channel.
+- No line buffer, DMA, burst transfer, double buffering, or compute/memory
+  overlap.
+- The NICE memory channel has only standalone aligned single-word coverage; no
+  Full-SoC v2 software execution has been recorded yet.
 - No automatic compiler mapping or RVV comparison baseline.
-- No Attention/MatMul prototype or Vision Mamba/SSM scan accelerator yet.
+- No tiled GEMM, network-level accelerator, or hardware SSM scan unit yet.
 
 ## Reading Order
 
-1. `docs/roadmap/NEXT_WORK_PLAN_2026_07_27.md`
-2. `docs/design_history/source_baselines/ENGINEERING_BASELINES.md`
-3. `docs/design_history/board_bringup/2026-05-09_nice_rs2_fix_verification/BOARD_VERIFICATION.md`
-4. `docs/benchmarks/README.md`
-5. `docs/roadmap/FUTURE_RND_PLAN.md`
+1. `docs/roadmap/MPHIL_TENSOR_SSM_RESEARCH_PLAN_2026.md`
+2. `docs/roadmap/NICE_V2_ABI_AND_ICB_POC.md`
+3. `docs/roadmap/LITERATURE_REPRODUCIBILITY_MATRIX_2026.md`
+4. `docs/design_history/source_baselines/ENGINEERING_BASELINES.md`
+5. `docs/benchmarks/README.md`
 
 Update this file whenever the active baseline, blocker, or next gate changes.
