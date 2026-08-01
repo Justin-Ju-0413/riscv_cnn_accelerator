@@ -1,0 +1,34 @@
+* text=auto
+
+*.sh text eol=lf
+*.bash text eol=lf
+Makefile text eol=lf
+*.mk text eol=lf
+*.v text eol=lf
+*.sv text eol=lf
+*.vh text eol=lf
+*.tcl text eol=lf
+*.xdc text eol=lf
+*.c text eol=lf
+*.h text eol=lf
+*.S text eol=lf
+*.ld text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.rst text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.pptx binary
+*.docx binary
+*.bit binary
+*.mcs binary

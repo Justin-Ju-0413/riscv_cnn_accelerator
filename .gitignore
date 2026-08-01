@@ -18,6 +18,7 @@
 *.vcd
 *.fst
 *.log
+*.log.normalized
 *.wlf
 *.out
 

@@ -1,106 +1,110 @@
 # Current State
 
-> **Version**: V2.0 | **Updated**: 2026-04-10 | **Owner**: Justin JU
+> **Version**: V2.0 | **Updated**: 2026-07-27 | **Owner**: Justin JU
 
 ## Purpose
 
-Session recovery file. Read this first before continuing implementation work.
-
-## Branch Governance Note
-
-This branch is the current active development line. Use it for the live
-A7-100T / Route-A bring-up stream. Keep `bringup_v1` as the stable formal
-baseline and `main` as the historical default line.
+This is the engineering session-recovery file. It records the validated FYP
+baseline, the current development environment, and the next gate before new
+research work begins.
 
 ## Current Snapshot
 
 | Item | Value |
 |------|-------|
-| Branch | `codex/a7-bringup-v2-main` |
-| Branch role | Current active development line |
-| Active phase | `Phase 5` |
-| Current baseline | A7-100T Route A functional bring-up |
-| Latest document package | `V2.0` |
+| Engineering branch | `codex/a7-bringup-v2-main` |
+| Paired SoC branch | `codex/a7-bringup-v2-soc` |
+| Lifecycle | FYP engineering and defense closed |
+| Validated platform | Hummingbird E203 + NICE + Davinci Pro A7-100T |
+| Immediate task | Clean-environment baseline reproduction |
+| Later research | E203/NICE Attention/MatMul prototype, then Vision Mamba |
 
-## Repositories
+The default `main` branches remain historical/default lines. They are not being
+merged with the active engineering branches in this maintenance cycle.
 
-| Repo | Path | Branch |
-|------|------|--------|
-| Main repo | `E:\riscv-workspace\repos\riscv_cnn_accelerator` | `codex/a7-bringup-v2-main` |
-| SoC repo | `E:\riscv-workspace\repos\e203_hbirdv2` | `codex/a7-bringup-v2-soc` |
+## Repository Locations
+
+| Role | Current clean WSL2 path |
+|------|-------------------------|
+| Accelerator | `/home/gstar/workspaces/riscv/riscv_cnn_accelerator` |
+| SoC | `/home/gstar/workspaces/riscv/e203_hbirdv2` |
+
+The older `/home/gstar/Desktop` repositories are retained as recovery copies.
+Do not reset or delete them until the clean clones and GitHub PRs have been
+verified.
 
 ## Closed Technical Baseline
 
-- E203/NICE integration is formally locked.
-- The command path `CLEAR/WLOAD/DLOAD/COMP/RSTAT` is stable.
-- Minimal CNN v1 software flow is aligned across SDK app, firmware, and demo path.
-- CPU-only and accelerator-visible result comparison has been integrated.
-- Pre-board verification scripts are available as the gate before any FPGA work.
-- A7-100T Vivado programming via `PTD04` has been proven on real hardware.
-- The active board strategy is now Route A: UART + LED + ILA evidence first.
+- E203/NICE request-response integration is locked.
+- The software-visible command path is `CFG/CLEAR/WLOAD/DLOAD/COMP/RSTAT`.
+- The accelerator uses INT8 weights/activations, INT32 accumulation, and a 4x4
+  output-stationary PE array.
+- RTL and software-driven FullSoC regressions have recorded passing evidence.
+- A7-100T programming, UART output, and ILA capture were completed.
+- The NICE `rs2` index-capture bug was fixed in the E203 decoder and
+  board-regressed on 2026-05-09.
 
-## Verified Items
+## Recorded Evidence
 
-| Item | Status |
-|------|--------|
-| `./Project_Manager.sh gen_model` | Passed |
-| `./Project_Manager.sh run_hw` | Passed |
-| `./Project_Manager.sh precheck` | Passed |
-| `bash scripts/run_sdk_fullsoc_regression.sh` | Passed |
-| `bash scripts/run_preboard_verification.sh` | Passed |
-| `bash scripts/check_phase5_board_env.sh` | Passed with updated A7-100T defaults |
-| `PTD04 + Vivado` FPGA programming | Passed |
-| A7-100T Route A bitstream rebuild | Passed |
+| Evidence | Recorded result |
+|----------|-----------------|
+| RTL regression | `16/16` passed |
+| FullSoC regression | `7/7` passed |
+| Historical dot-product closure | `RSTAT=320` |
+| Minimal CNN v1 FullSoC result | `expected_rstat = 19` |
+| 3x3 convolution-kernel cycle test | `1516 / 287 = 5.282x` |
+| FPGA sample demonstration | `10/10` samples |
+| FPGA timing after NICE fix | WNS `13.512 ns`, WHS `0.056 ns` |
+| Board result | UART reported `CNN v1 DEMO PASSED`; ILA captured |
 
-## Current Result Baseline
+The `5.282x` result is limited to the recorded 3x3 convolution-kernel cycle
+test. The `10/10` result is limited to the recorded FPGA sample demonstration.
+Neither value proves full LeNet-5 acceleration or full MNIST accuracy.
 
-| Flow | Expected result |
-|------|-----------------|
-| Historical Phase 3 dot-product closure | `RSTAT=320` |
-| Current minimal CNN v1 full-SoC flow | `expected_rstat = 19` |
+## Current Host Environment
 
-## Host Tools
+| Tool | Current state |
+|------|---------------|
+| Ubuntu | 24.04 on WSL2 |
+| RISC-V GCC | 14.2.1 under `/home/gstar/Desktop/gcc/bin` |
+| RISC-V debugger | `gdb-multiarch` 15.1 |
+| OpenOCD | 0.12.0 |
+| Icarus Verilog | 12.0 |
+| GNU Make | 4.3 |
+| Python | 3.12 |
+| Vivado | Not discovered on the current Windows host |
+| Board serial/JTAG | Not connected during the 2026-07-27 audit |
 
-| Tool | Status |
-|------|--------|
-| `riscv64-unknown-elf-gcc` | Available |
-| `riscv64-unknown-elf-gdb` | Available |
-| `openocd` | Available |
-| `vivado` | Confirmed |
-| `PTD04` | Confirmed for FPGA download |
+Run `bash scripts/check_dev_env.sh` before starting a regression. The legacy
+toolchain GDB is not used because it requires `libtinfo.so.5`, which Ubuntu
+24.04 no longer provides.
 
-## Remaining Gaps
+## Immediate Gate
 
-- UART COM port still needs to be locked for board log capture.
-- Route A board evidence is still pending:
-  - UART milestones
-  - LED stage observation
-  - ILA capture of CPU/NICE activity
-- `PTD04` does not yet provide CPU software debug; `BSCANE2` remains a later research path.
+1. Run the read-only environment check.
+2. Re-run the RTL regression.
+3. Re-run the software-driven FullSoC regression.
+4. Run the pre-board verification sweep.
+5. Add a benchmark record with exact commits, tool versions, results, and claim
+   boundaries.
 
-## Active Direction
+Vivado programming and a physical board rerun are optional for this gate. If
+they are not run, record them as `not run`, not as failures.
 
-- Keep the SoC-side integration boundary unchanged.
-- Preserve the current `evalsoc + nuclei_fpga_eval + n300 + ilm` software-facing path.
-- Treat `davinci_a7_100t` as the active board shell target.
-- Prioritize Route A functional validation before Route B debug-chain work.
-- Keep `PTD04 + BSCANE2` as a non-blocking follow-up research item.
+## Remaining Research Gaps
 
-## What To Read Next
+- No complete LeNet-5 end-to-end accelerator timing result.
+- No full board-side MNIST accuracy run.
+- No line buffer, local SRAM buffer, DMA-like path, or NICE memory channel.
+- No automatic compiler mapping or RVV comparison baseline.
+- No Attention/MatMul prototype or Vision Mamba/SSM scan accelerator yet.
 
-| Goal | Document |
-|------|----------|
-| Understand the whole delivery | [SUMMARY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/SUMMARY.md) |
-| Understand all historical work by phase | [PHASE_HISTORY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE_HISTORY.md) |
-| See dated progress | [PROGRESS.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PROGRESS.md) |
-| Continue board preparation | [PHASE5_BOARD_PREP.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE5_BOARD_PREP.md) |
-| Continue A7-100T board bring-up | [DAVINCI_A7_100T_BRINGUP_V2_0.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/DAVINCI_A7_100T_BRINGUP_V2_0.md) |
-| Follow long-term collaboration requirements | [PROJECT_RULES.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PROJECT_RULES.md) |
+## Reading Order
 
-## Reading Rules
+1. `docs/roadmap/NEXT_WORK_PLAN_2026_07_27.md`
+2. `docs/design_history/source_baselines/ENGINEERING_BASELINES.md`
+3. `docs/design_history/board_bringup/2026-05-09_nice_rs2_fix_verification/BOARD_VERIFICATION.md`
+4. `docs/benchmarks/README.md`
+5. `docs/roadmap/FUTURE_RND_PLAN.md`
 
-- Use `BRANCH_STRATEGY.md` to keep the stable and active lines aligned.
-- Use this document for current truth only.
-- Use `PHASE_HISTORY.md` for stage-by-stage history.
-- Use `PROGRESS.md` for chronological reconstruction.
-- Update this file when the current baseline or active blockers change.
+Update this file whenever the active baseline, blocker, or next gate changes.
