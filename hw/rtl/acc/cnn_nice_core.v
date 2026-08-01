@@ -1,4 +1,7 @@
-module cnn_nice_core(
+module cnn_nice_core #(
+    parameter SCRATCHPAD_WORDS = 16,
+    parameter MEM_TIMEOUT_CYCLES = 16
+)(
     input clk,
     input rst_n,
 
@@ -34,6 +37,19 @@ module cnn_nice_core(
     localparam [6:0] FN_RSTAT = 7'd3;
     localparam [6:0] FN_CLEAR = 7'd4;
     localparam [6:0] FN_CFG   = 7'd5;
+    localparam [6:0] FN_CAP   = 7'd6;
+    localparam [6:0] FN_MCFG  = 7'd7;
+    localparam [6:0] FN_MLOAD = 7'd8;
+    localparam [6:0] FN_MEXEC = 7'd9;
+    localparam [6:0] FN_MSTORE = 7'd10;
+    localparam [6:0] FN_MSTAT = 7'd11;
+    localparam [7:0] SCRATCHPAD_WORDS_CAP = SCRATCHPAD_WORDS;
+    localparam [31:0] CAP_VALUE = {
+        8'd2,
+        8'd0,
+        SCRATCHPAD_WORDS_CAP,
+        8'h9f
+    };
 
     reg acc_clr;
     reg en_pe;
@@ -51,29 +67,43 @@ module cnn_nice_core(
     reg [1:0] load_vec_sel_q;
     reg rsp_err_q;
     reg relu_en_q;
+    reg mem_active_q;
+    reg mem_cmd_sent_q;
+    reg mem_bank_q;
+    reg [3:0] mem_index_q;
+    reg [31:0] mem_addr_q;
+    reg [15:0] mem_timeout_q;
+    reg [31:0] activation_spad [0:SCRATCHPAD_WORDS-1];
+    reg [31:0] weight_spad [0:SCRATCHPAD_WORDS-1];
+    reg [SCRATCHPAD_WORDS-1:0] activation_valid_q;
+    reg [SCRATCHPAD_WORDS-1:0] weight_valid_q;
     wire [6:0] funct7;
     wire is_nice_opcode;
-    wire rs2_idx_valid;
+    wire legacy_rs2_valid;
+    wire spad_sel_valid;
     wire signed [31:0] result_sum;
     wire signed [31:0] result_sum_post;
 
     assign funct7 = nice_req_instr[31:25];
     assign is_nice_opcode = (nice_req_instr[6:0] == NICE_OPCODE);
-    assign rs2_idx_valid = (nice_req_rs2[31:2] == 30'b0);
+    assign legacy_rs2_valid = (nice_req_rs2[31:2] == 30'b0);
+    assign spad_sel_valid =
+        (nice_req_rs2[31:5] == 27'b0) &&
+        (nice_req_rs2[3:0] < SCRATCHPAD_WORDS);
 
-    assign nice_req_ready = ~rsp_pending & ~busy;
+    assign nice_req_ready = ~rsp_pending & ~busy & ~mem_active_q;
     assign nice_rsp_valid = rsp_pending;
     assign nice_rsp_rdat = rsp_rdat_q;
     assign nice_rsp_err = rsp_err_q;
 
-    assign nice_mem_holdup = 1'b0;
-    assign nice_icb_cmd_valid = 1'b0;
-    assign nice_icb_cmd_addr = 32'b0;
-    assign nice_icb_cmd_read = 1'b0;
+    assign nice_mem_holdup = mem_active_q;
+    assign nice_icb_cmd_valid = mem_active_q & ~mem_cmd_sent_q;
+    assign nice_icb_cmd_addr = mem_addr_q;
+    assign nice_icb_cmd_read = 1'b1;
     assign nice_icb_cmd_size = 2'b10;
     assign nice_icb_cmd_wdata = 32'b0;
     assign nice_icb_cmd_wmask = 4'b0;
-    assign nice_icb_rsp_ready = 1'b1;
+    assign nice_icb_rsp_ready = mem_active_q & mem_cmd_sent_q;
     assign result_sum_post = (relu_en_q && result_sum[31]) ? 32'sd0 : result_sum;
 
     pe_array u_pe_array(
@@ -107,6 +137,14 @@ module cnn_nice_core(
             load_vec_sel_q <= 2'b0;
             rsp_err_q <= 1'b0;
             relu_en_q <= 1'b0;
+            mem_active_q <= 1'b0;
+            mem_cmd_sent_q <= 1'b0;
+            mem_bank_q <= 1'b0;
+            mem_index_q <= 4'b0;
+            mem_addr_q <= 32'b0;
+            mem_timeout_q <= 16'b0;
+            activation_valid_q <= {SCRATCHPAD_WORDS{1'b0}};
+            weight_valid_q <= {SCRATCHPAD_WORDS{1'b0}};
         end else begin
             acc_clr <= 1'b0;
             en_pe <= 1'b0;
@@ -131,12 +169,57 @@ module cnn_nice_core(
                 rsp_err_q <= 1'b0;
             end
 
+            if(mem_active_q) begin
+                if(!mem_cmd_sent_q) begin
+                    if(nice_icb_cmd_ready) begin
+                        mem_cmd_sent_q <= 1'b1;
+                        mem_timeout_q <= 16'b0;
+                    end else if(mem_timeout_q >= (MEM_TIMEOUT_CYCLES - 1)) begin
+                        mem_active_q <= 1'b0;
+                        mem_cmd_sent_q <= 1'b0;
+                        mem_timeout_q <= 16'b0;
+                        rsp_rdat_q <= 32'b0;
+                        rsp_err_q <= 1'b1;
+                        rsp_pending <= 1'b1;
+                    end else begin
+                        mem_timeout_q <= mem_timeout_q + 1'b1;
+                    end
+                end else begin
+                    if(nice_icb_rsp_valid) begin
+                        mem_active_q <= 1'b0;
+                        mem_cmd_sent_q <= 1'b0;
+                        mem_timeout_q <= 16'b0;
+                        rsp_rdat_q <= 32'b0;
+                        rsp_err_q <= nice_icb_rsp_err;
+                        rsp_pending <= 1'b1;
+                        if(!nice_icb_rsp_err) begin
+                            if(mem_bank_q) begin
+                                weight_spad[mem_index_q] <= nice_icb_rsp_rdata;
+                                weight_valid_q[mem_index_q] <= 1'b1;
+                            end else begin
+                                activation_spad[mem_index_q] <= nice_icb_rsp_rdata;
+                                activation_valid_q[mem_index_q] <= 1'b1;
+                            end
+                        end
+                    end else if(mem_timeout_q >= (MEM_TIMEOUT_CYCLES - 1)) begin
+                        mem_active_q <= 1'b0;
+                        mem_cmd_sent_q <= 1'b0;
+                        mem_timeout_q <= 16'b0;
+                        rsp_rdat_q <= 32'b0;
+                        rsp_err_q <= 1'b1;
+                        rsp_pending <= 1'b1;
+                    end else begin
+                        mem_timeout_q <= mem_timeout_q + 1'b1;
+                    end
+                end
+            end
+
             if(nice_req_valid && nice_req_ready) begin
                 if(!is_nice_opcode) begin
                     rsp_rdat_q <= 32'b0;
                     rsp_err_q <= 1'b1;
                     rsp_pending <= 1'b1;
-                end else if(!rs2_idx_valid) begin
+                end else if((funct7 <= FN_CFG) && !legacy_rs2_valid) begin
                     rsp_rdat_q <= 32'b0;
                     rsp_err_q <= 1'b1;
                     rsp_pending <= 1'b1;
@@ -200,6 +283,60 @@ module cnn_nice_core(
                             rsp_err_q <= 1'b0;
                             rsp_pending <= 1'b1;
                         end
+                        FN_CAP: begin
+                            rsp_rdat_q <= CAP_VALUE;
+                            rsp_err_q <= 1'b0;
+                            rsp_pending <= 1'b1;
+                        end
+                        FN_MLOAD: begin
+                            if((nice_req_rs1[1:0] != 2'b0) ||
+                               !spad_sel_valid) begin
+                                rsp_rdat_q <= 32'b0;
+                                rsp_err_q <= 1'b1;
+                                rsp_pending <= 1'b1;
+                            end else begin
+                                mem_active_q <= 1'b1;
+                                mem_cmd_sent_q <= 1'b0;
+                                mem_bank_q <= nice_req_rs2[4];
+                                mem_index_q <= nice_req_rs2[3:0];
+                                mem_addr_q <= nice_req_rs1;
+                                mem_timeout_q <= 16'b0;
+                            end
+                        end
+                        FN_MSTAT: begin
+                            if(!spad_sel_valid) begin
+                                rsp_rdat_q <= 32'b0;
+                                rsp_err_q <= 1'b1;
+                                rsp_pending <= 1'b1;
+                            end else if(nice_req_rs2[4]) begin
+                                if(weight_valid_q[nice_req_rs2[3:0]]) begin
+                                    rsp_rdat_q <=
+                                        weight_spad[nice_req_rs2[3:0]];
+                                    rsp_err_q <= 1'b0;
+                                end else begin
+                                    rsp_rdat_q <= 32'b0;
+                                    rsp_err_q <= 1'b1;
+                                end
+                                rsp_pending <= 1'b1;
+                            end else begin
+                                if(activation_valid_q[nice_req_rs2[3:0]]) begin
+                                    rsp_rdat_q <=
+                                        activation_spad[nice_req_rs2[3:0]];
+                                    rsp_err_q <= 1'b0;
+                                end else begin
+                                    rsp_rdat_q <= 32'b0;
+                                    rsp_err_q <= 1'b1;
+                                end
+                                rsp_pending <= 1'b1;
+                            end
+                        end
+                        FN_MCFG,
+                        FN_MEXEC,
+                        FN_MSTORE: begin
+                            rsp_rdat_q <= 32'b0;
+                            rsp_err_q <= 1'b1;
+                            rsp_pending <= 1'b1;
+                        end
                         default: begin
                             rsp_rdat_q <= 32'b0;
                             rsp_err_q <= 1'b1;
@@ -210,7 +347,4 @@ module cnn_nice_core(
             end
         end
     end
-
-    wire unused_ok;
-    assign unused_ok = &{1'b0, nice_icb_cmd_ready, nice_icb_rsp_valid, nice_icb_rsp_err, nice_icb_rsp_rdata[0]};
 endmodule

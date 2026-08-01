@@ -8,7 +8,9 @@ usage() {
 Usage:
   ./Project_Manager.sh setup
   ./Project_Manager.sh run_hw
+  ./Project_Manager.sh run_hw_v2
   ./Project_Manager.sh gen_model
+  ./Project_Manager.sh run_mphil_golden
   ./Project_Manager.sh precheck
   ./Project_Manager.sh status
   ./Project_Manager.sh install_sdk_app
@@ -27,8 +29,19 @@ case "$cmd" in
         make -C "$ROOT_DIR/hw/sim" clean
         make -C "$ROOT_DIR/hw/sim" run
         ;;
+    run_hw_v2)
+        make -C "$ROOT_DIR/hw/sim" clean
+        make -C "$ROOT_DIR/hw/sim" run_v2
+        ;;
     gen_model)
         python3 "$ROOT_DIR/algo/python/generate_model.py"
+        ;;
+    run_mphil_golden)
+        python3 -m unittest discover \
+            -s "$ROOT_DIR/algo/python" \
+            -p "test_mphil_microbench.py" \
+            -v
+        python3 "$ROOT_DIR/algo/python/mphil_microbench.py"
         ;;
     precheck)
         "$ROOT_DIR/fpga/scripts/pre_sdk_check.sh"
