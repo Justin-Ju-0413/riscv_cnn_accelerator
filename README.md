@@ -101,12 +101,16 @@ bash scripts/run_preboard_verification.sh
 ## Current Status
 
 - The FYP engineering project and defense are closed.
+- Phase 1 through Phase 4 and the A7-100T functional bring-up milestone are
+  retained as historical engineering evidence.
 - A7-100T Route A board bring-up evidence is archived under `docs/design_history`.
 - CNN/NICE board validation and the NICE rs2 index capture fix are recorded in
   `docs/design_history/board_bringup/2026-05-09_nice_rs2_fix_verification/`.
 - The immediate post-FYP task is to reproduce the RTL and FullSoC baseline in a
   clean Ubuntu 24.04 WSL2 environment and record the result.
 - Vivado and board reruns are optional gates for this maintenance cycle.
+- UART log capture, LED/ILA evidence, and the later `PTD04 + BSCANE2` debug-chain
+  work remain board-facing follow-up rather than current automated claims.
 - Later Attention/MatMul prototyping and Vision Mamba research follow after the
   reproducibility gate is closed.
 - Future development should follow `docs/roadmap/FUTURE_RND_PLAN.md` and record
