@@ -1,0 +1,19 @@
+HW_TARGETS=localhost:3121/xilinx_tcf/Digilent/210512180081
+PROGRAM_PASS=C:\Users\16084\Documents\New project\e203_hbirdv2\fpga\davinci_a7_100t\obj\system.bit
+PROBES_FILE=C:\Users\16084\Documents\New project\e203_hbirdv2\fpga\davinci_a7_100t\obj\davinci_a7_100t.runs\impl_1\system.ltx
+HW_ILAS=hw_ila_1
+ILA=hw_ila_1
+ILA_PROPERTY.NAME=hw_ila_1
+ILA_PROPERTY.CORE_UUID=140BA85DC7DA5EB9AE77EF27AE29B195
+ILA_PROPERTY.CONTROL.DATA_DEPTH=1024
+ILA_PROPERTY.CONTROL.TRIGGER_POSITION=512
+HW_PROBES=probe0_pc probe1_reset_uart probe2_liveness probe3_pc_activity probe4_nice_csr probe5_nice_hs probe6_mem_status
+PROBE=probe0_pc WIDTH=32
+PROBE=probe1_reset_uart WIDTH=4
+PROBE=probe2_liveness WIDTH=3
+PROBE=probe3_pc_activity WIDTH=32
+PROBE=probe4_nice_csr WIDTH=32
+PROBE=probe5_nice_hs WIDTH=4
+PROBE=probe6_mem_status WIDTH=3
+ILA_CSV=C:/Users/16084/Documents/Graduation_Design_Library/04_Experiments/Board_BringUp/2026-05-09_nice_rs2_fix_verification/ila_capture.csv
+ILA_CAPTURE_STATUS=CAPTURED

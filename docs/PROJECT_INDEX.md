@@ -33,6 +33,17 @@
 |----------|---------|-----|
 | `PHASE5_BOARD_PREP.md` | Board preparation | Pre-board checks and first-run path |
 | `PHASE4_RECOVERY.md` | Recovery flow | Patch and regression recovery baseline |
+| `design_history/README.md` | Engineering design history | Trace verification, board bring-up, and baseline evidence without thesis/defense files |
+
+## Future R&D
+
+| Document | Purpose | Use |
+|----------|---------|-----|
+| `roadmap/DEEP_RESEARCH_RA_BRIEF.md` | Deep research brief | Hand research assistants a concrete literature, gap-analysis, benchmark, experiment, and proposal plan |
+| `roadmap/FUTURE_RND_PLAN.md` | Post-FYP R&D plan | Continue from validated prototype toward buffering, operator expansion, optimization, and portability |
+| `roadmap/MPHIL_YEAR_MONTH_PLAN.md` | MPhil year/month roadmap | Track 24 months of research, engineering, experiments, thesis, and publication work |
+| `roadmap/FRONTIER_RESEARCH_SURVEY_2026.md` | Frontier research survey | Compare newer RISC-V edge-AI research directions and choose MPhil-fit topics |
+| `benchmarks/README.md` | Benchmark record guide | Record future correctness, performance, resource, timing, and claim-boundary evidence |
 
 ## Reporting Docs
 
@@ -63,6 +74,10 @@
 `knowledge/` contains topic-oriented notes extracted from the project for quick
 lookup and issue review.
 
+## Engineering Design History
+
+`design_history/` contains engineering-only verification and board bring-up history copied from the graduation design library. It excludes thesis drafts, final-defense decks, school requirement documents, and final submission packages.
+
 ## Archive
 
 Archived legacy or superseded documents are kept under `archive/`.
@@ -74,7 +89,9 @@ Archived legacy or superseded documents are kept under `archive/`.
 | New session | `BRANCH_STRATEGY.md` -> `QUICKSTART.md` -> `CURRENT_STATE.md` -> `PROJECT_RULES.md` |
 | Understand the project | `QUICKSTART.md` -> `SUMMARY.md` -> `PHASE_HISTORY.md` |
 | Resume implementation | `CURRENT_STATE.md` -> `PHASE_HISTORY.md` -> relevant technical doc |
+| Continue future R&D | `roadmap/DEEP_RESEARCH_RA_BRIEF.md` -> `roadmap/FRONTIER_RESEARCH_SURVEY_2026.md` -> `roadmap/FUTURE_RND_PLAN.md` -> `roadmap/MPHIL_YEAR_MONTH_PLAN.md` -> `benchmarks/README.md` -> `CURRENT_STATE.md` |
 | Prepare reporting | `SUMMARY.md` -> `PROGRESS.md` -> `SPEECH.md` |
+| Trace engineering evidence | `design_history/README.md` -> `design_history/source_baselines/ENGINEERING_BASELINES.md` |
 | Start thesis | `thesis_and_defense/THESIS_WRITING_CENTER.md` -> `thesis_and_defense/THESIS_TASK_BOARD.md` -> `thesis_and_defense/references/REFERENCE_PLAN.md` |
 | Prepare final defense | `thesis_and_defense/FINAL_DEFENSE_CENTER.md` -> `thesis_and_defense/DEFENSE_TASK_BOARD.md` -> `thesis_and_defense/THESIS_AND_DEFENSE_START_PLAN.md` |
 | Roadmap to final defense | `thesis_and_defense/final_defense_plan/MASTER_PLAN.md` -> `thesis_and_defense/final_defense_plan/WEEKLY_CHECKLIST.md` |

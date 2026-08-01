@@ -61,3 +61,11 @@ e203_hbirdv2/
 # Python
 __pycache__/
 *.pyc
+
+# Build artifacts (auto-generated)
+sw/cnn_accel_demo/build/
+*.verilog
+sw/lenet5_demo/*.verilog
+
+# MNIST data (downloaded by calibrate_lenet5.py)
+algo/python/mnist_data/

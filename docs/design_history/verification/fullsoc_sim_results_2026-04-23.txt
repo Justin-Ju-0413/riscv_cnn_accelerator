@@ -1,0 +1,16 @@
+Full-SoC Simulation (NICE Light) - PASSED (7/7 test cases)
+Date: 2026-05-05
+Platform: Ubuntu VM (192.168.10.128), Icarus Verilog
+Testbench: tb_e203_nice_light.v (NICE accelerator within full E203 SoC)
+
+Test Results:
+[normal_path] rdat=320 err=0 => PASS
+[rstat_repeat_read] rdat=320 err=0 => PASS
+[invalid_index] rdat=0 err=1 => PASS
+[comp_without_full_load] rdat=0 err=1 => PASS
+[illegal_funct7] rdat=0 err=1 => PASS
+[illegal_opcode] rdat=0 err=1 => PASS
+[reset_clears_state] rdat=0 err=1 => PASS
+
+Summary: req=1 ready_low=1 rsp320=1 active=0 pass_count=7 fail=0
+Verdict: LIGHT_PASS

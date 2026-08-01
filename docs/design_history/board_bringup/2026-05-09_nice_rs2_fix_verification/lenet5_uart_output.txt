@@ -1,0 +1,18 @@
+LeNet-5 MNIST on E203 + NICE Accelerator
+Version: v8 (row-packing + Conv2 ReLU fix)
+Dataset: MNIST test images 0-9
+
+Img 0  pred=7  exp=7  OK
+Img 1  pred=2  exp=2  OK
+Img 2  pred=1  exp=1  OK
+Img 3  pred=0  exp=0  OK
+Img 4  pred=4  exp=4  OK
+Img 5  pred=1  exp=1  OK
+Img 6  pred=4  exp=4  OK
+Img 7  pred=9  exp=9  OK
+Img 8  pred=5  exp=5  OK
+Img 9  pred=9  exp=9  OK
+
+Result: 10/10 correct
+Accuracy: 100%
+>>> LENET-5 FPGA INFERENCE PASSED <<<

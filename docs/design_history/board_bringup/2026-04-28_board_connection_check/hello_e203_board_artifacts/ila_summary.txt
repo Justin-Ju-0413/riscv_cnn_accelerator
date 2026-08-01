@@ -1,0 +1,19 @@
+HW_TARGETS=localhost:3121/xilinx_tcf/Digilent/210512180081
+PROGRAM_PASS=C:/Users/16084/Documents/Graduation_Design_Library/04_Experiments/Board_BringUp/2026-04-28_board_connection_check/bootvec_sysclk_ila_artifacts/system.bit
+PROBES_FILE=C:/Users/16084/Documents/Graduation_Design_Library/04_Experiments/Board_BringUp/2026-04-28_board_connection_check/bootvec_sysclk_ila_artifacts/system.ltx
+HW_ILAS=hw_ila_1
+ILA=hw_ila_1
+ILA_PROPERTY.NAME=hw_ila_1
+ILA_PROPERTY.CORE_UUID=140BA85DC7DA5EB9AE77EF27AE29B195
+ILA_PROPERTY.CONTROL.DATA_DEPTH=1024
+ILA_PROPERTY.CONTROL.TRIGGER_POSITION=512
+HW_PROBES=probe0_pc probe1_status probe2_membus_live probe3_mem_addr probe4_membus_counts probe5_uart probe6_flags
+PROBE=probe0_pc WIDTH=32
+PROBE=probe1_status WIDTH=4
+PROBE=probe2_membus_live WIDTH=3
+PROBE=probe3_mem_addr WIDTH=32
+PROBE=probe4_membus_counts WIDTH=32
+PROBE=probe5_uart WIDTH=4
+PROBE=probe6_flags WIDTH=3
+ILA_CSV=C:/Users/16084/Documents/Graduation_Design_Library/04_Experiments/Board_BringUp/2026-04-28_board_connection_check/bootvec_sysclk_ila_ila_capture/ila_capture.csv
+ILA_CAPTURE_STATUS=CAPTURED
