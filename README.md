@@ -1,5 +1,7 @@
 # Lightweight CNN Accelerator for RISC-V (Hummingbird E203)
 
+[![Research CI](https://github.com/Justin-Ju-0413/riscv_cnn_accelerator/actions/workflows/ci.yml/badge.svg)](https://github.com/Justin-Ju-0413/riscv_cnn_accelerator/actions/workflows/ci.yml)
+
 ## Project Overview
 
 This project implements a lightweight CNN accelerator integrated with the
@@ -19,6 +21,8 @@ cycle.
 | Validated engineering baseline | `codex/a7-bringup-v2-main` | `codex/a7-bringup-v2-soc` |
 
 See `docs/BRANCH_STRATEGY.md` for the full branch policy and branch snapshot.
+
+Public visitors should start with [`docs/showcase/README.md`](docs/showcase/README.md). It separates reproducible simulation, historical board evidence, and work that remains experimental.
 
 ### Key Features
 
