@@ -1,5 +1,7 @@
 # Lightweight CNN Accelerator for RISC-V (Hummingbird E203)
 
+[![Research CI](https://github.com/Justin-Ju-0413/riscv_cnn_accelerator/actions/workflows/ci.yml/badge.svg)](https://github.com/Justin-Ju-0413/riscv_cnn_accelerator/actions/workflows/ci.yml)
+
 ## Project Overview
 
 This project implements a lightweight CNN accelerator integrated with the
@@ -20,6 +22,8 @@ cycle.
 | MPhil tensor/scan research | `codex/mphil-tensor-scan-20260729` | `codex/mphil-tensor-scan-20260729-soc` |
 
 See `docs/BRANCH_STRATEGY.md` for the full branch policy and branch snapshot.
+
+Public visitors should start with [`docs/showcase/README.md`](docs/showcase/README.md). It separates reproducible simulation, historical board evidence, and work that remains experimental.
 
 ### Key Features
 
@@ -107,6 +111,8 @@ bash scripts/run_preboard_verification.sh
 ## Current Status
 
 - The FYP engineering project and defense are closed.
+- Phase 1 through Phase 4 and the A7-100T functional bring-up milestone are
+  retained as historical engineering evidence.
 - A7-100T Route A board bring-up evidence is archived under `docs/design_history`.
 - CNN/NICE board validation and the NICE rs2 index capture fix are recorded in
   `docs/design_history/board_bringup/2026-05-09_nice_rs2_fix_verification/`.
@@ -123,5 +129,9 @@ bash scripts/run_preboard_verification.sh
 - No Vivado or physical board rerun was performed for this research branch.
 - The next experiment is a Full-SoC v2 memory-path microbenchmark and a measured
   legacy load/compute/readback cycle breakdown.
+- UART log capture, LED/ILA evidence, and the later `PTD04 + BSCANE2` debug-chain
+  work remain board-facing follow-up rather than current automated claims.
+- Later Attention/MatMul prototyping and Vision Mamba research follow after the
+  reproducibility gate is closed.
 - Future development should follow `docs/roadmap/FUTURE_RND_PLAN.md` and record
   new measurements with `./Project_Manager.sh new_benchmark_record short-name`.

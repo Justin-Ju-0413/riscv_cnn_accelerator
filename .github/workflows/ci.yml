@@ -1,0 +1,56 @@
+name: Research CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  simulation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install simulation and cross-compile tools
+        run: sudo apt-get update && sudo apt-get install -y iverilog gcc-riscv64-unknown-elf
+      - name: Python golden models
+        run: |
+          if find algo/python -maxdepth 1 -name 'test_*.py' | grep -q .; then
+            python3 -m unittest discover -s algo/python -p 'test_*.py' -v
+          else
+            echo 'This baseline has no Python unit-test files; running the generator gate next.'
+          fi
+      - name: Generate reference model
+        run: python3 algo/python/generate_model.py
+      - name: Legacy RTL regression
+        run: make -C hw/sim run
+      - name: NICE v2 directed RTL when present
+        run: |
+          if grep -q '^run_v2:' hw/sim/Makefile; then
+            make -C hw/sim run_v2
+          else
+            echo 'NICE v2 testbench is not part of this branch.'
+          fi
+      - name: C wrapper compile smoke when present
+        run: |
+          if test -f sw/nice_v2_compile_smoke.c; then
+            riscv64-unknown-elf-gcc -march=rv32imac -mabi=ilp32 -Isw/inc -fsyntax-only sw/nice_v2_compile_smoke.c
+          else
+            echo 'NICE v2 C wrapper is not part of this branch.'
+          fi
+      - name: Shell syntax
+        run: |
+          find scripts -type f -name '*.sh' -print0 | xargs -0 -n1 bash -n
+          bash -n Project_Manager.sh
+
+  c-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and run C reference
+        run: |
+          cc -std=c11 -Wall -Wextra algo/c_model/main_sw.c -o /tmp/cnn-reference
+          /tmp/cnn-reference
