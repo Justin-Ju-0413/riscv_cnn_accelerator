@@ -1,14 +1,29 @@
+<p align="center">
+  <img src=".github/persona-banner.svg" width="100%" alt="riscv_cnn_accelerator — INT8 CNN accelerator, silicon-side">
+</p>
+
 # Lightweight CNN Accelerator for RISC-V (Hummingbird E203)
 
-## Project Overview
+**INT8 CNN accelerator, silicon-side.**
+**硬件侧,直接说话。**
 
-This project implements a lightweight CNN accelerator integrated with the
-Hummingbird E203 RISC-V core through the NICE interface.
+A lightweight CNN accelerator integrated with the Hummingbird E203 RISC-V core through the NICE interface. Evidence before claims — experimental interfaces are documented as such, never implied as production capability.
 
-## Branch Entry
+轻量 CNN 加速器,经 NICE 接口集成 Hummingbird E203。证据优先于声明,实验接口不会冒充完整能力。
 
-The GitHub default branch is kept for historical compatibility, but it is not
-the primary day-to-day development line.
+## Key Features / 关键规格
+
+| Item | Spec |
+|---|---|
+| Host core | Hummingbird E203 (`RV32IMAC`) |
+| Interface | NICE valid/ready request-response flow |
+| Data precision | INT8 weights and activations, INT32 accumulation |
+| Architecture | 4×4 PE array, output-stationary dataflow |
+| Delivery baseline | Minimal CNN v1 + board-prep automation |
+
+## Branch Entry / 分支入口
+
+The GitHub default branch is kept for historical compatibility; it is not the primary development line.
 
 | Role | This repo branch | Paired SoC repo branch |
 |------|------------------|------------------------|
@@ -17,21 +32,9 @@ the primary day-to-day development line.
 | Reproducible baseline milestone | [`env-baseline-2026-07-27`](https://github.com/Justin-Ju-0413/riscv_cnn_accelerator/releases/tag/env-baseline-2026-07-27) | [`env-baseline-2026-07-27`](https://github.com/Justin-Ju-0413/e203_hbirdv2/releases/tag/env-baseline-2026-07-27) |
 | MPhil NICE v2 PoC | [`mphil-nice-v2-poc-v0.1.0`](https://github.com/Justin-Ju-0413/riscv_cnn_accelerator/releases/tag/mphil-nice-v2-poc-v0.1.0) | [`mphil-nice-v2-poc-v0.1.0`](https://github.com/Justin-Ju-0413/e203_hbirdv2/releases/tag/mphil-nice-v2-poc-v0.1.0) |
 
-Start with the paired Releases above: the baseline is the reproducible FYP
-environment, while the MPhil tag is a bounded `CAP`/`MLOAD`/`MSTAT` proof of
-concept. The experimental work does not imply tiled GEMM, DMA, complete
-Vision Mamba, or full MNIST acceleration. See `docs/BRANCH_STRATEGY.md` for the
-historical branch policy.
+Start with the paired Releases above: the baseline is the reproducible FYP environment, the MPhil tag is a bounded `CAP`/`MLOAD`/`MSTAT` proof of concept. The experimental work does not imply tiled GEMM, DMA, complete Vision Mamba, or full MNIST acceleration. See `docs/BRANCH_STRATEGY.md` for the historical branch policy.
 
-### Key Features
-
-- Host core: Hummingbird E203 (`RV32IMAC`)
-- Interface: NICE valid/ready request-response flow
-- Data precision: INT8 weights and activations, INT32 accumulation
-- Architecture: 4x4 PE array with output-stationary dataflow
-- Current delivery baseline: minimal CNN v1 + board-prep automation
-
-## Project Structure
+## Project Structure / 项目结构
 
 ```text
 riscv_cnn_accelerator/
@@ -54,7 +57,7 @@ riscv_cnn_accelerator/
 └── Project_Manager.sh
 ```
 
-## Quick Start
+## Quick Start / 快速开始
 
 ```bash
 ./Project_Manager.sh gen_model
@@ -64,7 +67,19 @@ bash scripts/run_sdk_fullsoc_regression.sh
 bash scripts/run_preboard_verification.sh
 ```
 
-## Documentation Guide
+## Verification & Evidence / 验证与证据
+
+| Item | Value |
+|---|---|
+| Historical SoC closure (software-driven) | `RSTAT=320` |
+| Minimal CNN v1 baseline | `expected_rstat = 19` |
+| Stable paired branch | `e203_hbirdv2:cnn_bringup_v1` |
+| Active paired branch | `e203_hbirdv2:codex/a7-bringup-v2-soc` |
+| Hardware results | Marked verified only when the repo holds explicit evidence (Vivado / UART / JTAG / ILA) |
+
+Current status: Phases 1–4 closed; Phase 5 board bring-up preparation active. Remaining gaps are board-facing — Vivado confirmation, FTDI/JTAG visibility, UART path lock, first bitstream-backed run.
+
+## Documentation Guide / 文档导航
 
 | Need | Document |
 |------|----------|
@@ -79,20 +94,3 @@ bash scripts/run_preboard_verification.sh
 | Recovery flow | `docs/PHASE4_RECOVERY.md` |
 | Board preparation | `docs/PHASE5_BOARD_PREP.md` |
 | FPGA handoff | `docs/VIVADO_FPGA_HANDOFF.md` |
-
-## Version And Baseline
-
-- Branch: `main`
-- Branch role: historical default line
-- Unified document version: `V1.9`
-- Historical software-driven SoC closure: `RSTAT=320`
-- Current minimal CNN v1 baseline: `expected_rstat = 19`
-- Stable paired branch: `e203_hbirdv2:cnn_bringup_v1`
-- Active paired branch: `e203_hbirdv2:codex/a7-bringup-v2-soc`
-
-## Current Status
-
-- Phase 1 to Phase 4 are closed.
-- Phase 5 board bring-up preparation is the active stage.
-- Remaining gaps are board-facing: Vivado confirmation, FTDI/JTAG visibility,
-  UART path lock, and the first bitstream-backed run.
