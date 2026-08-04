@@ -17,8 +17,8 @@ Current delivery baseline:
 ## Fast Verification
 
 ```bash
-bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_preboard_verification.sh
-bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh
+bash scripts/run_preboard_verification.sh
+bash scripts/run_sdk_fullsoc_regression.sh
 ```
 
 ## Current Key Facts
@@ -39,10 +39,10 @@ Use `bringup_v1` for the stable formal baseline and
 
 | Need | Document |
 |------|----------|
-| Current truth | [CURRENT_STATE.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/CURRENT_STATE.md) |
-| Whole project by phase | [PHASE_HISTORY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE_HISTORY.md) |
-| Delivery overview | [SUMMARY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/SUMMARY.md) |
-| Long-term requirements | [PROJECT_RULES.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PROJECT_RULES.md) |
+| Current truth | [CURRENT_STATE.md](CURRENT_STATE.md) |
+| Whole project by phase | [PHASE_HISTORY.md](PHASE_HISTORY.md) |
+| Delivery overview | [SUMMARY.md](SUMMARY.md) |
+| Long-term requirements | [PROJECT_RULES.md](PROJECT_RULES.md) |
 
 ## Current Next Step
 

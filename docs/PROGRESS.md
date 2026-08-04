@@ -49,6 +49,6 @@ current truth.
 
 | Need | Document |
 |------|----------|
-| Resume work now | [CURRENT_STATE.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/CURRENT_STATE.md) |
-| Understand by phase | [PHASE_HISTORY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE_HISTORY.md) |
-| Understand the current package | [SUMMARY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/SUMMARY.md) |
+| Resume work now | [CURRENT_STATE.md](CURRENT_STATE.md) |
+| Understand by phase | [PHASE_HISTORY.md](PHASE_HISTORY.md) |
+| Understand the current package | [SUMMARY.md](SUMMARY.md) |

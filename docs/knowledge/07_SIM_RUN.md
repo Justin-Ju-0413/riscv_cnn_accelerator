@@ -8,7 +8,7 @@
 
 ```bash
 # 进入项目目录
-cd /home/gstar/Desktop/riscv_cnn_accelerator
+cd <repo-root>
 
 # 1. 生成参考模型（如果需要重新生成测试向量）
 ./Project_Manager.sh gen_model

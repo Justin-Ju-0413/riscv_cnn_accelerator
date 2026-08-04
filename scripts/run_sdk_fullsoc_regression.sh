@@ -3,9 +3,9 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SDK_DIR="${SDK_DIR:-${ROOT_DIR}/third_party/nuclei-sdk}"
-SOC_DIR="${SOC_DIR:-/home/gstar/Desktop/e203_hbirdv2}"
+SOC_DIR="${SOC_DIR:-${HOME}/Desktop/e203_hbirdv2}"
 APP_DIR="${APP_DIR:-${SDK_DIR}/application/baremetal/cnn_accel_demo}"
-GCC_ROOT="${RISCV_GCC_ROOT:-/home/gstar/Desktop/gcc}"
+GCC_ROOT="${RISCV_GCC_ROOT:-${HOME}/Desktop/gcc}"
 SIM_TOOL="${SIM_TOOL:-iverilog}"
 RUN_TIMEOUT="${RUN_TIMEOUT:-60}"
 RST_RELEASE="${RST_RELEASE:-120}"

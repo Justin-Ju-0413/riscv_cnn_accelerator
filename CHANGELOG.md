@@ -2,6 +2,17 @@
 
 All notable project updates are recorded here.
 
+## Version V1.9
+
+- Date: 2026-03-26
+- Added:
+  - `docs/PHASE_HISTORY.md` and `docs/PROJECT_RULES.md`
+  - `docs/BRANCH_STRATEGY.md` for stable formal baseline (`bringup_v1`) and active A7-100T development (`codex/a7-bringup-v2-main`)
+- Changed:
+  - unified the core document set (CURRENT_STATE/SUMMARY/QUICKSTART/SPEECH/VIVADO_FPGA_HANDOFF/E203_FORMAL_INTEGRATION/PROJECT_RULES/PHASE5_BOARD_PREP/PROGRESS/PHASE_HISTORY) under `V1.9`
+- Fixed:
+  - replaced hardcoded `/home/gstar/Desktop/...` paths with portable forms (`${SOC_DIR}` / `${RISCV_GCC_ROOT}` / repo-relative paths)
+
 ## Version V1.8
 
 - Date: 2026-03-21
@@ -69,7 +80,7 @@ All notable project updates are recorded here.
 
 - Date: 2026-03-20
 - Added:
-  - [CURRENT_STATE.md](/home/gstar/Desktop/riscv_cnn_accelerator/CURRENT_STATE.md) as the compressed session-recovery entry
+  - [CURRENT_STATE.md](CURRENT_STATE.md) as the compressed session-recovery entry
   - unified version-management rule for future pushes
 - Changed:
   - document structure simplified into `CURRENT_STATE.md`, `INTEGRATION_ROADMAP.md`, and `PROGRESS.md`
