@@ -36,17 +36,17 @@ Keep the software-visible board target and the FPGA shell target distinct:
 Current official shell entry files:
 
 - Davinci A7-35T shell:
-  - [system.v](/home/gstar/Desktop/e203_hbirdv2/fpga/davinci_a7_35t/src/system.v)
-  - [nuclei-config.xdc](/home/gstar/Desktop/e203_hbirdv2/fpga/davinci_a7_35t/constrs/nuclei-config.xdc)
-  - [nuclei-master.xdc](/home/gstar/Desktop/e203_hbirdv2/fpga/davinci_a7_35t/constrs/nuclei-master.xdc)
+  - [system.v](${SOC_DIR}/fpga/davinci_a7_35t/src/system.v)
+  - [nuclei-config.xdc](${SOC_DIR}/fpga/davinci_a7_35t/constrs/nuclei-config.xdc)
+  - [nuclei-master.xdc](${SOC_DIR}/fpga/davinci_a7_35t/constrs/nuclei-master.xdc)
 - MCU200T shell:
-  - [system.v](/home/gstar/Desktop/e203_hbirdv2/fpga/mcu200t/src/system.v)
-  - [nuclei-config.xdc](/home/gstar/Desktop/e203_hbirdv2/fpga/mcu200t/constrs/nuclei-config.xdc)
-  - [nuclei-master.xdc](/home/gstar/Desktop/e203_hbirdv2/fpga/mcu200t/constrs/nuclei-master.xdc)
+  - [system.v](${SOC_DIR}/fpga/mcu200t/src/system.v)
+  - [nuclei-config.xdc](${SOC_DIR}/fpga/mcu200t/constrs/nuclei-config.xdc)
+  - [nuclei-master.xdc](${SOC_DIR}/fpga/mcu200t/constrs/nuclei-master.xdc)
 - DDR200T shell:
-  - [system.v](/home/gstar/Desktop/e203_hbirdv2/fpga/ddr200t/src/system.v)
-  - [nuclei-config.xdc](/home/gstar/Desktop/e203_hbirdv2/fpga/ddr200t/constrs/nuclei-config.xdc)
-  - [nuclei-master.xdc](/home/gstar/Desktop/e203_hbirdv2/fpga/ddr200t/constrs/nuclei-master.xdc)
+  - [system.v](${SOC_DIR}/fpga/ddr200t/src/system.v)
+  - [nuclei-config.xdc](${SOC_DIR}/fpga/ddr200t/constrs/nuclei-config.xdc)
+  - [nuclei-master.xdc](${SOC_DIR}/fpga/ddr200t/constrs/nuclei-master.xdc)
 
 ## Current Dependency Baseline On This Machine
 
@@ -56,7 +56,7 @@ Available now:
 - `openocd`
 - SDK source tree under `third_party/nuclei-sdk`
 - evalsoc board OpenOCD config:
-  - [openocd_evalsoc.cfg](/home/gstar/Desktop/riscv_cnn_accelerator/third_party/nuclei-sdk/SoC/evalsoc/Board/nuclei_fpga_eval/openocd_evalsoc.cfg)
+  - [openocd_evalsoc.cfg](../third_party/nuclei-sdk/SoC/evalsoc/Board/nuclei_fpga_eval/openocd_evalsoc.cfg)
 
 Remaining gaps on this machine after rerunning `check_phase5_board_env.sh`:
 - a connected FTDI/JTAG adapter matching the board config `0403:6010`
@@ -73,14 +73,14 @@ Software-visible hook:
 
 JTAG hook:
 - recommended first debug path is OpenOCD + GDB with:
-  - [openocd_evalsoc.cfg](/home/gstar/Desktop/riscv_cnn_accelerator/third_party/nuclei-sdk/SoC/evalsoc/Board/nuclei_fpga_eval/openocd_evalsoc.cfg)
+  - [openocd_evalsoc.cfg](../third_party/nuclei-sdk/SoC/evalsoc/Board/nuclei_fpga_eval/openocd_evalsoc.cfg)
 
 UART hook:
 - lock one serial path for board logs before first hardware run
 - keep a simple pass/fail print in the board-oriented app path once board stdout is available
 
 Simulation hook:
-- keep [run_sdk_fullsoc_regression.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh) as the pre-board gate
+- keep [run_sdk_fullsoc_regression.sh](../scripts/run_sdk_fullsoc_regression.sh) as the pre-board gate
 - do not attempt board runs until that regression still passes on the current tree
 
 ## Simulation-To-Board Gaps
@@ -99,11 +99,11 @@ These are the main gaps still separating Phase 4 simulation closure from board e
 ## First Board Run Checklist
 
 1. Run the full pre-board verification sweep:
-   - `bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_preboard_verification.sh`
+   - `bash scripts/run_preboard_verification.sh`
 2. Run the board environment checker:
-   - `bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/check_phase5_board_env.sh`
+   - `bash scripts/check_phase5_board_env.sh`
 3. Print the exact first-run commands:
-   - `bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/print_fpga_bringup_commands.sh`
+   - `bash scripts/print_fpga_bringup_commands.sh`
 4. Confirm the actual hardware target still matches `SOC=evalsoc BOARD=nuclei_fpga_eval CORE=n300 DOWNLOAD=ilm`.
 5. Confirm the default shell target `FPGA_NAME=davinci_a7_35t` is still aligned with the real board manual and pin map.
 6. Confirm `openocd` is installed and the FTDI adapter is visible.
@@ -116,14 +116,14 @@ These are the main gaps still separating Phase 4 simulation closure from board e
 Open terminal 1:
 
 ```bash
-openocd -f /home/gstar/Desktop/riscv_cnn_accelerator/third_party/nuclei-sdk/SoC/evalsoc/Board/nuclei_fpga_eval/openocd_evalsoc.cfg
+openocd -f third_party/nuclei-sdk/SoC/evalsoc/Board/nuclei_fpga_eval/openocd_evalsoc.cfg
 ```
 
 Open terminal 2:
 
 ```bash
-/home/gstar/Desktop/gcc/bin/riscv64-unknown-elf-gdb \
-  /home/gstar/Desktop/riscv_cnn_accelerator/third_party/nuclei-sdk/application/baremetal/cnn_accel_demo/cnn_accel_demo.elf
+${RISCV_GCC_ROOT}/bin/riscv64-unknown-elf-gdb \
+  third_party/nuclei-sdk/application/baremetal/cnn_accel_demo/cnn_accel_demo.elf
 ```
 
 Suggested early GDB commands:

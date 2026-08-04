@@ -89,7 +89,7 @@ is board-facing:
 
 ## Recommended Reading
 
-- Start with [QUICKSTART.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/QUICKSTART.md)
-- Read [CURRENT_STATE.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/CURRENT_STATE.md) for current truth
-- Read [PHASE_HISTORY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE_HISTORY.md) for project history by phase
-- Read [PROJECT_RULES.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PROJECT_RULES.md) for standing requirements
+- Start with [QUICKSTART.md](QUICKSTART.md)
+- Read [CURRENT_STATE.md](CURRENT_STATE.md) for current truth
+- Read [PHASE_HISTORY.md](PHASE_HISTORY.md) for project history by phase
+- Read [PROJECT_RULES.md](PROJECT_RULES.md) for standing requirements

@@ -5,9 +5,9 @@
 The repository now contains a dedicated FPGA shell target for the
 Darvinci/Da Vinci Artix-7 board:
 
-- [system.v](/home/gstar/Desktop/e203_hbirdv2/fpga/davinci_a7_35t/src/system.v)
-- [nuclei-master.xdc](/home/gstar/Desktop/e203_hbirdv2/fpga/davinci_a7_35t/constrs/nuclei-master.xdc)
-- [Makefile](/home/gstar/Desktop/e203_hbirdv2/fpga/davinci_a7_35t/Makefile)
+- [system.v](${SOC_DIR}/fpga/davinci_a7_35t/src/system.v)
+- [nuclei-master.xdc](${SOC_DIR}/fpga/davinci_a7_35t/constrs/nuclei-master.xdc)
+- [Makefile](${SOC_DIR}/fpga/davinci_a7_35t/Makefile)
 
 ## What Is Already Fixed
 
@@ -50,6 +50,6 @@ manual or schematic before the first bitstream attempt:
 2. `FPGA_NAME=davinci_a7_35t bash scripts/check_phase5_board_env.sh`
 3. fill the real Davinci pin assignments in the XDC
 4. `FPGA_NAME=davinci_a7_35t bash scripts/print_fpga_bringup_commands.sh`
-5. `make -C /home/gstar/Desktop/e203_hbirdv2/fpga setup FPGA_NAME=davinci_a7_35t`
-6. `make -C /home/gstar/Desktop/e203_hbirdv2/fpga bit FPGA_NAME=davinci_a7_35t`
+5. `make -C ${SOC_DIR}/fpga setup FPGA_NAME=davinci_a7_35t`
+6. `make -C ${SOC_DIR}/fpga bit FPGA_NAME=davinci_a7_35t`
 7. bitstream download, then UART/JTAG validation

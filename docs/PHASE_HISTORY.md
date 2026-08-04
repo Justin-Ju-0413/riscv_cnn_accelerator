@@ -112,7 +112,7 @@ on another machine or by another collaborator.
 
 **Key outputs**
 
-- [PHASE4_RECOVERY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE4_RECOVERY.md)
+- [PHASE4_RECOVERY.md](PHASE4_RECOVERY.md)
 - Portable SDK patch and recovery scripts
 - Cleaned and more reproducible collaborator workflow
 
@@ -144,8 +144,8 @@ Prepare the already-validated simulation flow for real FPGA board execution.
 
 **Key outputs**
 
-- [PHASE5_BOARD_PREP.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE5_BOARD_PREP.md)
-- [VIVADO_FPGA_HANDOFF.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/VIVADO_FPGA_HANDOFF.md)
+- [PHASE5_BOARD_PREP.md](PHASE5_BOARD_PREP.md)
+- [VIVADO_FPGA_HANDOFF.md](VIVADO_FPGA_HANDOFF.md)
 - Current delivery summary and board-prep entry scripts
 
 **Validation**
@@ -181,5 +181,5 @@ project has not yet crossed the final board-execution boundary.
 ## How To Use This Document
 
 - Read this file to understand project history by phase.
-- Read [CURRENT_STATE.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/CURRENT_STATE.md) for the current truth.
-- Read [PROGRESS.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PROGRESS.md) for date-by-date detail.
+- Read [CURRENT_STATE.md](CURRENT_STATE.md) for the current truth.
+- Read [PROGRESS.md](PROGRESS.md) for date-by-date detail.

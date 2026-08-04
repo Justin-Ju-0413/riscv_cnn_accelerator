@@ -27,8 +27,8 @@ starting new work from this branch.
 
 | Repo | Path | Branch |
 |------|------|--------|
-| Main repo | `/home/gstar/Desktop/riscv_cnn_accelerator` | `main` |
-| SoC repo | `/home/gstar/Desktop/e203_hbirdv2` | `master` |
+| Main repo | `<repo-root>` | `main` |
+| SoC repo | `${SOC_DIR}` | `master` |
 
 ## Closed Technical Baseline
 
@@ -84,11 +84,11 @@ starting new work from this branch.
 
 | Goal | Document |
 |------|----------|
-| Understand the whole delivery | [SUMMARY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/SUMMARY.md) |
-| Understand all historical work by phase | [PHASE_HISTORY.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE_HISTORY.md) |
-| See dated progress | [PROGRESS.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PROGRESS.md) |
-| Continue board preparation | [PHASE5_BOARD_PREP.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PHASE5_BOARD_PREP.md) |
-| Follow long-term collaboration requirements | [PROJECT_RULES.md](/home/gstar/Desktop/riscv_cnn_accelerator/docs/PROJECT_RULES.md) |
+| Understand the whole delivery | [SUMMARY.md](SUMMARY.md) |
+| Understand all historical work by phase | [PHASE_HISTORY.md](PHASE_HISTORY.md) |
+| See dated progress | [PROGRESS.md](PROGRESS.md) |
+| Continue board preparation | [PHASE5_BOARD_PREP.md](PHASE5_BOARD_PREP.md) |
+| Follow long-term collaboration requirements | [PROJECT_RULES.md](PROJECT_RULES.md) |
 
 ## Reading Rules
 

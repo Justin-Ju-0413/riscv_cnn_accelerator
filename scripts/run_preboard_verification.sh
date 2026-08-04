@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SOC_DIR="${SOC_DIR:-/home/gstar/Desktop/e203_hbirdv2}"
+SOC_DIR="${SOC_DIR:-${HOME}/Desktop/e203_hbirdv2}"
 
 run_step() {
   local label="$1"

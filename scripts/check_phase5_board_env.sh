@@ -3,8 +3,8 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SDK_DIR="${SDK_DIR:-${ROOT_DIR}/third_party/nuclei-sdk}"
-SOC_DIR="${SOC_DIR:-/home/gstar/Desktop/e203_hbirdv2}"
-GCC_ROOT="${RISCV_GCC_ROOT:-/home/gstar/Desktop/gcc}"
+SOC_DIR="${SOC_DIR:-${HOME}/Desktop/e203_hbirdv2}"
+GCC_ROOT="${RISCV_GCC_ROOT:-${HOME}/Desktop/gcc}"
 OPENOCD_BIN="${OPENOCD_BIN:-}"
 VIVADO_BIN="${VIVADO_BIN:-}"
 SERIAL_DEV="${SERIAL_DEV:-}"

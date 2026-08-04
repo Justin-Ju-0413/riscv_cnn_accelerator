@@ -9,22 +9,22 @@ Make the current Phase 3 closure reproducible without relying on hidden local st
 ## What Phase 4 Packages
 
 - A portable SDK patch export:
-  - [patches/nuclei-sdk-phase3-e203-safe.patch](/home/gstar/Desktop/riscv_cnn_accelerator/patches/nuclei-sdk-phase3-e203-safe.patch)
+  - [patches/nuclei-sdk-phase3-e203-safe.patch](../patches/nuclei-sdk-phase3-e203-safe.patch)
 - A helper to apply that patch to a clean `nuclei-sdk` checkout:
-  - [scripts/apply_nuclei_sdk_phase3_patch.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/apply_nuclei_sdk_phase3_patch.sh)
+  - [scripts/apply_nuclei_sdk_phase3_patch.sh](../scripts/apply_nuclei_sdk_phase3_patch.sh)
 - A one-command regression entry that rebuilds the SDK app and runs the official full-SoC E203 simulation:
-  - [scripts/run_sdk_fullsoc_regression.sh](/home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh)
+  - [scripts/run_sdk_fullsoc_regression.sh](../scripts/run_sdk_fullsoc_regression.sh)
 
 ## Required Local Layout
 
 - Main repo:
-  - `/home/gstar/Desktop/riscv_cnn_accelerator`
+  - `${PROJECT_ROOT}`
 - SoC repo:
-  - `/home/gstar/Desktop/e203_hbirdv2`
+  - `${SOC_DIR}`
 - Official Nuclei GNU toolchain:
-  - default expected path: `/home/gstar/Desktop/gcc`
+  - default expected path: `${RISCV_GCC_ROOT}`
 - Nested SDK checkout under the main repo:
-  - `/home/gstar/Desktop/riscv_cnn_accelerator/third_party/nuclei-sdk`
+  - `third_party/nuclei-sdk`
 
 The scripts support overrides through `SDK_DIR`, `SOC_DIR`, and `RISCV_GCC_ROOT` if another machine uses different absolute paths.
 
@@ -32,11 +32,11 @@ The scripts support overrides through `SDK_DIR`, `SOC_DIR`, and `RISCV_GCC_ROOT`
 
 1. Clone the two repositories.
 2. Place or clone `nuclei-sdk` at `third_party/nuclei-sdk`.
-3. Place the official Nuclei GNU toolchain at `/home/gstar/Desktop/gcc`, or export `RISCV_GCC_ROOT` to the actual location.
+3. Place the official Nuclei GNU toolchain at `${RISCV_GCC_ROOT}`, or export `RISCV_GCC_ROOT` to the actual location.
 4. Run:
 
 ```bash
-bash /home/gstar/Desktop/riscv_cnn_accelerator/scripts/run_sdk_fullsoc_regression.sh
+bash scripts/run_sdk_fullsoc_regression.sh
 ```
 
 The runner will:
