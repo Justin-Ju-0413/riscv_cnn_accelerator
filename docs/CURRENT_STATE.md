@@ -1,26 +1,28 @@
 # Current State
 
-> **Version**: V1.9 | **Updated**: 2026-03-26 | **Owner**: Justin JU
+> **Version**: V1.9 | **Updated**: 2026-08-12 | **Owner**: Justin JU
 
 ## Purpose
 
 Session recovery file. Read this first before continuing implementation work.
 
-## Branch Governance Note
+## Repository Governance Note
 
-This branch is the historical default line retained for compatibility. For the
-stable formal baseline use `bringup_v1`. For current A7-100T / Route-A
-development use `codex/a7-bringup-v2-main`. See `BRANCH_STRATEGY.md` before
-starting new work from this branch.
+`main` is the maintained landing branch for documentation, CI, and immutable
+Release navigation. The FYP is complete. Older A7, environment-baseline, and
+MPhil branches are retained research snapshots, not active delivery lines.
+Use the paired Release tags below for reproducible work and read
+`BRANCH_STRATEGY.md` before starting new research.
 
 ## Current Snapshot
 
 | Item | Value |
 |------|-------|
 | Branch | `main` |
-| Branch role | Historical default line |
-| Active phase | `Phase 5` |
-| Current baseline | Minimal CNN v1 + board-prep automation |
+| Branch role | Maintained landing and release navigation |
+| Project phase | FYP closed; research lineage retained |
+| Reproducible baseline | `env-baseline-2026-07-27` |
+| Bounded MPhil PoC | `mphil-nice-v2-poc-v0.1.0` |
 | Latest document package | `V1.9` |
 
 ## Repositories
@@ -28,7 +30,7 @@ starting new work from this branch.
 | Repo | Path | Branch |
 |------|------|--------|
 | Main repo | `<repo-root>` | `main` |
-| SoC repo | `${SOC_DIR}` | `master` |
+| SoC repo | `${SOC_DIR}` | `main` |
 
 ## Closed Technical Baseline
 
@@ -72,13 +74,13 @@ starting new work from this branch.
 - Real board target and final shell-to-board mapping still need confirmation.
 - No bitstream-backed board execution has been validated yet.
 
-## Active Direction
+## Maintenance Direction
 
-- Keep the SoC-side integration boundary unchanged.
-- Use pre-board regression as the mandatory gate.
-- Treat FPGA work as shell, constraints, tooling, and board-environment work first.
-- Preserve the current `evalsoc + nuclei_fpga_eval + n300 + ilm` software-facing path.
-- Keep `davinci_a7_35t` as the current default shell target unless board facts force a change.
+- Keep the SoC-side integration boundary and NICE encodings unchanged.
+- Preserve the paired baseline and MPhil PoC tags as immutable evidence.
+- Treat A7 board work, constraints, UART/JTAG/ILA, and Vivado results as
+  historical unless a new explicitly scoped research stream revalidates them.
+- Preserve the existing `evalsoc + nuclei_fpga_eval + n300 + ilm` evidence path.
 
 ## What To Read Next
 
@@ -87,14 +89,13 @@ starting new work from this branch.
 | Understand the whole delivery | [SUMMARY.md](SUMMARY.md) |
 | Understand all historical work by phase | [PHASE_HISTORY.md](PHASE_HISTORY.md) |
 | See dated progress | [PROGRESS.md](PROGRESS.md) |
-| Continue board preparation | [PHASE5_BOARD_PREP.md](PHASE5_BOARD_PREP.md) |
+| Understand historical board preparation | [PHASE5_BOARD_PREP.md](PHASE5_BOARD_PREP.md) |
 | Follow long-term collaboration requirements | [PROJECT_RULES.md](PROJECT_RULES.md) |
 
 ## Reading Rules
 
 - Use `BRANCH_STRATEGY.md` to confirm whether you should stay on this branch.
-- Treat this file as the documentation state of `main`, not the active
-  day-to-day engineering line.
+- Treat this file as the maintained repository state of `main`.
 - Use `PHASE_HISTORY.md` for stage-by-stage history.
 - Use `PROGRESS.md` for chronological reconstruction.
 - Update this file when the current baseline or active blockers change.
