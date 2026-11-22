@@ -1,457 +1,409 @@
-# MPhil Long-Term Plan: RISC-V/E203 NICE Edge-AI Accelerator
+# MPhil Long-Term Plan: Data-Movement-Centric RISC-V Edge-AI Coprocessor
 
-> Duration: 24 months
-> Main direction: data-movement-aware RISC-V custom-instruction acceleration for edge AI
-> Starting baseline: E203 + NICE + 4x4 INT8 PE array + RTL/FullSoC/FPGA sample validation
+> **Revision:** 2026-11-23
+>
+> **Duration:** 24 months
+>
+> **Main direction:** unified tile/state management and data movement for RISC-V edge AI
+>
+> **Starting baseline:** E203 + NICE + 4×4 INT8 PE array + RTL/FullSoC/FPGA sample evidence
+>
+> **Year-1 target:** one complete journal submission; acceptance is not assumed
 
-## Research Positioning
+## Research positioning
 
-The MPhil should not be framed as simply making the undergraduate CNN accelerator
-larger. The stronger research question is:
+The MPhil should not be framed as making the undergraduate CNN accelerator larger.
+The revised research question is:
 
-> For a resource-constrained RISC-V edge-AI SoC, how do custom instructions,
-> on-chip buffering, software mapping, and benchmark methodology jointly affect
-> end-to-end CNN acceleration?
+> Under a fixed compute array and constrained on-chip storage budget, can unified
+> tile/state descriptors and software-managed scratchpads reduce host overhead,
+> data movement, and end-to-end cycles for tensor and selective-scan operators, and
+> where is the crossover relative to adding PEs?
 
-This keeps the work close to the existing project while raising it from a
-prototype implementation to a research program. The core evidence must remain
-measured: correctness, cycle count, memory traffic or load count, FPGA resource
-cost, timing, and claim boundary.
+The first paper must establish one causal chain: measured bottleneck, unified
+mechanism, controlled implementation, end-to-end evaluation, and resource-aware
+design-space conclusion. A collection of new instructions or operators without
+that chain is insufficient.
 
-## Year-Level Roadmap
+## Year-level roadmap
 
-| Period | Main Goal | Research Output | Engineering Output |
-| --- | --- | --- | --- |
-| Year 1 | Rebuild the baseline, define benchmarks, and prove a first data-movement improvement | Literature review, problem formulation, baseline report, first workshop-style result | Reproducible regression flow, benchmark records, reference-model comparison, first buffer/line-buffer prototype |
-| Year 2 | Generalize the design, compare alternatives, and write the thesis/paper | Full thesis, conference/journal submission, evaluated design-space comparison | Operator expansion, end-to-end network evaluation, resource/timing/performance dataset, cleaned artifact package |
+| Period | Main goal | Research output | Engineering output |
+|---|---|---|---|
+| Year 1 | Prove or bound H1–H3 and submit the first journal paper | Baseline analysis, mechanism paper, design-space evidence, complete submission | Block/tile movement, shared scratchpad, tiled GEMM, one state-resident scan, Full-SoC and FPGA results |
+| Year 2 | Generalize the evaluation and complete the thesis | Thesis, final dataset, optional extension paper or revision | Network-level mapping, robustness tests, artifact package, optional overlap or collaboration integration |
 
-## Quarter Milestones
+## Quarter milestones
 
 | Quarter | Theme | Milestone |
-| --- | --- | --- |
-| Q1 | Research framing and baseline recovery | Research proposal and reproducible baseline complete |
-| Q2 | Benchmark and reference model | Micro-benchmark suite and Python-to-RTL comparison complete |
-| Q3 | Data movement prototype | Line buffer or local SRAM-buffer path implemented and measured |
-| Q4 | First paper-quality result | Internal report or workshop-style manuscript draft complete |
-| Q5 | Operator expansion | Multi-channel, stride/padding, or 1x1 convolution support evaluated |
-| Q6 | End-to-end evaluation | Small CNN/LeNet-style end-to-end flow measured with safe claim boundaries |
-| Q7 | Design-space comparison | Baseline vs buffer vs optimized variants compared quantitatively |
-| Q8 | Thesis and publication closure | Thesis, artifact package, and paper submission completed |
+|---|---|---|
+| Q1 | Baseline, novelty, and interface | Bottleneck evidence, literature boundary, frozen descriptor/ABI and golden models |
+| Q2 | Unified mechanism | Block/tile movement, tiled GEMM, and state-resident scan pass verification |
+| Q3 | End-to-end evidence | Full-SoC, FPGA resource/timing, and initial ablation results complete |
+| Q4 | First submission | Design-space conclusions, figures, manuscript, internal review, and journal submission complete |
+| Q5 | Network and layer mapping | A bounded network or multi-operator evaluation is defined and mapped |
+| Q6 | Generalization | Network/layer Full-SoC and feasible board evidence complete |
+| Q7 | Final design space and artifact | Alternative comparison, robustness, and reproducibility package complete |
+| Q8 | Thesis and publication closure | Thesis, defense, final submission response or extension, and handoff complete |
 
-## Month-By-Month Plan
+## Month-by-month plan
 
-### Month 1: Baseline Audit And Research Scope
+### Month 1: Baseline audit and measurement contract
 
-- Read the current FYP codebase, evidence package, and `FUTURE_RND_PLAN.md`.
-- Freeze a clean baseline branch or tag for MPhil work.
-- Re-run or review the existing gates: RTL regression, FullSoC regression, and board evidence.
-- Draft a one-page research scope: problem, hypothesis, target workloads, and non-goals.
+- Read the FYP codebase, evidence package, current MPhil PoC, and related roadmap.
+- Freeze exact accelerator/SoC refs and record tool versions.
+- Re-run or review golden, RTL, Full-SoC, and pre-board gates.
+- Define load, compute, readback, host-instruction, traffic, and utilization fields.
+- Separate historical board evidence from new measurements.
 
 Deliverables:
 
-- Baseline audit note.
-- Initial research proposal outline.
+- Baseline audit and reproducibility note.
 - First benchmark record under `docs/benchmarks/records/`.
+- One-page statement of H1–H3 and workload scope.
 
-Exit criteria:
+Exit criterion: completed FYP work, existing PoC work, and new MPhil work are
+unambiguously separated.
 
-- The supervisor can see exactly what is already completed and what is new MPhil work.
+### Month 2: Bottleneck proof and go/no-go decision
 
-### Month 2: Literature Review And Taxonomy
-
-- Review RISC-V custom instruction accelerators, RVV/vector baselines, TinyML accelerators, VTA-style accelerator templates, and PULP-like open SoC work.
-- Classify related work by compute array, data movement, programmability, memory hierarchy, and evaluation method.
-- Identify 3 to 5 comparison dimensions for the thesis.
-
-Deliverables:
-
-- Literature matrix.
-- Related-work taxonomy.
-- Finalized MPhil title candidate.
-
-Exit criteria:
-
-- The project has a defensible research gap, not just an implementation plan.
-
-### Month 3: Benchmark Methodology
-
-- Define micro-benchmarks: 3x3 convolution, 1x1 convolution, multi-channel convolution, stride/padding case, and small-network case.
-- Define reporting fields: correctness, cycles, speedup, load count or memory traffic proxy, LUT/FF/BRAM/DSP, WNS/WHS.
-- Decide which claims require RTL, FullSoC, board UART, ILA, or full dataset evidence.
+- Measure scalar and legacy NICE load/compute/readback cycles.
+- Record host and NICE instruction counts and observable data movement.
+- Evaluate whether single-word `MLOAD` can improve performance; do not assume it can.
+- Review EdgeRV, Gemmini, VTA, XpulpNN, stream-based RISC-V coprocessors, SSM
+  accelerators, and CALAS ViM-Q for direct overlap.
 
 Deliverables:
 
-- Benchmark methodology document.
-- Updated benchmark record templates if needed.
-- Baseline CPU-only and accelerator-visible measurement plan.
+- Bottleneck report with plots and raw logs.
+- Updated literature/reproducibility matrix.
+- Go/no-go decision for block/tile movement versus a narrower state-residency topic.
 
-Exit criteria:
+Exit criterion: the proposed optimization addresses a measured bottleneck and has
+a defensible novelty boundary. If not, stop and revise the topic before RTL work.
 
-- Every future performance number has a standard reporting format.
+### Month 3: Descriptor, ABI, and benchmark methodology
 
-### Month 4: Reference Model And Golden Data
-
-- Build or clean Python reference models for selected convolution cases.
-- Generate fixed test vectors for RTL, software, and board-side runs.
-- Add layer-by-layer comparison outputs for later network evaluation.
-
-Deliverables:
-
-- Reference-model scripts.
-- Golden input/output dataset.
-- First Python-to-current-RTL comparison report.
-
-Exit criteria:
-
-- A failed RTL or board result can be debugged against a known golden reference.
-
-### Month 5: Baseline Reproduction And Automation
-
-- Make the current regression flow easier to replay on the MPhil machine.
-- Record the exact tool versions, branch, commit, board, and command sequence.
-- Re-measure the current 3x3 convolution baseline without changing claims.
+- Define tile/state descriptor fields, alignment, bounds, tails, completion, and
+  memory-ordering semantics.
+- Freeze the minimum `MCFG`/`MEXEC`/`MSTORE` behavior needed for evaluation.
+- Select tiled GEMM, one convolution shape, and one short selective-scan block.
+- Define baseline and ablation configurations before implementation.
 
 Deliverables:
 
-- Reproducible baseline report.
-- Toolchain/setup note.
-- Confirmed benchmark record for current baseline.
+- Descriptor/ABI review document.
+- Benchmark methodology and reporting template.
+- Resource-normalization plan for PE-scaling comparisons.
 
-Exit criteria:
+Exit criterion: all planned performance numbers have a standard measurement and
+claim format, and the interface is implementable without a compiler project.
 
-- The old FYP baseline can be reproduced or its unreproducible parts are clearly documented.
+### Month 4: Golden models and verification plan
 
-### Month 6: Data Movement Bottleneck Analysis
-
-- Measure where cycles are spent: software loads, custom instruction issue, compute, result readback, and board/SoC overhead where observable.
-- Estimate activation and weight reuse opportunities.
-- Choose the first implementation target: line buffer or local activation/weight SRAM buffer.
-
-Deliverables:
-
-- Bottleneck analysis report.
-- First design specification for buffering.
-- Go/no-go decision for the chosen data-movement path.
-
-Exit criteria:
-
-- The first optimization is justified by measured or analytically estimated bottlenecks.
-
-### Month 7: First Buffer Or Line-Buffer Prototype
-
-- Implement a minimal buffer/line-buffer path in RTL.
-- Keep the existing NICE command behavior compatible where possible.
-- Add directed tests for normal, boundary, reset, invalid index, and partial-load cases.
+- Build deterministic Python references for GEMM, convolution, and selective scan.
+- Generate fixed inputs, outputs, tiling cases, state shapes, and tail cases.
+- Define directed RTL tests for descriptors, block movement, state lifetime, reset,
+  errors, and output ordering.
 
 Deliverables:
 
-- RTL prototype.
-- Directed RTL tests.
-- Benchmark records for correctness and cycle impact.
+- Golden-model scripts and datasets.
+- Python-to-current-RTL comparison report.
+- Verification matrix linked to each descriptor field.
 
-Exit criteria:
+Exit criterion: any later RTL or Full-SoC failure can be checked against a known
+reference and an explicit contract.
 
-- The prototype is functionally correct in RTL and does not break the baseline tests.
+### Month 5: Bounded block/tile movement and scratchpad
 
-### Month 8: FullSoC Integration Of Buffer Prototype
-
-- Connect the prototype to the software-visible flow.
-- Update driver or demo code only as much as needed to exercise the new path.
-- Compare baseline vs buffered version in FullSoC simulation.
+- Extend the single-word PoC to bounded block or tile transfers.
+- Implement only the activation, weight, output, and state storage required by the
+  selected workloads.
+- Preserve legacy funct7 `0–5` and existing regression behavior.
+- Measure immediate cycle, instruction, resource, and timing effects.
 
 Deliverables:
 
-- FullSoC regression result.
-- Software driver/demo update note.
-- Baseline-vs-buffer comparison table.
+- Block/tile movement RTL and wrappers.
+- Directed RTL and legacy regression results.
+- Initial block-versus-register-load comparison.
 
-Exit criteria:
+Exit criterion: the new memory path is correct in RTL and has a measurable system
+level motivation; otherwise simplify or stop the mechanism.
 
-- The optimization is visible from software, not only from a standalone RTL testbench.
+### Month 6: Minimal tiled GEMM on the existing PE array
 
-### Month 9: FPGA Feasibility And Resource Timing
+- Implement the smallest tiled GEMM using the verified 4×4 PE array.
+- Map the selected convolution case through the same descriptor/storage path.
+- Implement minimum `MCFG`, `MEXEC`, and `MSTORE` behavior without speculative
+  features.
 
-- Synthesize or implement the buffer prototype on the target FPGA flow.
-- Record LUT/FF/BRAM/DSP, WNS/WHS, and any timing bottlenecks.
-- Decide whether to keep, simplify, or redesign the buffer.
+Deliverables:
+
+- Tiled GEMM/convolution prototype.
+- Golden and directed RTL results.
+- Initial Full-SoC software-visible execution record.
+
+Exit criterion: tensor execution is software-visible and does not break the legacy
+ABI or original regression.
+
+### Month 7: State-resident selective scan
+
+- Implement one short-sequence scan using the shared state storage and control path.
+- Keep state resident across tokens where valid and measure writebacks avoided.
+- Compare against a non-resident or software-managed state baseline.
+- Record additional area, storage, and timing costs.
+
+Deliverables:
+
+- Selective-scan RTL and golden comparison.
+- State-residency benchmark record.
+- Unified-versus-separate control/storage cost analysis.
+
+Exit criterion: H2 is supported, rejected, or explicitly bounded by evidence; no
+complete Vision Mamba claim is required.
+
+### Month 8: Full-SoC integration and end-to-end evidence
+
+- Integrate tensor and scan paths into the Full-SoC software flow.
+- Measure end-to-end cycles and load/compute/readback decomposition.
+- Run all golden, directed RTL, legacy, and Full-SoC regressions.
+- Preserve logs and exact commits for every compared configuration.
+
+Deliverables:
+
+- Reproducible Full-SoC comparison table.
+- Software driver/wrapper note.
+- Updated claim boundary and unresolved-issue list.
+
+Exit criterion: improvements are visible end to end, not only in standalone RTL.
+
+### Month 9: FPGA resource and timing evaluation
+
+- Synthesize or implement the selected configurations on the available FPGA flow.
+- Record LUT, FF, BRAM, DSP, Fmax, WNS, and WHS.
+- Compare the unified design against legacy and ablated versions.
+- Run physical board tests only when the full evidence chain is available.
 
 Deliverables:
 
 - FPGA resource/timing report.
-- Board-feasibility benchmark record.
-- Optimization decision note.
+- Board-feasibility record or an explicit `not run` statement.
+- Keep/simplify/redesign decision for the shared storage mechanism.
 
-Exit criteria:
+Exit criterion: performance claims have corresponding hardware-cost evidence.
 
-- The design has measured hardware cost, not only simulation speedup.
+### Month 10: Design-space exploration and hypothesis closure
 
-### Month 10: Operator Expansion Prototype
-
-- Add one additional operator mode: recommended first target is multi-channel 3x3 convolution.
-- Keep the reference model and RTL/FullSoC comparison aligned.
-- Record whether the current instruction interface is still sufficient.
-
-Deliverables:
-
-- Operator expansion prototype.
-- Python-to-RTL comparison.
-- Interface limitation note.
-
-Exit criteria:
-
-- The project can support at least one CNN case beyond the original 3x3 sample.
-
-### Month 11: First Paper-Style Experiment Package
-
-- Consolidate results from baseline, bottleneck analysis, buffer prototype, and operator expansion.
-- Prepare plots/tables for speedup, resources, timing, and claim boundary.
-- Identify the strongest story for a workshop or internal seminar.
+- Sweep scratchpad capacity, tile dimensions, operator shapes, and scan sequence
+  length within feasible bounds.
+- Compare against at least one PE-scaling configuration under an explicit equal or
+  approximate resource budget.
+- Construct performance-versus-resource Pareto plots for tensor and SSM workloads.
+- Identify where buffering or residency wins, loses, or has negligible effect.
 
 Deliverables:
 
-- Paper-style experiment package.
-- Draft figures and tables.
-- Supervisor review deck.
+- Design-space matrix and raw dataset.
+- Pareto figures and crossover analysis.
+- H1–H3 conclusion table with supporting evidence.
 
-Exit criteria:
+Exit criterion: the paper has a generalizable result rather than a single speedup.
 
-- The work has one coherent result story suitable for external feedback.
+### Month 11: Paper experiment package and internal review
 
-### Month 12: Year-1 Review And Research Adjustment
-
-- Review whether the main hypothesis is still valid.
-- Decide the Year-2 emphasis: deeper buffering, wider operator support, RVV/custom comparison, or portability.
-- Write a Year-1 technical report.
-
-Deliverables:
-
-- Year-1 report.
-- Updated Year-2 plan.
-- Workshop-style manuscript draft if results are strong enough.
-
-Exit criteria:
-
-- The second year starts from evidence, not momentum.
-
-### Month 13: End-To-End Network Plan
-
-- Select a small network target: LeNet-style, TinyCNN, DS-CNN subset, or another supervisor-approved model.
-- Define what counts as end-to-end: input layout, all layers, output classification, and dataset/sample scope.
-- Prepare reference outputs and quantization assumptions.
+- Consolidate motivation, mechanism, evaluation, related-work separation, and
+  limitations.
+- Freeze the main tables and figures, including the Pareto/crossover figure.
+- Audit every claim against code, logs, benchmark records, and cited sources.
+- Review the paper narrative with the supervisor and relevant CALAS collaborators.
 
 Deliverables:
 
-- End-to-end evaluation plan.
-- Quantization note.
-- Network-level golden data.
+- Complete paper-style experiment appendix.
+- Draft manuscript and supervisor review deck.
+- Claim-audit and reproducibility checklists.
 
-Exit criteria:
+Exit criterion: one coherent paper story is ready for external journal submission
+without relying on future functionality.
 
-- Full-network claims have explicit evidence requirements before implementation.
+### Month 12: Submission and Year-2 adjustment
 
-### Month 14: Layer Mapping And Software Flow
-
-- Map each selected network layer onto CPU-only, accelerator-assisted, or unsupported fallback execution.
-- Update software flow to call the accelerator where appropriate.
-- Record layer-by-layer cycles and correctness.
-
-Deliverables:
-
-- Layer mapping table.
-- Software execution flow.
-- Layer-level benchmark records.
-
-Exit criteria:
-
-- End-to-end performance can be explained layer by layer.
-
-### Month 15: Network-Level FullSoC Evaluation
-
-- Run the selected network or reduced network in FullSoC simulation.
-- Compare CPU-only, accelerator-assisted, and fallback portions.
-- Record accuracy only within the tested scope.
+- Select a journal by topic fit, evidence requirements, and current indexing rules.
+- Complete internal review, formatting, artifact links, and submission.
+- Record submission as a milestone without implying acceptance.
+- Decide Year-2 priorities from H1–H3 results and reviewer/supervisor feedback.
 
 Deliverables:
 
-- FullSoC network evaluation report.
-- End-to-end cycle breakdown.
-- Safe claim statement.
+- Submitted manuscript and submission record.
+- Year-1 technical report.
+- Evidence-based Year-2 plan.
 
-Exit criteria:
+Exit criterion: the first paper is submitted and the second year starts from
+measured results rather than accumulated features.
 
-- The project can report a network-level result without overclaiming full dataset performance.
+### Month 13: Bounded network-level plan
 
-### Month 16: Board-Level Network Demonstration
+- Select a small network or multi-operator sequence approved by the supervisor.
+- Define input layout, layer coverage, fallback execution, output, and dataset scope.
+- Reuse CALAS model or golden-data assets only under explicit collaboration and
+  attribution boundaries.
 
-- Move the network or reduced network demo to board-facing execution if feasible.
-- Capture UART output and ILA summary for key accelerator activity.
-- If full network board execution is too slow or unstable, capture a representative layer/demo and document the boundary.
+Deliverables: network evaluation plan, mapping table, and golden data.
 
-Deliverables:
+Exit criterion: network claims and evidence requirements are fixed before new RTL.
 
-- Board demo record.
-- UART/ILA evidence.
-- Board limitation note if needed.
+### Month 14: Layer mapping and software flow
 
-Exit criteria:
+- Map layers to scalar, legacy NICE, unified tensor/state, or fallback execution.
+- Record layer-level correctness, cycles, instructions, and traffic.
+- Keep compiler automation optional and subordinate to the research question.
 
-- Board evidence is available for the strongest feasible network or layer demonstration.
+Deliverables: software flow, layer mapping, and layer-level benchmark records.
 
-### Month 17: Design-Space Alternatives
+Exit criterion: end-to-end behavior can be explained layer by layer.
 
-- Compare at least three variants: baseline, buffered version, and one optimized or simplified alternative.
-- Optional alternatives: double buffering, wider PE array, pipelined accumulation, or memory-channel prototype.
-- Keep comparison dimensions fixed.
+### Month 15: Network-level Full-SoC evaluation
 
-Deliverables:
+- Run the selected network, reduced network, or multi-operator flow in Full-SoC.
+- Compare scalar, accelerator-assisted, and fallback portions.
+- Report accuracy only within the tested dataset and model scope.
 
-- Design-space comparison matrix.
-- Resource/timing/performance plots.
-- Recommendation for final architecture.
+Deliverables: Full-SoC report, cycle breakdown, and conservative claim statement.
 
-Exit criteria:
+Exit criterion: the project has a network-level result without overclaiming full
+model or dataset performance.
 
-- The thesis can explain why the final design was chosen.
+### Month 16: Feasible board demonstration
 
-### Month 18: Robustness And Negative Testing
+- Move the strongest feasible network, layer, or SSM block to the board.
+- Capture UART/ILA evidence where relevant.
+- If physical execution is unavailable, retain Full-SoC evidence and record the
+  board as not run rather than failed.
 
-- Expand tests for reset, invalid command, invalid index, partial data, boundary padding, overflow/saturation assumptions, and repeated result reads.
-- Check whether the design remains stable across benchmark cases.
-- Clean up fragile scripts and undocumented assumptions.
+Deliverables: board record or limitation note, with fresh evidence only.
 
-Deliverables:
+Exit criterion: the strongest feasible demonstration has an explicit evidence
+boundary.
 
-- Robustness test report.
-- Regression checklist.
-- Known limitations list.
+### Month 17: Final design-space alternatives
 
-Exit criteria:
+- Compare baseline, unified buffer, and one justified alternative such as double
+  buffering or PE scaling.
+- Keep comparison dimensions and workloads fixed.
+- Explain why the final architecture is selected.
 
-- The final design is not only fast on a happy-path example.
+Deliverables: final comparison matrix and resource/timing/performance plots.
 
-### Month 19: Artifact Cleanup And Reproducibility
+Exit criterion: the thesis justifies the final design rather than merely describing
+its implementation.
 
-- Separate source code, generated artifacts, evidence, and thesis figures.
-- Ensure all benchmark records point to commands, logs, and outputs.
-- Create a clean reproduction guide for the final design.
+### Month 18: Robustness and negative testing
 
-Deliverables:
+- Test reset, invalid descriptors, invalid indices, partial tiles, state lifetime,
+  overflow/saturation assumptions, timeout, repeated reads, and output ordering.
+- Clean fragile scripts and undocumented assumptions.
 
-- Artifact package.
-- Reproduction guide.
-- Final benchmark dataset.
+Deliverables: robustness report, regression checklist, and known-limitations list.
 
-Exit criteria:
+Exit criterion: the design is evaluated beyond happy-path examples.
 
-- Another reader can reproduce the key tables or understand exactly why a table is archival.
+### Month 19: Artifact cleanup and reproducibility
 
-### Month 20: Thesis Chapter Drafting
+- Separate source, generated files, logs, evidence, and thesis figures.
+- Link every benchmark record to commands, refs, and outputs.
+- Create a clean reproduction guide.
 
-- Draft introduction, related work, system architecture, methodology, and baseline chapters.
+Deliverables: artifact package, reproduction guide, and final benchmark dataset.
+
+Exit criterion: another reader can reproduce the main tables or identify exactly
+which results are archival.
+
+### Month 20: Thesis chapter drafting
+
+- Draft introduction, related work, baseline, mechanism, methodology, and design
+  space chapters.
 - Freeze terminology and claim boundaries.
-- Convert experiment tables into thesis-ready figures.
+- Convert experiment records into thesis-ready figures.
 
-Deliverables:
+Deliverables: approximately 60% thesis draft and supervisor feedback checklist.
 
-- First 60 percent thesis draft.
-- Figure/table list.
-- Supervisor feedback checklist.
+Exit criterion: the thesis structure is stable before final experiments.
 
-Exit criteria:
+### Month 21: Final experiments and submission response
 
-- The thesis structure is stable before final experiments.
+- Fill missing resource/timing/performance fields and rerun final comparisons.
+- Respond to journal reviews if available; do not delay thesis evidence collection
+  while waiting for reviews.
 
-### Month 21: Final Experiments
+Deliverables: final experiment log, updated artifact, and revision plan if needed.
 
-- Run final baseline and optimized design measurements.
-- Fill any missing resource/timing/performance fields.
-- Re-run reference-model comparisons for final reported cases.
+Exit criterion: no thesis claim depends on an unrecorded experiment.
 
-Deliverables:
+### Month 22: Optional extension paper or revision
 
-- Final experiment log.
-- Final plots/tables.
-- Updated artifact package.
+- Convert a genuinely new Year-2 result into an extension paper, or prioritize the
+  first-paper revision.
+- Do not split incremental features into a weak second publication.
 
-Exit criteria:
+Deliverables: extension draft or first-paper revision package.
 
-- No thesis claim depends on an unrecorded experiment.
+Exit criterion: publication work remains distinct, defensible, and subordinate to
+thesis completion.
 
-### Month 22: Paper Submission Draft
+### Month 23: Thesis finalization
 
-- Convert the strongest thesis result into a paper draft.
-- Target a realistic venue based on novelty and maturity: workshop, regional conference, embedded systems venue, or open-source artifact venue.
-- Prepare abstract, contribution bullets, method, evaluation, and limitations.
-
-Deliverables:
-
-- Paper draft.
-- Covering experiment appendix.
-- Supervisor-ready submission package.
-
-Exit criteria:
-
-- The paper has a defensible contribution even if it is not top-tier SOTA.
-
-### Month 23: Thesis Finalization
-
-- Complete all thesis chapters.
-- Align text with figures, tables, code, and benchmark records.
+- Complete all chapters and align text, figures, tables, code, and records.
 - Remove unsupported claims and stale numbers.
+- Complete the claim-audit checklist.
 
-Deliverables:
+Deliverables: full thesis draft and final supervisor-review version.
 
-- Full thesis draft.
-- Claim-audit checklist.
-- Final supervisor review version.
+Exit criterion: every major claim maps to evidence or a cited source.
 
-Exit criteria:
+### Month 24: Defense, submission, and handoff
 
-- Every major claim maps to a benchmark record, code path, or cited source.
+- Prepare defense slides, Q&A, demo material, and exit presentation.
+- Freeze final code and evidence snapshots.
+- Submit the thesis and archive future-work ideas separately.
 
-### Month 24: Defense, Submission, And Handoff
+Deliverables: final thesis, defense deck, final source/evidence package, and handoff
+note.
 
-- Prepare defense slides, Q&A, demo material, and artifact handoff.
-- Freeze final code and evidence snapshot.
-- Submit thesis and archive future work ideas separately.
+Exit criterion: the project ends with a defensible thesis, reproducible artifact,
+and clear next-research boundary.
 
-Deliverables:
-
-- Final thesis.
-- Defense deck and Q&A.
-- Final source/evidence package.
-- Post-MPhil handoff note.
-
-Exit criteria:
-
-- The project ends with a clean thesis, a reproducible artifact, and a clear next-research boundary.
-
-## Monthly Operating Rhythm
+## Monthly operating rhythm
 
 Each month should end with:
 
-- one benchmark record or explicit note explaining why no experiment was run;
-- one short progress note covering what changed, what failed, and what is next;
+- one benchmark record or an explicit reason no experiment was run;
+- one short progress note covering changes, failures, and next actions;
 - one supervisor-facing figure, table, or decision summary;
-- updated claim boundaries if any result scope changed.
+- updated hypothesis status and claim boundaries where needed.
 
-## Risk Branches
+## Risk branches
 
 | Risk | Trigger | Fallback |
-| --- | --- | --- |
-| FPGA board flow becomes unreliable | Board runs block progress for more than one month | Use RTL + FullSoC as primary evidence and keep board demo as supporting evidence |
-| Buffering adds too much BRAM/timing cost | WNS fails or BRAM cost dominates | Simplify buffer, reduce supported operator scope, or return to software-managed tiling |
-| End-to-end network is too large | Full network cannot fit or simulate in time | Use layer-level and reduced-network benchmarks with explicit claim boundaries |
-| Novelty looks weak | Optimization is only incremental | Shift contribution toward quantitative design-space methodology and reproducible artifact |
-| Toolchain portability is poor | Another machine cannot reproduce flow | Containerize or document exact archival environment and keep reproducibility scope honest |
+|---|---|---|
+| No meaningful movement bottleneck | M2 profiling does not support H1 | Narrow to SSM state residency or change workload before new RTL |
+| Single-word or block loads are slower | Host cycles or end-to-end latency regress | Stop PE scaling; revise transfer granularity, tiling, or descriptor semantics |
+| Unified mechanism is too general | Area/timing/control cost exceeds benefit | Reduce descriptor fields or report the boundary instead of hiding the cost |
+| SSM block is too large | Current platform cannot fit or simulate it | Use a shorter block and prohibit full-model claims |
+| Buffering dominates BRAM/timing | WNS fails or BRAM cost dominates | Simplify storage, reduce operator scope, or retain software-managed tiling |
+| Novelty is weak | Related-work review finds the same mechanism | Shift to measured crossover/design-space methodology or abandon the duplicated mechanism |
+| Board flow blocks progress | Hardware work blocks progress for one month | Use RTL + Full-SoC as primary evidence and board work as supporting evidence |
+| Toolchain portability is poor | Another machine cannot reproduce results | Containerize or document the exact archival environment and narrow claims |
+| Journal review extends beyond plan | No decision by thesis finalization | Continue thesis completion; submission must not be treated as acceptance |
 
-## Success Definition
+## Success definition
 
 The MPhil is successful if it produces:
 
-- a reproducible RISC-V/NICE edge-AI accelerator artifact;
-- a measured explanation of data-movement and buffering tradeoffs;
+- a reproducible RISC-V/NICE edge-AI coprocessor artifact;
+- a measured explanation of data movement, state residency, buffering, and PE
+  scaling tradeoffs;
+- one coherent journal submission in Year 1 without assuming acceptance;
 - at least one network-level or multi-operator evaluation beyond the FYP sample;
-- a clean thesis with conservative, evidence-backed claims;
-- ideally one paper or workshop submission.
-
+- a defensible thesis with conservative, evidence-backed claims and a clean handoff.

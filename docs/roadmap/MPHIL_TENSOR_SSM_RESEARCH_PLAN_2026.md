@@ -1,176 +1,266 @@
-# CityU CALAS MPhil research plan: data-movement-aware RISC-V edge AI
+# CityU CALAS MPhil research plan: data-movement-centric RISC-V edge AI
 
-Status: supervisor-ready working proposal
-Research branch: `codex/mphil-tensor-scan-20260729`
-Target start: September 2026
-Expected duration: 24 months
+- Status: revised working proposal for supervisor review
+- Revision date: 2026-11-23
+- Research branch: `codex/mphil-data-movement-20261123`
+- Engineering baseline: `mphil-nice-v2-poc-v0.1.0` and its paired SoC tag
+- Target start: September 2026
+- Expected duration: 24 months
 
-## Proposed title
+## Proposed MPhil title
 
-**Data-Movement-Aware RISC-V Attached Acceleration for Tensor and State-Space Operators at the Edge**
+**A Data-Movement-Centric RISC-V Coprocessor Architecture for Edge Tensor and State-Space Computing**
 
-中文：**面向边缘 AI 张量与状态空间算子的 RISC-V 附加式加速与数据搬运协同设计**
+中文：**面向边缘张量与状态空间计算的 RISC-V 数据搬运中心型协处理器架构**
+
+The change from "data-movement-aware" to "data-movement-centric" is intentional:
+data movement is the object of study, not merely an implementation consideration.
+"Coprocessor architecture" also keeps the work at the RISC-V/NICE integration layer
+and distinguishes it from a standalone Vision Mamba accelerator.
+
+### First-paper working title
+
+**Unified Tile-and-State Management for Data-Movement-Efficient RISC-V Edge AI Coprocessing**
+
+This is a candidate contribution framing, not a claim of priority. A complete
+literature review must precede any "first" or "novel" claim.
 
 ## Research position
 
-The verified E203/NICE CNN accelerator is the starting artifact, not the final research
-question. It already provides a 4×4 INT8/INT32 PE array, legacy custom instructions,
-directed RTL tests, Full-SoC execution, and historical A7-100T UART/ILA evidence. Its
-main limitation is that software issues repeated register-load instructions and the
-design has no useful on-chip storage hierarchy or general tiled operator interface.
+The verified E203/NICE CNN accelerator is the starting artifact, not the final
+research contribution. It provides a 4×4 INT8/INT32 PE array, legacy custom
+instructions, directed RTL tests, Full-SoC execution, and historical A7-100T
+UART/ILA evidence. Its main limitation is that software repeatedly issues
+register-load instructions, while the design lacks a useful on-chip storage
+hierarchy and a general tiled operator interface.
 
 The MPhil project therefore asks:
 
-> On a resource-constrained RISC-V SoC, when does a software-managed scratchpad and
-> explicit tiling deliver better end-to-end area efficiency than adding more compute
-> units?
+> Under a fixed compute array and constrained on-chip storage budget, can a unified
+> tile/state descriptor and software-managed scratchpad reduce host control overhead,
+> data movement, and end-to-end cycles for both tensor operators and selective scan,
+> and where is the crossover relative to adding more PEs?
 
-The work complements CALAS Vision Mamba and specialized AI accelerators. It focuses
-on the lower integration layer: RISC-V attachment, data movement, programmable
-mapping, and a reusable tensor/scan substrate. It does not reproduce ViM-Q
-quantization or claim a complete Vision Mamba accelerator.
+The project belongs to digital IC, SoC, computer architecture, and reconfigurable
+computing. Its value must be established through end-to-end measurements and
+resource-normalized design-space evidence, not peak TOPS or standalone kernel
+speedup alone.
 
-## Hypotheses and measurable contributions
+## Related-work and novelty boundary
 
-1. Activating the NICE ICB memory path and adding software-managed scratchpads will
-   reduce CPU-issued load instructions and end-to-end cycles more efficiently than
-   scaling the 4×4 PE array alone.
-2. A tiled GEMM core can reuse the existing PE array for 3×3 convolution, 1×1
-   convolution, and small matrix multiplication without breaking the undergraduate
-   ABI.
-3. A small recurrence/scan unit can share the same storage and control plane,
-   providing a useful SSM block without duplicating a full specialized Vision Mamba
-   pipeline.
-4. A capability-discovered NICE v2 prototype can offer a stable software contract
-   while remaining explicitly separate from draft RISC-V matrix standards.
+RISC-V custom instructions, scratchpads, DMA, and tiled GEMM are individually well
+established. Work such as Gemmini, VTA, XpulpNN, EdgeRV, and configurable
+instruction-controlled RISC-V coprocessors means that the following are not
+sufficient contributions by themselves:
 
-Expected artifacts:
+- adding another custom RISC-V ABI;
+- attaching a scratchpad or DMA engine;
+- demonstrating that an accelerator outperforms scalar E203 software;
+- implementing tiled GEMM without a new interface, mechanism, or measured design rule.
 
-- a backward-compatible NICE v2 research ABI;
-- parameterized activation, weight, state, and output scratchpads;
-- tiled GEMM plus an optional recurrence/scan unit;
-- microbenchmarks, network-level mappings, performance counters, and reproducible
-  experiment records;
-- one primary architecture paper, one optional extension paper, an MPhil thesis,
-  and an open artifact.
+SSM/Mamba acceleration provides a more focused opportunity because recurrent state,
+element-wise traffic, intermediate tensors, and linear layers impose different
+dataflow requirements. However, another standalone Mamba accelerator is also not
+the objective. The candidate contribution is the software-visible mechanism that
+allows regular tensor tiles and recurrence-dependent SSM state to share a RISC-V
+attached storage and movement path.
 
-## Scope and non-goals
+## Hypotheses
 
-The first implementation supports aligned, bounded, single-request ICB reads. Burst
-DMA, double buffering, prefetch, and overlap are added only after measurement shows
-that the minimal path is useful.
+### H1: data-movement improvement
 
-The project does not initially target:
+With the PE count unchanged, bounded block/tile transfers, software-managed tiling,
+and scratchpad residency will reduce host-issued instructions and end-to-end cycles
+relative to the legacy register-load path. A single-word `MLOAD` is a correctness
+proof only and is not expected to establish this hypothesis.
 
-- a complete LLM accelerator;
-- a complete compiler stack;
-- a second standalone Vision Mamba quantization accelerator;
-- a larger PE array without a data-movement result;
-- simultaneous FHE or PQC acceleration.
+### H2: unified tensor/state substrate
 
-Security may later be evaluated through model integrity, access isolation, or secure
-loading, but it is not on the critical path.
+A common descriptor, scratchpad organization, and control plane can serve GEMM,
+convolution, and a short selective-scan block with less duplicated control and
+storage than separate tensor and SSM data paths. The area and timing cost of this
+generality must be reported.
 
-## Architecture stages
+### H3: buffering-versus-compute crossover
 
-### Stage A: memory path and storage
+For a given operator shape, tile size, sequence length, and resource budget, there
+is a measurable region in which additional buffering or residency is preferable to
+additional PEs, and another region in which it is not. A negative or mixed result
+is scientifically valid if the boundary is measured and explained.
 
-- activate the existing NICE ICB memory channel;
-- introduce parameterized activation, weight, state, and output scratchpads;
-- use software-managed tiling;
-- begin with aligned words, bounded lengths, and one outstanding request;
-- add prefetch, double buffering, and compute/memory overlap only after an
-  evidence-based bottleneck analysis.
+## Expected contributions
 
-### Stage B: unified tensor core
+1. **Measurement and problem formulation:** a reproducible phase breakdown of the
+   scalar and legacy NICE paths, including host instructions, data movement,
+   compute, readback, and utilization.
+2. **Unified tile/state mechanism:** a backward-compatible NICE v2 extension with
+   explicit tile/state descriptors, bounded block movement, shared scratchpads,
+   and state-resident execution.
+3. **Design-space evidence:** ablations over scratchpad capacity, tile shape,
+   operator shape, sequence length, and PE scaling under documented resource
+   constraints.
+4. **Reproducible artifact:** golden models, RTL and Full-SoC tests, software
+   wrappers, benchmark records, synthesis results, and conservative claim
+   boundaries.
 
-- retain the verified 4×4 INT8 PE array and INT32 accumulation;
-- generalize it into tiled GEMM;
-- map 3×3 convolution, 1×1 convolution, and small MatMul first;
-- add a depthwise block or linear-attention matrix operator next.
+Expected long-term artifacts are one primary journal submission, an optional
+extension paper, an MPhil thesis, and an open artifact. Submission is the Year-1
+target; publication acceptance is not treated as a controllable milestone.
 
-### Stage C: state-space connection
+## Architecture plan
 
-- add only a compact recurrence/scan unit;
-- evaluate a short-sequence SSM block on A7;
-- reserve a complete ViM-tiny experiment for a confirmed, larger laboratory FPGA.
+### A. Descriptor and software contract
 
-## Evaluation contract
+Retain legacy funct7 `0–5` and the completed `CAP`/`MLOAD`/`MSTAT` proof of concept.
+Define the smallest useful `MCFG`/`MEXEC`/`MSTORE` path only after profiling.
 
-Microbenchmarks:
+A descriptor should make the following explicit where applicable:
 
-- original 3×3 convolution;
-- 1×1 convolution;
-- multi-channel 3×3 convolution;
+- operator and precision;
+- base address, shape, stride, and tile dimensions;
+- scratchpad bank and region;
+- state dimensions and residency lifetime;
+- tail behavior, alignment, bounds, and error handling;
+- completion, memory ordering, and output writeback semantics.
+
+Manual C wrappers or intrinsics are sufficient for the first paper. A complete
+compiler or LLVM lowering flow is deferred.
+
+### B. Block movement and shared storage
+
+- Activate the NICE ICB memory path already exercised by the PoC.
+- Extend single-word correctness coverage to bounded block or tile transfers.
+- Parameterize activation, weight, output, and state storage as required by the
+  selected workloads.
+- Keep the number of outstanding operations and bank organization minimal until
+  measurements justify additional complexity.
+- Report both performance gains and BRAM/LUT/timing costs.
+
+Burst DMA, prefetch, double buffering, and compute/memory overlap are not part of
+the first-paper minimum viable contribution.
+
+### C. Tiled tensor execution
+
+- Retain the verified 4×4 INT8 PE array and INT32 accumulation for the primary
+  design; do not make PE enlargement the main contribution.
+- Implement the smallest tiled GEMM that reuses the verified array.
+- Map small MatMul and either 3×3 or 1×1 convolution first.
+- Keep PE scaling as a comparison variant, not as the main engineering deliverable.
+
+### D. State-resident selective scan
+
+- Implement one compact short-sequence selective-scan/SSM block.
+- Keep recurrent state resident across tokens where the model permits it.
+- Measure state writebacks, intermediate traffic, host instructions, and cycles.
+- Reuse the shared descriptor and storage path rather than constructing a second
+  standalone Vision Mamba pipeline.
+
+A complete ViM-tiny deployment is a later collaboration option, not a Year-1
+paper requirement.
+
+## First-paper scope
+
+The first submission should contain one mechanism and a complete causal evidence
+chain.
+
+Required workloads:
+
 - tiled GEMM;
-- depthwise block;
-- short-sequence SSM scan.
+- 3×3 or 1×1 convolution;
+- one short-sequence selective-scan/SSM block.
 
-Network-level workloads:
+Required compared systems:
 
-- MLPerf Tiny-style ResNet-8/CIFAR-10;
-- DS-CNN;
-- a ViM/SSM block, not a full model on the current A7-100T.
+1. E203 scalar software;
+2. legacy NICE CNN accelerator;
+3. NICE with bounded block movement and scratchpad;
+4. NICE with unified tile/state management;
+5. a PE-scaling comparison under an explicitly documented equal or approximate
+   resource budget.
 
-Compared systems:
+Required metrics:
 
-- E203 scalar software;
-- original NICE CNN accelerator;
-- NICE memory/scratchpad revision;
-- unified tensor/scan revision.
-
-Recorded metrics:
-
-- correctness and quantization error;
-- end-to-end cycles and phase breakdown;
-- CPU-issued NICE instruction count;
-- bytes moved and PE utilization;
+- correctness against golden references;
+- end-to-end cycles and load/compute/readback breakdown;
+- retired host instructions and NICE command count;
+- bytes moved, state writebacks, and PE utilization where observable;
 - LUT, FF, BRAM, DSP, Fmax, WNS, and WHS;
-- end-to-end latency on a common platform.
+- resource-normalized performance and an explicit account of imperfect area
+  matching.
 
-RVV and draft IME/VME/AME work are semantic and software-mapping references. Raw
-cycle counts are not compared unless the core, memory system, process, and frequency
-are equivalent.
+The intended central figure is a performance-versus-resource Pareto comparison
+that identifies where GEMM, convolution, and SSM benefit from buffering or PE
+scaling. Every performance claim must include its workload and resource context.
 
-## Bridge plan: now to September 2026
+Deferred from the first paper:
 
-| Week | Deliverable | Exit criterion |
+- a complete Vision Mamba or LLM accelerator;
+- dynamic quantization or APoT algorithm development;
+- a complete compiler stack;
+- full-network MNIST/LeNet accuracy claims;
+- security, PQC, or FHE extensions;
+- raw cycle comparisons across unequal cores, memory systems, processes, or
+  frequencies.
+
+## CALAS collaboration and separation
+
+The topic directly connects to CALAS RISC-V architecture, software/hardware
+co-design, embedded systems, and FPGA AI hardware. It also connects methodologically
+to instruction-level fusion in RISC-V ASIP work and to the SSM dataflow challenges
+studied by ViM-Q.
+
+The separation from ViM-Q must remain explicit:
+
+- this project studies the E203/NICE software-visible interface, host overhead,
+  scratchpad organization, and data movement;
+- ViM-Q's quantization algorithms and dedicated end-to-end Vision Mamba engines are
+  not reproduced as this project's contribution;
+- ViM-Q may provide models, golden data, workload guidance, or a later integration
+  target through collaboration;
+- this project does not claim that a shared substrate outperforms a dedicated
+  accelerator without a controlled experiment.
+
+Security is optional and should only be added if a natural research question such
+as state isolation or model integrity emerges; it is not required for CALAS fit.
+
+## Twelve-month first-submission plan
+
+| Months | Deliverable | Exit criterion |
 |---|---|---|
-| 1 | Freeze baseline and measure scalar/legacy NICE phase breakdown | load, compute, and readback cycles recorded |
-| 2 | Literature and reproducibility matrix | overlap with CALAS work explicitly bounded |
-| 3 | GEMM, convolution, depthwise, and SSM golden microbenchmarks | deterministic tests pass |
-| 4 | NICE v2 ABI, scratchpad organization, and ICB verification plan | interface review ready |
-| 5 | Minimal ICB read-to-scratchpad RTL proof of concept | directed RTL test passes; legacy 19 tests pass |
-| 6 | Proposal, concise presentation, and first experiment plan | supervisor review package ready |
+| M1–M2 | Reproduce baseline and profile scalar/legacy NICE paths | Load, compute, readback, instruction, and traffic evidence establishes whether the bottleneck is real |
+| M3–M4 | Freeze descriptor, ABI, workloads, and golden models | Interface and benchmark review package is complete |
+| M5–M6 | Implement bounded block movement, scratchpad, and minimal tiled GEMM | Golden, directed RTL, legacy regression, and initial Full-SoC tests pass |
+| M7 | Implement one state-resident short-sequence scan | State residency produces measured software/traffic differences |
+| M8 | Complete Full-SoC integration | End-to-end results and cycle decomposition are reproducible |
+| M9 | Run FPGA synthesis and resource/timing measurements | Resource, Fmax, WNS, and WHS records are complete |
+| M10 | Run ablations and PE/buffering design-space experiments | H1–H3 are accepted, rejected, or bounded with evidence |
+| M11–M12 | Produce figures, draft, review internally, and submit | Every major claim maps to code, logs, and benchmark records |
 
-September gate:
+M2 is a go/no-go gate. If profiling does not identify a meaningful data-movement
+bottleneck, the project must narrow to state residency or select another workload
+rather than continuing to add hardware without evidence.
 
-- no legacy regression;
-- quantitative evidence of the current loading bottleneck;
-- at least one `memory → scratchpad → observed result` microbenchmark;
-- no new board claim without a fresh Vivado and hardware run.
+## Year-2 plan
 
-## MPhil milestones
+- M13–M16: select and map a small network; extend Full-SoC and board-facing
+  evaluation with explicit fallback boundaries.
+- M17–M19: compare buffering, PE scaling, and one optional optimization such as
+  double buffering; strengthen robustness and reproducibility.
+- M20–M21: draft thesis chapters and complete final experiments; respond to the
+  first submission if reviews are available.
+- M22–M24: prepare an extension paper if justified, finalize the thesis, complete
+  the defense, and hand off the open artifact.
 
-### Year 1
+## Publication and degree boundary
 
-- M1–M4: reproduce the platform, freeze benchmarks and ABI, select the laboratory
-  FPGA;
-- M5–M8: complete ICB/scratchpad, tiled GEMM, convolution mapping, and Full-SoC
-  validation;
-- M9–M12: synthesize on the selected FPGA, run resource/timing ablations, and draft
-  the first paper.
+The Year-1 objective is a complete journal submission, not guaranteed acceptance.
+Conference work may supplement the research but does not replace a journal
+submission when the stated target is SCI/SCIE.
 
-Primary paper story: how a NICE memory path and software-managed scratchpad change
-end-to-end efficiency for RISC-V edge AI.
-
-### Year 2
-
-- M13–M16: add DS-CNN/linear-attention operators and a small SSM scan;
-- M17–M19: complete network-level and ViM-block evaluation;
-- M20–M21: compare RVV/matrix-extension semantics and package the reproducible
-  artifact;
-- M22–M24: final experiments, submission, thesis, defense, and open-source handoff.
+The official CityU EE MPhil requirements should be checked against the current
+student guidebook and supervisor expectations. Journal submission or acceptance
+must not be treated as a substitute for coursework, a defensible thesis, the oral
+examination, and the required exit presentation.
 
 ## Verification and stop rules
 
@@ -184,19 +274,30 @@ Every hardware change must pass, in order:
 6. optional board validation.
 
 Directed verification covers alignment, bounds, invalid bank/operator, tile tails,
-reset, mid-operation errors, repeated status reads, overflow/saturation, and memory
-timeout.
+state lifetime, reset, mid-operation errors, repeated status reads,
+overflow/saturation, memory timeout, and output ordering.
 
-If a revision does not reduce software load instructions or end-to-end cycles, PE
-scaling stops and the scratchpad/tiling policy is revised. If the laboratory platform
-is still unknown in September–October 2026, the RTL remains parameterized and the
-A7-100T is used only for correctness and small-scale baselines.
+Stop or revise the design when:
+
+- block movement does not reduce host instructions or end-to-end cycles;
+- buffering costs dominate BRAM or timing without a compensating system benefit;
+- the unified descriptor adds substantial complexity but fails to cover both tensor
+  and scan workloads cleanly;
+- the SSM block cannot fit the current platform, in which case a shorter block is
+  used and no full-model claim is made;
+- the novelty review shows that the proposed mechanism duplicates prior work.
+
+If the laboratory FPGA platform remains unconfirmed, keep the RTL parameterized
+and use A7-100T only for correctness and small-scale baselines.
 
 ## Claim boundaries
 
 - `5.282×` remains the historical 3×3 kernel-test result only.
 - `10/10` remains the historical FPGA sample demonstration only.
-- This project does not claim complete LeNet-5 acceleration or complete MNIST
-  accuracy.
-- Existing A7-100T UART/ILA evidence remains historical; this research branch must
-  not claim a fresh board run until Vivado and the board are available.
+- The project does not claim complete LeNet-5 acceleration or complete MNIST
+  accuracy without new end-to-end evidence.
+- Existing A7-100T UART/ILA evidence remains historical; a new board claim requires
+  a fresh Vivado and hardware run.
+- The existing `CAP`/`MLOAD`/`MSTAT` PoC proves a bounded memory path and backward
+  compatibility, not DMA, tiled GEMM, network acceleration, or SSM execution.
+- No novelty, publication acceptance, or graduation outcome is claimed in advance.
